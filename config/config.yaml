@@ -1,1 +1,11 @@
+paths:
+  base_network: "data/raw/elec_s_37.nc"
+  gtoe_csv: "data/raw/gtoe_electricity.csv"
+  rescaled_network: "data/interim/network_rescaled.nc"
+  tables_dir: "results/tables"
+
+parameters:
+  gtoe_to_twh: 11.63   # 1 Gtoe = 11.63 TWh
+logging:
+  level: "INFO"
 
