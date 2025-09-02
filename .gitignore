@@ -1,1 +1,37 @@
+# --- Python / notebooks ---
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
 
+# --- Snakemake runtime ---
+.snakemake/
+
+# --- Logs ---
+logs/
+*.log
+
+# --- Envs & IDE ---
+.venv/
+venv/
+env/
+.vscode/
+.idea/
+
+# --- Data & results produced by the workflow ---
+# Ignore whole dirs, but keep any .gitkeep you add inside them.
+data/interim/**
+data/processed/**
+results/**
+!**/.gitkeep
+
+# Large inputs (don’t commit real datasets)
+data/raw/*.nc
+data/raw/*.csv
+
+# --- OS noise ---
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Local helper files ---
+repo_tree.txt

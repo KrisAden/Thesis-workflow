@@ -27,3 +27,12 @@ To run the re-scaling workflow in repo root:
 snakemake -s workflow/Snakefile --cores 1 -p
 
 Outputs will appear in : data/interim/network_rescaled.nc, results/tables/load_scaling.csv
+
+
+HPC Setup should hopefully be:
+git clone https://github.com/<you>/Thesis-workflow
+cd Thesis-workflow
+conda-lock install --name pypsa-thesis conda-lock.yml    # or: mamba/ micromamba variants
+conda activate pypsa-thesis
+# place inputs per config/config.yaml
+snakemake -s workflow/Snakefile --cores 1 -p

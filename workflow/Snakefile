@@ -3,19 +3,16 @@ import os, sys
 from pathlib import Path
 from snakemake.shell import shell
 
-ROOT = Path(__file__).resolve().parents[1]
+ROOT = Path.cwd()
 SRC  = ROOT / "src"
+PYTHON = sys.executable
 
-# Make src visible to Snakemake AND all shell jobs
-os.environ["PYTHONPATH"] = str(SRC) + (os.pathsep + os.environ.get("PYTHONPATH",""))
-sys.path.insert(0, str(SRC))
-
-# Use PowerShell on Windows and export PYTHONPATH to each command
-shell.executable("powershell")
-shell.prefix(f'$env:PYTHONPATH="{os.environ["PYTHONPATH"]}"; ')
-
-# >>> Use the SAME Python that runs Snakemake (your KRAD_env interpreter)
-PYTHON = sys.executable  # absolute path to ...\envs\KRAD_env\python.exe
+if os.name == "nt":
+    shell.executable("powershell")
+    RUN_CMD = f'& "{PYTHON}" -m pypsa_thesis.preprocess --config "{ROOT / "config/config.yaml"}"'
+else:
+    shell.executable("/bin/bash")
+    RUN_CMD = f'PYTHONPATH="{SRC}" "{PYTHON}" -m pypsa_thesis.preprocess --config "{ROOT / "config/config.yaml"}"'
 
 rule all:
     input:
@@ -27,4 +24,4 @@ rule rescale_loads:
         "data/interim/network_rescaled.nc",
         "results/tables/load_scaling.csv"
     shell:
-        f'&"{PYTHON}" -m pypsa_thesis.preprocess --config config/config.yaml'
+        RUN_CMD

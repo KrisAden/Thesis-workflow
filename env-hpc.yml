@@ -1,0 +1,16 @@
+name: pypsa-thesis
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - numpy=1.26.*          # Pyomo/PyPSA compatible
+  - xarray=2024.7.*       # matches linopy needs
+  - linopy=0.3.14
+  - pypsa=0.28.*          # what you have on HPC now
+  - pandas
+  - netcdf4
+  - pyyaml
+  - pip
+  - pip:
+      - "snakemake>=7,<8"
+      - "pulp==2.7.0"
