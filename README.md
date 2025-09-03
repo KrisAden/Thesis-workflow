@@ -30,9 +30,9 @@ Outputs will appear in : data/interim/network_rescaled.nc, results/tables/load_s
 
 
 HPC Setup should hopefully be:
-git clone https://github.com/<you>/Thesis-workflow
+git clone https://github.com/KrisAden/Thesis-workflow
 cd Thesis-workflow
-conda-lock install --name pypsa-thesis conda-lock.yml    # or: mamba/ micromamba variants
+bash scripts/install_env.sh           # auto-installs conda-lock if needed
 conda activate pypsa-thesis
-# place inputs per config/config.yaml
 snakemake -s workflow/Snakefile --cores 1 -p
+
