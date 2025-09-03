@@ -3,6 +3,8 @@ paths:
   gtoe_csv: "data/raw/gtoe_electricity.csv"
   rescaled_network: "data/interim/network_rescaled.nc"
   expanded_network: "data/interim/network_expansion.nc"
+  costed_network: "data/interim/network_costed.nc"
+  costs_csv: "data/raw/generator_costs.csv"   # <-- NEW
   tables_dir: "results/tables"
 
 parameters:
