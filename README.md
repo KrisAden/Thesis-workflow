@@ -36,3 +36,17 @@ bash scripts/install_env.sh           # auto-installs conda-lock if needed
 conda activate pypsa-thesis
 snakemake -s workflow/Snakefile --cores 1 -p
 
+
+to pull updates to hpc:
+# go to the repo (your earlier path looked like /work/Thesis-workflow)
+cd /work/Thesis-workflow
+
+# make sure we’re on main and fetch latest
+git fetch origin
+git switch main 2>/dev/null || git checkout main
+
+# HARD reset local branch to the remote commit (DISCARDS local edits)
+git reset --hard origin/main
+
+# optionally clean untracked files/dirs (keeps ignored items like data/raw)
+git clean -fd   # omit this if you want to keep any untracked files
