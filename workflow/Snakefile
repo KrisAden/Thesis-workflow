@@ -6,22 +6,34 @@ from snakemake.shell import shell
 ROOT = Path.cwd()
 SRC  = ROOT / "src"
 PYTHON = sys.executable
+CFG = ROOT / "config/config.yaml"
 
+# OS-aware runner; pass module name per rule
 if os.name == "nt":
     shell.executable("powershell")
-    RUN_CMD = f'& "{PYTHON}" -m pypsa_thesis.preprocess --config "{ROOT / "config/config.yaml"}"'
+    RUN = lambda module: f'& "{PYTHON}" -m {module} --config "{CFG}"'
 else:
     shell.executable("/bin/bash")
-    RUN_CMD = f'PYTHONPATH="{SRC}" "{PYTHON}" -m pypsa_thesis.preprocess --config "{ROOT / "config/config.yaml"}"'
+    RUN = lambda module: f'PYTHONPATH="{SRC}" "{PYTHON}" -m {module} --config "{CFG}"'
 
 rule all:
     input:
-        "data/interim/network_rescaled.nc",
-        "results/tables/load_scaling.csv"
+        "data/interim/network_expansion.nc",
+        "results/tables/load_scaling.csv",
+        "results/tables/tx_expansion_bounds.csv",
 
 rule rescale_loads:
     output:
         "data/interim/network_rescaled.nc",
         "results/tables/load_scaling.csv"
     shell:
-        RUN_CMD
+        RUN("pypsa_thesis.preprocess")
+
+rule enable_expansion:
+    input:
+        "data/interim/network_rescaled.nc"
+    output:
+        "data/interim/network_expansion.nc",
+        "results/tables/tx_expansion_bounds.csv"
+    shell:
+        RUN("pypsa_thesis.build_network")

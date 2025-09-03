@@ -2,10 +2,20 @@ paths:
   base_network: "data/raw/elec_s_37.nc"
   gtoe_csv: "data/raw/gtoe_electricity.csv"
   rescaled_network: "data/interim/network_rescaled.nc"
+  expanded_network: "data/interim/network_expansion.nc"
   tables_dir: "results/tables"
 
 parameters:
   gtoe_to_twh: 11.63   # 1 Gtoe = 11.63 TWh
+  expansion:
+    lines:
+      enable: true
+      absolute_max: 1e15
+      min_equals_current: true
+    links:
+      enable: true
+      absolute_max: 1e15
+      min_equals_current: true
 logging:
   level: "INFO"
 
