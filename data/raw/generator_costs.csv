@@ -1,0 +1,9 @@
+carrier,capex_eur_per_mw,lifetime_y,discount_rate,fom_abs_eur_per_mw_a,fom_rate_per_a,notes
+CCGT,830000,25,0.07,27800,,DEA 2030
+OCGT,435000,25,0.07,7745,,DEA 2030
+coal,1860000,30,0.07,30355,,DEA 2030
+lignite,1860000,30,0.07,30355,,proxied as coal CAPEX
+oil,343000,25,0.07,8448,,DEA 2030
+biomass,3300000,25,0.07,96000,,DEA 2030
+geothermal,4290000,20,0.07,,0.02,EGS ~2% FOM
+nuclear,5870000,60,0.07,,0.02,NEA 2020 ~2% FOM

@@ -27,6 +27,7 @@ results/**
 # Large inputs (don’t commit real datasets)
 data/raw/*.nc
 data/raw/*.csv
+!data/raw/generator_costs.csv
 
 # --- OS noise ---
 .DS_Store
