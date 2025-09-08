@@ -14,6 +14,8 @@ parameters:
   storage:
     add_batery: true
     add_hydrogen: true
+  renewables:
+    keep_existing: true
   expansion:
     lines:
       enable: true

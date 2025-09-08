@@ -40,7 +40,11 @@ rule enable_expansion:
         "data/interim/network_expansion.nc",
         "results/tables/tx_expansion_bounds.csv"
     shell:
-        RUN("pypsa_thesis.build_network")
+        # 1) build the expansion network (as before)
+        # 2) immediately apply renewable bounds IN-PLACE, controlled by config flag
+        RUN("pypsa_thesis.build_network") + " && " +
+        RUN("pypsa_thesis.apply_renewable_bounds --network-in {output[0]} --network-out {output[0]}")
+
 
 rule add_storage:
     input:
