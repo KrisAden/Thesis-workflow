@@ -19,9 +19,11 @@ else:
 rule all:
     input:
         "data/interim/network_expansion.nc",
+        "data/interim/network_storage.nc",
         "data/interim/network_costed.nc",
         "results/tables/load_scaling.csv",
         "results/tables/tx_expansion_bounds.csv",
+        "results/tables/storage_costs_applied.csv",
         "results/tables/generator_capital_costs.csv",
 
 rule rescale_loads:
@@ -39,6 +41,16 @@ rule enable_expansion:
         "results/tables/tx_expansion_bounds.csv"
     shell:
         RUN("pypsa_thesis.build_network")
+
+rule add_storage:
+    input:
+        "data/interim/network_expansion.nc",
+        "data/raw/storage_costs.csv"
+    output:
+        "data/interim/network_storage.nc",
+        "results/tables/storage_costs_applied.csv"
+    shell:
+        RUN("pypsa_thesis.apply_storage")
 
 rule apply_costs:
     input:

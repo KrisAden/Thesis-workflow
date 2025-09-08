@@ -1,0 +1,6 @@
+component,capex_eur_per_kwh,capex_eur_per_kw,lifetime_y,discount_rate,efficiency,notes
+battery_energy,142,,25,0.07,,€/kWh for battery energy (Store)
+battery_power,,160,25,0.07,0.96,€/kW inverter (Link); efficiency = round-trip approx. here
+h2_tank,57,,25,0.07,,€/kWh for H2 tank (Store)
+electrolyser,,600,30,0.07,0.66,€/kW (Link) electricity -> H2
+fuel_cell,,1100,10,0.07,0.50,€/kW (Link) H2 -> electricity

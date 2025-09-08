@@ -3,12 +3,17 @@ paths:
   gtoe_csv: "data/raw/gtoe_electricity.csv"
   rescaled_network: "data/interim/network_rescaled.nc"
   expanded_network: "data/interim/network_expansion.nc"
+  network_with_storage: "data/interim/network_storage.nc"
   costed_network: "data/interim/network_costed.nc"
-  costs_csv: "data/raw/generator_costs.csv"   # <-- NEW
+  costs_csv: "data/raw/generator_costs.csv"   
+  storage_costs_csv: "data/raw/storage_costs.csv"  
   tables_dir: "results/tables"
 
 parameters:
   gtoe_to_twh: 11.63   # 1 Gtoe = 11.63 TWh
+  storage:
+    add_batery: true
+    add_hydrogen: true
   expansion:
     lines:
       enable: true

@@ -28,6 +28,7 @@ results/**
 data/raw/*.nc
 data/raw/*.csv
 !data/raw/generator_costs.csv
+!data/raw/storage_costs.csv
 
 # --- OS noise ---
 .DS_Store
