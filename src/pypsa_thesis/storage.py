@@ -50,34 +50,36 @@ def add_battery_storage(n: pypsa.Network, storage_costs: pd.DataFrame) -> pd.Dat
     if eff is None:
         eff = 0.96
 
-    # idempotency: avoid duplicates if rule re-runs
-    store_names = buses + " Battery Storage"
-    link_names  = buses + " Battery Inverter"
-    missing_store = ~n.stores.index.isin(store_names)
-    missing_link  = ~n.links.index.isin(link_names)
+    store_names = pd.Index(buses + " Battery Storage")
+    link_names  = pd.Index(buses + " Battery Inverter")
+
+    need_store = ~store_names.isin(n.stores.index)
+    need_link  = ~link_names.isin(n.links.index)
 
     # Add energy store (extendable energy)
-    n.madd(
-        "Store",
-        store_names[missing_store] if hasattr(store_names, "shape") else store_names,
-        bus=buses[missing_store] if hasattr(buses, "shape") else buses,
-        e_nom_extendable=True,
-        e_cyclic=True,
-        capital_cost=energy_cost,
-        marginal_cost=0.0,
-    )
+    if need_store.any():
+        n.madd(
+            "Store",
+            store_names[need_store],
+            bus=buses[need_store],
+            e_nom_extendable=True,
+            e_cyclic=True,
+            capital_cost=energy_cost,
+            marginal_cost=0.0,
+        )
 
     # Add inverter (extendable power)
-    n.madd(
-        "Link",
-        link_names[missing_link] if hasattr(link_names, "shape") else link_names,
-        bus0=buses[missing_link] if hasattr(buses, "shape") else buses,
-        bus1=buses[missing_link] if hasattr(buses, "shape") else buses,  # simple one-bus model
-        p_nom_extendable=True,
-        efficiency=eff,
-        capital_cost=power_cost,
-        marginal_cost=0.0,
-    )
+    if need_link.any():
+        n.madd(
+            "Link",
+            link_names[need_link],
+            bus0=buses[need_link],
+            bus1=buses[need_link],  # simple one-bus model
+            p_nom_extendable=True,
+            efficiency=eff,
+            capital_cost=power_cost,
+            marginal_cost=0.0,
+        )
 
     report = pd.DataFrame([
         {"component": "battery_energy", "capital_cost_eur_per_mwh_a": energy_cost, "efficiency": None},
@@ -88,60 +90,64 @@ def add_battery_storage(n: pypsa.Network, storage_costs: pd.DataFrame) -> pd.Dat
 def add_hydrogen_chain(n: pypsa.Network, storage_costs: pd.DataFrame) -> pd.DataFrame:
     buses = n.buses.index
 
-    tank_cost, _ = _get_cost(storage_costs, "h2_tank")        # €/MWh/a
-    ely_cost, ely_eff = _get_cost(storage_costs, "electrolyser")  # €/MW/a
-    fc_cost,  fc_eff  = _get_cost(storage_costs, "fuel_cell")     # €/MW/a
+    tank_cost, _    = _get_cost(storage_costs, "h2_tank")         # €/MWh/a
+    ely_cost, ely_e = _get_cost(storage_costs, "electrolyser")    # €/MW/a
+    fc_cost,  fc_e  = _get_cost(storage_costs, "fuel_cell")       # €/MW/a
 
     if "H2" not in n.carriers.index:
         n.add("Carrier", "H2")
 
-    h2_bus_names = buses + " H2"
-    # idempotent add of H2 buses
-    new_mask = ~n.buses.index.isin(h2_bus_names)
-    n.madd("Bus", h2_bus_names[new_mask], location=buses[new_mask], carrier="H2")
+    h2_bus_names = pd.Index(buses + " H2")
+    need_h2_bus  = ~h2_bus_names.isin(n.buses.index)
+    if need_h2_bus.any():
+        n.madd("Bus", h2_bus_names[need_h2_bus], location=buses[need_h2_bus], carrier="H2")
 
-    # names
-    tank_names = buses + " H2 Tank"
-    ely_names  = buses + " H2 Electrolysis"
-    fc_names   = buses + " H2 Fuel Cell"
+    tank_names = pd.Index(buses + " H2 Tank")
+    ely_names  = pd.Index(buses + " H2 Electrolysis")
+    fc_names   = pd.Index(buses + " H2 Fuel Cell")
 
-    # missing masks
-    miss_tank = ~n.stores.index.isin(tank_names)
-    miss_ely  = ~n.links.index.isin(ely_names)
-    miss_fc   = ~n.links.index.isin(fc_names)
+    need_tank = ~tank_names.isin(n.stores.index)
+    need_ely  = ~ely_names.isin(n.links.index)
+    need_fc   = ~fc_names.isin(n.links.index)
 
-    # H2 storage
-    n.madd("Store",
-           tank_names[miss_tank],
-           bus=h2_bus_names[miss_tank],
-           e_nom_extendable=True,
-           e_cyclic=True,
-           capital_cost=tank_cost,
-           marginal_cost=0.0)
+    if need_tank.any():
+        n.madd(
+            "Store",
+            tank_names[need_tank],
+            bus=h2_bus_names[need_tank],
+            e_nom_extendable=True,
+            e_cyclic=True,
+            capital_cost=tank_cost,
+            marginal_cost=0.0,
+        )
 
-    # Electrolyser: electricity -> H2
-    n.madd("Link",
-           ely_names[miss_ely],
-           bus0=buses[miss_ely],
-           bus1=h2_bus_names[miss_ely],
-           p_nom_extendable=True,
-           efficiency=ely_eff if ely_eff is not None else 0.66,
-           capital_cost=ely_cost,
-           marginal_cost=0.0)
+    if need_ely.any():
+        n.madd(
+            "Link",
+            ely_names[need_ely],
+            bus0=buses[need_ely],
+            bus1=h2_bus_names[need_ely],
+            p_nom_extendable=True,
+            efficiency=ely_e if ely_e is not None else 0.66,
+            capital_cost=ely_cost,
+            marginal_cost=0.0,
+        )
 
-    # Fuel cell: H2 -> electricity
-    n.madd("Link",
-           fc_names[miss_fc],
-           bus0=h2_bus_names[miss_fc],
-           bus1=buses[miss_fc],
-           p_nom_extendable=True,
-           efficiency=fc_eff if fc_eff is not None else 0.50,
-           capital_cost=fc_cost,
-           marginal_cost=0.0)
+    if need_fc.any():
+        n.madd(
+            "Link",
+            fc_names[need_fc],
+            bus0=h2_bus_names[need_fc],
+            bus1=buses[need_fc],
+            p_nom_extendable=True,
+            efficiency=fc_e if fc_e is not None else 0.50,
+            capital_cost=fc_cost,
+            marginal_cost=0.0,
+        )
 
     report = pd.DataFrame([
         {"component": "h2_tank",     "capital_cost_eur_per_mwh_a": tank_cost, "efficiency": None},
-        {"component": "electrolyser","capital_cost_eur_per_mw_a":  ely_cost,  "efficiency": ely_eff},
-        {"component": "fuel_cell",   "capital_cost_eur_per_mw_a":  fc_cost,   "efficiency": fc_eff},
+        {"component": "electrolyser","capital_cost_eur_per_mw_a":  ely_cost,  "efficiency": ely_e},
+        {"component": "fuel_cell",   "capital_cost_eur_per_mw_a":  fc_cost,   "efficiency": fc_e},
     ])
     return report
