@@ -134,6 +134,31 @@ def add_global_co2_cap(n: pypsa.Network, cap_tco2: float) -> None:
 
 
 # ---------------------------
+# Helper to run optimize and always produce a debug artifact on failure
+# ---------------------------
+
+def _run_opt(n: pypsa.Network, solver_name: str, solver_options: Optional[Dict], rep_path: Path) -> None:
+    # Log types of options for quick debugging
+    for k, v in (solver_options or {}).items():
+        logging.info(f"opt {k}: {v!r} (type={type(v).__name__})")
+
+    try:
+        n.optimize(solver_name=solver_name, solver_options=solver_options)
+    except Exception as e:
+        term = str(getattr(n, "termination_condition", ""))
+        stat = str(getattr(n, "status", ""))
+        dbg = pd.DataFrame([{
+            "termination_condition": term,
+            "solver_status": stat,
+            "error": repr(e),
+        }])
+        dbg_path = Path(rep_path).with_suffix(".debug.csv")
+        dbg.to_csv(dbg_path, index=False)
+        logging.exception("Optimization failed (status=%s, termination=%s). Debug: %s", stat, term, dbg_path)
+        raise
+
+
+# ---------------------------
 # CLI main
 # ---------------------------
 
@@ -168,7 +193,7 @@ def main() -> None:
 
     # ---------------- Baseline solve (no cap) ----------------
     if args.reduction <= 0.0 + 1e-12:
-        n.optimize(solver_name=solver_name, solver_options=solver_options)
+        _run_opt(n, solver_name, solver_options, rep_path)
         baseline = compute_total_co2(n)
         logging.info(f"Baseline emissions (tCO2): {baseline:,.6f}")
 
@@ -202,7 +227,7 @@ def main() -> None:
     add_global_co2_cap(n, cap)
     logging.info(f"Applied CO₂ cap (tCO2): {cap:,.6f} from baseline {baseline:,.6f} and reduction {args.reduction:.2%}")
 
-    n.optimize(solver_name=solver_name, solver_options=solver_options)
+    _run_opt(n, solver_name, solver_options, rep_path)
     actual = compute_total_co2(n)
 
     # Save outputs
