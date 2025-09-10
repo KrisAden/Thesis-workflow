@@ -12,7 +12,7 @@ paths:
 parameters:
   gtoe_to_twh: 11.63   # 1 Gtoe = 11.63 TWh
   storage:
-    add_batery: true
+    add_battery: true
     add_hydrogen: true
   renewables:
     keep_existing: true

@@ -6,7 +6,7 @@ from pathlib import Path
 import pypsa
 
 from . import io as pio
-from .renewable_bounds import set_renewable_bounds
+from .renewable_bounds import set_renewable_bounds, disable_hydro_extension
 
 def _setup_logging(level: str = "INFO"):
     logging.basicConfig(
@@ -31,6 +31,7 @@ def main():
 
     keep_existing = cfg.get("parameters", {}).get("renewables", {}).get("keep_existing", True)
     set_renewable_bounds(n, keep_existing=keep_existing)
+    disable_hydro_extension(n)
 
     pio.save_network(n, out_path)
     logging.info(f"Wrote network with renewable bounds: {out_path}")
