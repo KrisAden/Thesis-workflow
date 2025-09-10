@@ -144,7 +144,7 @@ def main() -> None:
 
     # ---------------- Baseline solve (no cap) ----------------
     if args.reduction <= 0.0 + 1e-12:
-        n.lopf(pyomo=True, solver_name=solver_name, solver_options=solver_options)
+        n.optimizerue, solver_name=solver_name, solver_options=solver_options)
         baseline = compute_total_co2(n)
         logging.info(f"Baseline emissions (tCO2): {baseline:,.6f}")
 
@@ -178,7 +178,7 @@ def main() -> None:
     add_global_co2_cap(n, cap)
     logging.info(f"Applied CO₂ cap (tCO2): {cap:,.6f} from baseline {baseline:,.6f} and reduction {args.reduction:.2%}")
 
-    n.lopf(pyomo=True, solver_name=solver_name, solver_options=solver_options)
+    n.optimize(solver_name=solver_name, solver_options=solver_options)
     actual = compute_total_co2(n)
 
     # Save outputs
