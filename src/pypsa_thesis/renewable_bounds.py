@@ -3,7 +3,7 @@ from __future__ import annotations
 import logging
 import pypsa
 
-RENEW_CARRIERS = ["offwind-ac", "offwind-dc", "onwind", "solar"]
+RENEW_CARRIERS = ["offwind-ac", "offwind-dc", "onwind", "solar","biomass","geothermal","nuclear"]
 
 def set_renewable_bounds(n: pypsa.Network, keep_existing: bool = True) -> None:
     """
@@ -33,7 +33,7 @@ def set_renewable_bounds(n: pypsa.Network, keep_existing: bool = True) -> None:
         f"Applied renewable bounds: keep_existing={keep_existing}, "
         f"affected={mask_renew.sum()} generators."
     )
-    
+
 def disable_hydro_extension(n: pypsa.Network) -> None:
     """
     Ensure hydro storage units are non-extendable.
