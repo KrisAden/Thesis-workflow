@@ -33,3 +33,16 @@ def set_renewable_bounds(n: pypsa.Network, keep_existing: bool = True) -> None:
         f"Applied renewable bounds: keep_existing={keep_existing}, "
         f"affected={mask_renew.sum()} generators."
     )
+    
+def disable_hydro_extension(n: pypsa.Network) -> None:
+    """
+    Ensure hydro storage units are non-extendable.
+    """
+    mask = n.storage_units.carrier.str.lower() == "hydro"
+    if mask.any():
+        n.storage_units.loc[mask, "p_nom_extendable"] = False
+        n.storage_units.loc[mask, "p_nom_min"] = n.storage_units.loc[mask, "p_nom"]
+        n.storage_units.loc[mask, "p_nom_max"] = n.storage_units.loc[mask, "p_nom"]
+        import logging
+        logging.info(f"Disabled extension for {mask.sum()} hydro storage units.")
+
