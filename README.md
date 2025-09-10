@@ -39,7 +39,7 @@ snakemake -s workflow/Snakefile --cores 1 -p
 
 to pull updates to hpc:
 # go to the repo (your earlier path looked like /work/Thesis-workflow)
-cd /work/Thesis-workflow
+cd /work/Thesis_Git/Thesis-workflow
 
 # make sure we’re on main and fetch latest
 git fetch origin

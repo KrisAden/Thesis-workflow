@@ -58,7 +58,7 @@ rule add_storage:
 
 rule apply_costs:
     input:
-        "data/interim/network_expansion.nc",
+        "data/interim/network_storage.nc",
         "data/raw/generator_costs.csv"          # <- add the CSV as an input dependency
     output:
         "data/interim/network_costed.nc",
