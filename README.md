@@ -3,9 +3,11 @@ This repository contains all scripts, dependencies, enviroments and networks nec
 
  ## Current status
  Loads precompiled 37-node network, reads country level electricity deman, and rescales to projected loads.
- Writes:
- data/interim/network_rescaled.nc
-results/tables/load_scaling.csv
+ enables expansion of non-fossil generators.
+ adds battery and h2 storage to all nodes
+ limits hydro based storage expansion
+ enables transmission expansion
+ applies cost modelling to all generators and storage units.
 
 How to excecute:
  -Prerequisites, Git, conda (Anaconda or Miniconda)
@@ -29,7 +31,7 @@ snakemake -s workflow/Snakefile --cores 1 -p
 Outputs will appear in : data/interim/network_rescaled.nc, results/tables/load_scaling.csv
 
 
-HPC Setup should hopefully be:
+HPC Setup is:
 git clone https://github.com/KrisAden/Thesis-workflow
 cd Thesis-workflow
 bash scripts/install_env.sh           # auto-installs conda-lock if needed
