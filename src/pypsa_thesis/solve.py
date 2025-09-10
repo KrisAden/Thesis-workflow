@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import logging
+import re
 from pathlib import Path
 from typing import Dict, Tuple, Optional
 
@@ -32,7 +33,7 @@ def _solver_from_cfg(cfg: dict) -> Tuple[str, Optional[Dict]]:
     parameters:
       solve:
         solver: "gurobi" | "highs" | "cplex" | ...
-        solver_options: { ... }   # passed straight to PyPSA/Pyomo
+        solver_options: { ... }   # passed straight to linopy/pypsa
     """
     solve = (cfg.get("parameters", {}) or {}).get("solve", {}) or {}
     name = str(solve.get("solver", "gurobi"))
@@ -40,10 +41,36 @@ def _solver_from_cfg(cfg: dict) -> Tuple[str, Optional[Dict]]:
     opts = solve.get("solver_options", None)
     if opts is not None and not isinstance(opts, dict):
         raise ValueError("parameters.solve.solver_options must be a mapping (YAML dict).")
-
-    # Nothing fancy here: we pass options through as-is. Your Gurobi options
-    # (Threads, Method, Crossover, etc.) will be honored.
     return name, opts
+
+
+# Gurobi parameters that are legitimately strings and must NOT be auto-cast
+_STRING_PARAMS_OK = {
+    "LogFile", "ResultFile", "CSManager", "ComputeServer", "Server", "Token",
+    "WLSAccessID", "WLSSecret", "LicenseID"
+}
+
+def _sanitize_gurobi_opts(opts: Optional[Dict]) -> Optional[Dict]:
+    """
+    Cast numeric-looking strings to int/float (handles '1e-5'), but keep known
+    string params as strings. Safe no-op if opts is None.
+    """
+    if not opts:
+        return opts
+    out = {}
+    for k, v in opts.items():
+        if isinstance(v, str) and k not in _STRING_PARAMS_OK:
+            s = v.strip()
+            try:
+                if re.fullmatch(r"[+-]?\d+", s):
+                    v = int(s)
+                else:
+                    v = float(s)  # handles 1e-5 etc.
+            except Exception:
+                # leave as-is if truly non-numeric
+                pass
+        out[k] = v
+    return out
 
 
 # ---------------------------
@@ -62,20 +89,18 @@ def compute_total_co2(n: pypsa.Network) -> float:
     """
     total = 0.0
 
-    # PyPSA snapshot weightings (v0.35+ has separate columns; fall back gracefully)
+    # Snapshot weightings (PyPSA >=0.35 may have per-component columns)
     w = n.snapshot_weightings
     w_gen = getattr(w, "generators", w)
     w_lnk = getattr(w, "links", w)
 
     # Generators
     if hasattr(n, "generators_t") and "p" in n.generators_t and len(n.generators):
-        # factor per generator index
         fac_g = n.generators["carrier"].map(
             lambda c: float(n.carriers.at[c, "co2_emissions"])
             if ("co2_emissions" in n.carriers and c in n.carriers.index and pd.notna(n.carriers.at[c, "co2_emissions"]))
             else 0.0
         ).fillna(0.0)
-        # energy in MWh (sum over time with weights)
         e_g = n.generators_t.p.mul(w_gen, axis=0).sum(axis=0).fillna(0.0)
         total += float(e_g.dot(fac_g))
 
@@ -86,7 +111,6 @@ def compute_total_co2(n: pypsa.Network) -> float:
             if ("co2_emissions" in n.carriers and c in n.carriers.index and pd.notna(n.carriers.at[c, "co2_emissions"]))
             else 0.0
         ).fillna(0.0)
-        # only positive output from bus0 counts as produced energy (convention)
         e_l = n.links_t.p0.clip(lower=0.0).mul(w_lnk, axis=0).sum(axis=0).fillna(0.0)
         total += float(e_l.dot(fac_l))
 
@@ -97,7 +121,6 @@ def add_global_co2_cap(n: pypsa.Network, cap_tco2: float) -> None:
     """
     Add a PyPSA GlobalConstraint limiting total carrier-attributed CO2 emissions.
     """
-    # If a cap already exists (re-runs), update it instead of adding a duplicate
     if "co2_cap" in getattr(n, "global_constraints", pd.DataFrame()).index:
         n.global_constraints.at["co2_cap", "constant"] = float(cap_tco2)
     else:
@@ -138,8 +161,9 @@ def main() -> None:
     # Load network
     n = pio.load_network(in_path)
 
-    # Solver selection + options (passed through as-is)
+    # Solver selection + options + sanitize types
     solver_name, solver_options = _solver_from_cfg(cfg)
+    solver_options = _sanitize_gurobi_opts(solver_options)
     logging.info(f"Solver: {solver_name} | options: {solver_options or {}} | reduction: {args.reduction:.2%}")
 
     # ---------------- Baseline solve (no cap) ----------------
