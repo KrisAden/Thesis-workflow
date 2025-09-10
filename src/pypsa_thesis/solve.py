@@ -144,7 +144,7 @@ def main() -> None:
 
     # ---------------- Baseline solve (no cap) ----------------
     if args.reduction <= 0.0 + 1e-12:
-        n.optimizerue, solver_name=solver_name, solver_options=solver_options)
+        n.optimize(solver_name=solver_name, solver_options=solver_options)
         baseline = compute_total_co2(n)
         logging.info(f"Baseline emissions (tCO2): {baseline:,.6f}")
 
