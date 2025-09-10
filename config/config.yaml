@@ -19,11 +19,11 @@ parameters:
   expansion:
     lines:
       enable: true
-      absolute_max: 1e15
+      absolute_max: 1e10
       min_equals_current: true
     links:
       enable: true
-      absolute_max: 1e15
+      absolute_max: 1e10
       min_equals_current: true
   co2_reductions: [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.93,0.96,0.99,1]
   solve:
@@ -33,12 +33,12 @@ parameters:
       Method: 2
       Crossover: 0
       BarConvTol: 1e-5
-      NodefileStart: 0.5
-      MemLimit: 80000
-      Presolve: 2
-      NumericFocus: 3
-      AggFill: 0
-      ScaleFlag: 2
+     #NodefileStart: 0.5
+     #MemLimit: 80000
+     #Presolve: 2
+     #NumericFocus: 3
+     #AggFill: 0
+     #ScaleFlag: 2
       LogFile: "gurobi_solver.log"
 logging:
   level: "INFO"
