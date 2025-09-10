@@ -36,6 +36,8 @@ git clone https://github.com/KrisAden/Thesis-workflow
 cd Thesis-workflow
 bash scripts/install_env.sh           # auto-installs conda-lock if needed
 conda activate pypsa-thesis
+pip install gurobipy
+export GRB_LICENSE_FILE="$PWD/licenses/grb.lic"
 snakemake -s workflow/Snakefile --cores 1 -p
 
 
