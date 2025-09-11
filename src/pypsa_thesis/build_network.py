@@ -18,8 +18,8 @@ def _setup_logging(level: str = "INFO"):
 def enable_transmission_expansion(n: pypsa.Network,
                                   lines_enable: bool = True,
                                   links_enable: bool = True,
-                                  line_abs_max: float = 1e9,
-                                  link_abs_max: float = 1e9,
+                                  line_abs_max: float = np.inf,
+                                  link_abs_max: float = np.inf,
                                   min_equals_current: bool = True) -> pd.DataFrame:
     """
     Enable expansion on AC lines (s_nom) and DC links (p_nom).
@@ -84,13 +84,14 @@ def main():
     links_cfg = xp.get("links", {})
 
     report = enable_transmission_expansion(
-        n,
-        lines_enable=bool(lines_cfg.get("enable", True)),
-        links_enable=bool(links_cfg.get("enable", True)),
-        line_abs_max=float(lines_cfg.get("absolute_max", 1e9)),
-        link_abs_max=float(links_cfg.get("absolute_max", 1e9)),
-        min_equals_current=bool(lines_cfg.get("min_equals_current", True)),
-    )
+    n,
+    lines_enable=bool(lines_cfg.get("enable", True)),
+    links_enable=bool(links_cfg.get("enable", True)),
+    line_abs_max=float(lines_cfg.get("absolute_max", np.inf)),
+    link_abs_max=float(links_cfg.get("absolute_max", np.inf)),
+    min_equals_current=bool(lines_cfg.get("min_equals_current", True)),
+)
+
 
     report.to_csv(report_out, index=False)
     pio.save_network(n, out_path)
