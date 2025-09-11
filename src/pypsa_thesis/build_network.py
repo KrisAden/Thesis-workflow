@@ -18,8 +18,8 @@ def _setup_logging(level: str = "INFO"):
 def enable_transmission_expansion(n: pypsa.Network,
                                   lines_enable: bool = True,
                                   links_enable: bool = True,
-                                  line_abs_max: float = 1e15,
-                                  link_abs_max: float = 1e15,
+                                  line_abs_max: float = 1e9,
+                                  link_abs_max: float = 1e9,
                                   min_equals_current: bool = True) -> pd.DataFrame:
     """
     Enable expansion on AC lines (s_nom) and DC links (p_nom).
