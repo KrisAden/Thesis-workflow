@@ -98,22 +98,6 @@ rule apply_costs:
     shell:
         RUN("pypsa_thesis.apply_costs --network-in {input[0]} --network-out {output[0]} --table-out {output[1]}")
 
-rule try_solve_base:
-    input:
-        lambda wildcards: _cfg["paths"]["base_network"]
-    output:
-        pre="results/networks/try_base_preopt.nc",
-        net="results/networks/try_base.nc",
-        report="results/tables/try_base.csv"
-    params:
-        extra="--snapshots 24 --add-load-shedding --load-shedding-cost 1e6"
-    shell:
-        RUN("pypsa_thesis.try_solve "
-            "--network-in {input} "
-            "--network-out {output.net} "
-            "--report-out {output.report} "
-            "{params.extra}")
-
 
 rule solve_baseline:
     input:

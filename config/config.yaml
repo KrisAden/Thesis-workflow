@@ -36,11 +36,11 @@ parameters:
       Crossover: 0
       BarConvTol: 1e-5
       NumericFocus: 3
-     #NodefileStart: 0.5
-     #MemLimit: 80000
-     #Presolve: 2
-     #AggFill: 0
-     #ScaleFlag: 2
+      NodefileStart: 0.5
+      MemLimit: 80000
+      Presolve: 2
+      AggFill: 0
+      ScaleFlag: 2
       LogFile: "gurobi_solver.log"
 logging:
   level: "INFO"
