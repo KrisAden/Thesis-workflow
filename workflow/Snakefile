@@ -16,8 +16,6 @@ else:
     shell.executable("/bin/bash")
     RUN = lambda module: f'PYTHONPATH="{SRC}" "{PYTHON}" -m {module} --config "{CFG}"'
 
-<<<<<<< HEAD
-=======
 # reduction levels
 import yaml
 with open("config/config.yaml") as _f:
@@ -132,4 +130,3 @@ rule solve_with_cap:
             '--report-out {output.report} '
             '--reduction {params.reduction} '
             '--baseline-file {input.baseline}')
->>>>>>> parent of ab8f8c7 (Snakefiled Nukd. trying to solve complete base network)
