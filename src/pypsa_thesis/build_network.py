@@ -87,8 +87,8 @@ def main():
         n,
         lines_enable=bool(lines_cfg.get("enable", True)),
         links_enable=bool(links_cfg.get("enable", True)),
-        line_abs_max=float(lines_cfg.get("absolute_max", 1e15)),
-        link_abs_max=float(links_cfg.get("absolute_max", 1e15)),
+        line_abs_max=float(lines_cfg.get("absolute_max", 1e9)),
+        link_abs_max=float(links_cfg.get("absolute_max", 1e9)),
         min_equals_current=bool(lines_cfg.get("min_equals_current", True)),
     )
 
