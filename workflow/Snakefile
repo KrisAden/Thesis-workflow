@@ -1,5 +1,5 @@
 # workflow/Snakefile
-import os, sys
+import os, sys, yaml
 from pathlib import Path
 from snakemake.shell import shell
 
