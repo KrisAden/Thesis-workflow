@@ -54,3 +54,5 @@ git reset --hard origin/main
 
 # optionally clean untracked files/dirs (keeps ignored items like data/raw)
 git clean -fd   # omit this if you want to keep any untracked files
+
+snakemake -s workflow/Snakefile --cores 1 -p

@@ -97,6 +97,24 @@ rule solve_baseline:
             '--report-out {output.report} '
             '--write-baseline {output.emissions}')
 
+rule try_solve_rescaled:
+    input:
+        "data/interim/network_rescaled.nc"
+    output:
+        pre="results/networks/try_rescaled_preopt.nc",
+        net="results/networks/try_rescaled.nc",
+        report="results/tables/try_rescaled.csv"
+    params:
+        # quick slice (first 24 snapshots) + add high-penalty shedding to diagnose infeasibility
+        extra="--snapshots 24 --add-load-shedding --load-shedding-cost 1e6"
+    shell:
+        RUN("pypsa_thesis.try_solve "
+            "--network-in {input} "
+            "--network-out {output.net} "
+            "--report-out {output.report} "
+            "{params.extra}")
+
+
 rule solve_with_cap:
     input:
         base="data/interim/network_costed.nc",
