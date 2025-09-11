@@ -177,6 +177,11 @@ def main() -> None:
     solver_options = _sanitize_gurobi_opts(solver_options)
     logging.info(f"Solver: {solver_name} | options: {solver_options or {}} | reduction: {args.reduction:.2%}")
 
+    # Always save pre-optimization network before calling optimize
+    pre_path = out_path.with_name(out_path.stem + "_preopt.nc")
+    pio.save_network(n, pre_path)
+    logging.info(f"Saved pre-optimization network: {pre_path}")
+
     if args.reduction <= 0.0 + 1e-12:
         _run_opt(n, solver_name, solver_options, rep_path, out_path)
         baseline = compute_total_co2(n)
