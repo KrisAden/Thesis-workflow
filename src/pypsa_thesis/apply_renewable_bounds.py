@@ -1,4 +1,3 @@
-# src/pypsa_thesis/apply_renewable_bounds.py
 from __future__ import annotations
 
 import argparse
@@ -50,11 +49,53 @@ def _ensure_all_carriers(n: pypsa.Network) -> pd.Index:
             # Add a new Carrier with default (zero) attributes.
             # You can later set costs/emissions in your cost step.
             n.add("Carrier", c)
-        logging.warning("Added %d missing carriers to n.carriers: %s",
-                        len(missing), list(missing))
+        logging.warning(
+            "Added %d missing carriers to n.carriers: %s",
+            len(missing),
+            list(missing),
+        )
     else:
         logging.info("All referenced carriers are present in n.carriers.")
     return missing
+
+
+def _bound_violations_all(n: pypsa.Network) -> pd.DataFrame:
+    """
+    Collect bound violations (min>max) across generators, lines, links.
+    """
+    rows = []
+
+    if len(n.generators) and {"p_nom_min", "p_nom_max"}.issubset(n.generators.columns):
+        bad = (
+            n.generators.p_nom_min.notnull()
+            & n.generators.p_nom_max.notnull()
+            & (n.generators.p_nom_min > n.generators.p_nom_max)
+        )
+        for name in n.generators.index[bad]:
+            rows.append(("generators", name))
+
+    if len(n.lines) and {"s_nom_min", "s_nom_max"}.issubset(n.lines.columns):
+        bad = (
+            n.lines.s_nom_min.notnull()
+            & n.lines.s_nom_max.notnull()
+            & (n.lines.s_nom_min > n.lines.s_nom_max)
+        )
+        for name in n.lines.index[bad]:
+            rows.append(("lines", name))
+
+    if len(n.links) and {"p_nom_min", "p_nom_max"}.issubset(n.links.columns):
+        bad = (
+            n.links.p_nom_min.notnull()
+            & n.links.p_nom_max.notnull()
+            & (n.links.p_nom_min > n.links.p_nom_max)
+        )
+        for name in n.links.index[bad]:
+            rows.append(("links", name))
+
+    if not rows:
+        return pd.DataFrame(columns=["component", "name"])
+
+    return pd.DataFrame(rows, columns=["component", "name"])
 
 
 def main():
@@ -64,32 +105,58 @@ def main():
     ap.add_argument("--network-out")
     ap.add_argument(
         "--debug-carriers-out",
-        help="Optional CSV path to write carriers that were auto-added."
+        help="Optional CSV path to write carriers that were auto-added.",
+    )
+    ap.add_argument(
+        "--debug-bounds-out",
+        help="Optional CSV path to write any min>max bound violations found.",
     )
     args = ap.parse_args()
 
     cfg = pio.read_yaml(args.config)
     _setup_logging(cfg.get("logging", {}).get("level", "INFO"))
 
-    in_path  = Path(args.network_in or cfg["paths"]["expanded_network"])
+    in_path = Path(args.network_in or cfg["paths"]["expanded_network"])
     out_path = Path(args.network_out or cfg["paths"]["expanded_network"])
 
     n = pio.load_network(in_path)
 
     # 1) Apply your generator bounds and hydro restriction
-    keep_existing = cfg.get("parameters", {}).get("renewables", {}).get("keep_existing", True)
+    keep_existing = (
+        cfg.get("parameters", {}).get("renewables", {}).get("keep_existing", True)
+    )
     set_renewable_bounds(n, keep_existing=keep_existing)
     disable_hydro_extension(n)
 
     # 2) Ensure carriers are complete (prevents unboundedness from NaN costs)
     missing = _ensure_all_carriers(n)
 
-    # Optional debug dump
+    # 3) Optionally dump carriers added
     if args.debug_carriers_out:
         Path(args.debug_carriers_out).parent.mkdir(parents=True, exist_ok=True)
-        pd.DataFrame({"added_carrier": list(missing)}).to_csv(args.debug_carriers_out, index=False)
+        pd.DataFrame({"added_carrier": list(missing)}).to_csv(
+            args.debug_carriers_out, index=False
+        )
 
-    # 3) Save
+    # 4) Write any bound violations (min>max) to a CSV for quick triage
+    tables = Path(cfg["paths"].get("tables_dir", "results/tables"))
+    tables.mkdir(parents=True, exist_ok=True)
+    bounds_out = (
+        Path(args.debug_bounds_out)
+        if args.debug_bounds_out
+        else tables / "bound_violations.csv"
+    )
+    bdf = _bound_violations_all(n)
+    if len(bdf):
+        bdf.to_csv(bounds_out, index=False)
+        logging.error(
+            "Found %d bound violations (min>max). Wrote: %s", len(bdf), bounds_out
+        )
+    else:
+        bdf.to_csv(bounds_out, index=False)  # write empty for determinism
+        logging.info("No bound violations detected.")
+
+    # 5) Save
     pio.save_network(n, out_path)
     logging.info("Wrote network with renewable bounds: %s", out_path)
 
