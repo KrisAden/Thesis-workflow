@@ -20,7 +20,6 @@ def _setup_logging(level: str = "INFO"):
 
 
 def _collect_component_carriers(n: pypsa.Network) -> pd.Index:
-    """Collect all carrier names referenced by components."""
     series: List[pd.Series] = []
     if len(n.generators):
         series.append(n.generators.carrier)
@@ -32,9 +31,14 @@ def _collect_component_carriers(n: pypsa.Network) -> pd.Index:
         series.append(n.loads.carrier)
     if len(n.storage_units):
         series.append(n.storage_units.carrier)
+    # NEW: buses
+    if len(n.buses) and "carrier" in n.buses:
+        series.append(n.buses.carrier)
+
     if len(series) == 0:
         return pd.Index([])
     return pd.Index(pd.concat(series, axis=0).unique())
+
 
 
 def _ensure_all_carriers(n: pypsa.Network) -> pd.Index:
@@ -127,6 +131,18 @@ def main():
     )
     set_renewable_bounds(n, keep_existing=keep_existing)
     disable_hydro_extension(n)
+
+        # Normalize/fill carriers so we don't end up adding nonsense labels
+    if len(n.lines):
+        if "carrier" not in n.lines:
+            n.lines["carrier"] = "AC"
+        n.lines["carrier"] = n.lines["carrier"].fillna("AC")
+
+    if len(n.buses):
+        if "carrier" not in n.buses:
+            n.buses["carrier"] = "electricity"
+        n.buses["carrier"] = n.buses["carrier"].fillna("electricity")
+
 
     # 2) Ensure carriers are complete (prevents unboundedness from NaN costs)
     missing = _ensure_all_carriers(n)
