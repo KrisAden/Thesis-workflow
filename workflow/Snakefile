@@ -16,117 +16,41 @@ else:
     shell.executable("/bin/bash")
     RUN = lambda module: f'PYTHONPATH="{SRC}" "{PYTHON}" -m {module} --config "{CFG}"'
 
-# reduction levels
-import yaml
-with open("config/config.yaml") as _f:
+# Load config (for base_network path)
+with open(CFG) as _f:
     _cfg = yaml.safe_load(_f)
-REDUCTIONS = _cfg.get("parameters", {}).get("co2_reductions", [0])
 
-BYPASS_RESCALE = _cfg.get("parameters", {}).get("preprocess", {}).get("bypass", False)
-
-# Convenience: split baseline (0) vs constrained (>0)
-REDUC_GT0 = [r for r in REDUCTIONS if float(r) > 0]
-HAS_BASELINE = any(float(r) == 0 for r in REDUCTIONS)
+BASE_IN  = _cfg["paths"]["base_network"]
+BASE_OUT = "data/raw/elec_s_37.nc"
 
 rule all:
     input:
-        "data/interim/network_expansion.nc",
-        "data/interim/network_storage.nc",
-        "data/interim/network_costed.nc",
-        "results/tables/load_scaling.csv",
-        "results/tables/tx_expansion_bounds.csv",
-        "results/tables/storage_costs_applied.csv",
-        "results/tables/generator_capital_costs.csv",
-        # Baseline solve (only if 0 in the list)
-        *(["results/networks/solved_baseline.nc",
-           "results/tables/solve_baseline.csv",
-           "results/tables/baseline_emissions.csv"] if HAS_BASELINE else []),
-        # Constrained solves
-        expand("results/networks/solved_reduction_{r}.nc", r=REDUC_GT0),
-        expand("results/tables/solve_reduction_{r}.csv", r=REDUC_GT0)
+        BASE_OUT,
+        "results/networks/try_base_full.nc",
+        "results/tables/try_base_full.csv"
 
-if BYPASS_RESCALE:
-    # Copy base -> "rescaled" and write a dummy scaling table
-    rule rescale_loads:
-        input:
-            lambda wc: _cfg["paths"]["base_network"]
-        output:
-            "data/interim/network_rescaled.nc",
-            "results/tables/load_scaling.csv"
-        shell:
-            # copy the base network to the expected rescaled path
-            'cp {input} {output[0]} && echo "bus,scale\nALL,1.0" > {output[1]}'
-else:
-    rule rescale_loads:
-        output:
-            "data/interim/network_rescaled.nc",
-            "results/tables/load_scaling.csv"
-        shell:
-            RUN("pypsa_thesis.preprocess")
-
-
-rule enable_expansion:
+rule import_base:
     input:
-        "data/interim/network_rescaled.nc"
+        BASE_IN
     output:
-        "data/interim/network_expansion.nc",
-        "results/tables/tx_expansion_bounds.csv"
+        BASE_OUT
     shell:
-        # 1) build the expansion network (as before)
-        # 2) immediately apply renewable bounds IN-PLACE, controlled by config flag
-        RUN("pypsa_thesis.build_network") + " && " +
-        RUN("pypsa_thesis.apply_renewable_bounds --network-in {output[0]} --network-out {output[0]}")
+        # Cross-OS copy
+        'Copy-Item -Path {input} -Destination {output} -Force' if os.name == "nt" \
+        else 'mkdir -p $(dirname {output}) && cp {input} {output}'
 
-
-rule add_storage:
+rule try_optimize_base:
     input:
-        "data/interim/network_expansion.nc",
-        "data/raw/storage_costs.csv"
+        BASE_OUT
     output:
-        "data/interim/network_storage.nc",
-        "results/tables/storage_costs_applied.csv"
-    shell:
-        RUN("pypsa_thesis.apply_storage --network-in {input[0]} --network-out {output[0]} --table-out {output[1]}")
-
-rule apply_costs:
-    input:
-        "data/interim/network_storage.nc",
-        "data/raw/generator_costs.csv"
-    output:
-        "data/interim/network_costed.nc",
-        "results/tables/generator_capital_costs.csv"
-    shell:
-        RUN("pypsa_thesis.apply_costs --network-in {input[0]} --network-out {output[0]} --table-out {output[1]}")
-
-
-rule solve_baseline:
-    input:
-        base="data/interim/network_costed.nc"
-    output:
-        net="results/networks/solved_baseline.nc",
-        report="results/tables/solve_baseline.csv",
-        emissions="results/tables/baseline_emissions.csv"
-    shell:
-        RUN('pypsa_thesis.solve '
-            '--network-in {input.base} '
-            '--network-out {output.net} '
-            '--report-out {output.report} '
-            '--write-baseline {output.emissions}')
-
-
-rule solve_with_cap:
-    input:
-        base="data/interim/network_costed.nc",
-        baseline="results/tables/baseline_emissions.csv"
-    output:
-        net="results/networks/solved_reduction_{r}.nc",
-        report="results/tables/solve_reduction_{r}.csv"
+        net="results/networks/try_base_full.nc",
+        report="results/tables/try_base_full.csv"
     params:
-        reduction="{r}"
+        # tweak or remove load-shedding as you like; no --snapshots flag => full horizon
+        extra="--add-load-shedding --load-shedding-cost 1e6"
     shell:
-        RUN('pypsa_thesis.solve '
-            '--network-in {input.base} '
+        RUN('pypsa_thesis.try_solve '
+            '--network-in {input} '
             '--network-out {output.net} '
             '--report-out {output.report} '
-            '--reduction {params.reduction} '
-            '--baseline-file {input.baseline}')
+            '{params.extra}')
