@@ -49,17 +49,7 @@ def _sanitize_gurobi_opts(opts: Optional[Dict]) -> Optional[Dict]:
         out[k] = v
     return out
 
-def _pick_weightings(sw) -> pd.Series:
-    """Return a Series of snapshot weightings, robust to DF/Series forms."""
-    if isinstance(sw, pd.DataFrame):
-        for col in ("loads", "generators", "objective"):
-            if col in sw:
-                return sw[col]
-        return sw.iloc[:, 0]
-    return sw
-
 def add_load_shedding(n: pypsa.Network, penalty_eur_per_mwh: float = 1e6) -> int:
-    """Add high-penalty load shedding generators at every bus."""
     if "load_shedding" not in n.carriers.index:
         n.add("Carrier", "load_shedding")
     buses = n.buses.index
@@ -75,29 +65,15 @@ def add_load_shedding(n: pypsa.Network, penalty_eur_per_mwh: float = 1e6) -> int
     )
     return len(buses)
 
-def compute_shedding_energy(n: pypsa.Network) -> float:
-    """Return total MWh of energy served by load-shedding gens (weighted)."""
-    if "load_shedding" not in n.generators["carrier"].unique():
-        return 0.0
-    mask = n.generators["carrier"] == "load_shedding"
-    cols = n.generators.index[mask]
-    if not hasattr(n, "generators_t") or "p" not in n.generators_t or len(cols) == 0:
-        return 0.0
-    w = _pick_weightings(n.snapshot_weightings)
-    e = n.generators_t.p[cols].mul(w, axis=0).sum().sum()
-    return float(e)
-
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Try to optimize a given network snapshot (feasibility/probing).")
+    ap = argparse.ArgumentParser(description="Try to optimize a given network (feasibility probe).")
     ap.add_argument("--config", default="config/config.yaml")
-    ap.add_argument("--network-in", required=True, help="Input network (.nc) to test (e.g., network_rescaled.nc)")
-    ap.add_argument("--network-out", default="results/networks/try_rescaled.nc")
-    ap.add_argument("--report-out", default="results/tables/try_rescaled.csv")
-    ap.add_argument("--snapshots", type=int, default=0, help="If >0, keep only the first N snapshots for a quick test.")
-    ap.add_argument("--add-load-shedding", action="store_true",
-                    help="Add high-penalty load-shedding generators at every bus to diagnose infeasibility.")
-    ap.add_argument("--load-shedding-cost", type=float, default=1e6,
-                    help="Penalty €/MWh for load shedding if enabled.")
+    ap.add_argument("--network-in", required=True, help="Input network (.nc) to test")
+    ap.add_argument("--network-out", default="results/networks/try.nc")
+    ap.add_argument("--report-out", default="results/tables/try.csv")
+    ap.add_argument("--snapshots", type=int, default=0, help="If >0, keep only first N snapshots.")
+    ap.add_argument("--add-load-shedding", action="store_true", help="Add high-penalty load shedding to diagnose infeasibility.")
+    ap.add_argument("--load-shedding-cost", type=float, default=1e6, help="€/MWh penalty for load shedding.")
     args = ap.parse_args()
 
     cfg = pio.read_yaml(args.config)
@@ -109,30 +85,28 @@ def main() -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     rep_path.parent.mkdir(parents=True, exist_ok=True)
 
-    # Load
+    # Load and optionally slice snapshots
     n = pio.load_network(in_path)
-
-    # Optionally slice snapshots
     if args.snapshots and args.snapshots > 0 and len(n.snapshots) > args.snapshots:
         n.set_snapshots(n.snapshots[: args.snapshots])
         logging.info(f"Kept first {args.snapshots} snapshots for quick test.")
 
-    # Optional: add load shedding to diagnose infeasibility
+    # Optional: add load shedding
     if args.add_load_shedding:
         k = add_load_shedding(n, args.load_shedding_cost)
-        logging.info(f"Added {k} load-shedding generators at {args.load_shedding_cost:.0f} €/MWh penalty.")
+        logging.info(f"Added {k} load-shedding generators at {args.load_shedding_cost:.0f} €/MWh.")
 
-    # ALWAYS save a pre-optimization copy
+    # ALWAYS save pre-optimization network
     pre_path = out_path.with_name(out_path.stem + "_preopt.nc")
     pio.save_network(n, pre_path)
     logging.info(f"Saved pre-optimization network: {pre_path}")
 
-    # Solver
+    # Solver sanitize + log
     solver_name, solver_options = _solver_from_cfg(cfg)
     solver_options = _sanitize_gurobi_opts(solver_options)
     logging.info(f"Solver: {solver_name} | options: {solver_options or {}}")
 
-    # Optimize and capture status
+    # Try optimize and ALWAYS emit a debug artifact on failure
     status = termination = None
     try:
         res = n.optimize(solver_name=solver_name, solver_options=solver_options)
@@ -142,38 +116,33 @@ def main() -> None:
             status = getattr(n, "status", None)
             termination = getattr(n, "termination_condition", None)
     except Exception as e:
-        dbg = pd.DataFrame([{
+        dbg_path = rep_path.with_suffix(".debug.csv")
+        pd.DataFrame([{
             "status": str(getattr(n, "status", "")),
             "termination_condition": str(getattr(n, "termination_condition", "")),
             "error": repr(e),
-        }])
-        dbg_path = rep_path.with_suffix(".debug.csv")
-        dbg.to_csv(dbg_path, index=False)
-        logging.exception("Optimization raised exception. Debug written to %s", dbg_path)
+        }]).to_csv(dbg_path, index=False)
+        logging.exception("Optimization raised exception. Debug: %s", dbg_path)
         raise
 
-    # Prepare report
-    shed_mwh = compute_shedding_energy(n) if args.add_load_shedding else 0.0
-    ok = str(status).lower() in {"ok", "optimal", "success"} or str(termination).lower() in {"optimal"}
-
-    # Save outputs
+    # Save solved (even if not optimal, for inspection)
     pio.save_network(n, out_path)
+
+    ok = str(status).lower() in {"ok", "optimal", "success"} or str(termination).lower() in {"optimal"}
     pd.DataFrame([{
         "status": str(status),
         "termination_condition": str(termination),
-        "load_shedding_mwh": shed_mwh,
         "snapshots_used": len(n.snapshots),
     }]).to_csv(rep_path, index=False)
 
     if not ok:
-        dbg = pd.DataFrame([{
+        dbg_path = rep_path.with_suffix(".debug.csv")
+        pd.DataFrame([{
             "status": str(status),
             "termination_condition": str(termination),
             "error": "",
-        }])
-        dbg_path = rep_path.with_suffix(".debug.csv")
-        dbg.to_csv(dbg_path, index=False)
-        logging.error("Non-OK result. Debug written to %s", dbg_path)
+        }]).to_csv(dbg_path, index=False)
+        logging.error("Non-OK result (status=%s, termination=%s). Debug: %s", status, termination, dbg_path)
         raise SystemExit(f"Non-OK optimization: status={status}, termination={termination}")
 
 if __name__ == "__main__":
