@@ -10,6 +10,8 @@ paths:
   tables_dir: "results/tables"
 
 parameters:
+  preprocess:
+    bypass: true
   gtoe_to_twh: 11.63   # 1 Gtoe = 11.63 TWh
   storage:
     add_battery: true

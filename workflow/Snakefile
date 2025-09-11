@@ -22,6 +22,8 @@ with open("config/config.yaml") as _f:
     _cfg = yaml.safe_load(_f)
 REDUCTIONS = _cfg.get("parameters", {}).get("co2_reductions", [0])
 
+BYPASS_RESCALE = _cfg.get("parameters", {}).get("preprocess", {}).get("bypass", False)
+
 # Convenience: split baseline (0) vs constrained (>0)
 REDUC_GT0 = [r for r in REDUCTIONS if float(r) > 0]
 HAS_BASELINE = any(float(r) == 0 for r in REDUCTIONS)
@@ -43,12 +45,25 @@ rule all:
         expand("results/networks/solved_reduction_{r}.nc", r=REDUC_GT0),
         expand("results/tables/solve_reduction_{r}.csv", r=REDUC_GT0)
 
-rule rescale_loads:
-    output:
-        "data/interim/network_rescaled.nc",
-        "results/tables/load_scaling.csv"
-    shell:
-        RUN("pypsa_thesis.preprocess")
+if BYPASS_RESCALE:
+    # Copy base -> "rescaled" and write a dummy scaling table
+    rule rescale_loads:
+        input:
+            lambda wc: _cfg["paths"]["base_network"]
+        output:
+            "data/interim/network_rescaled.nc",
+            "results/tables/load_scaling.csv"
+        shell:
+            # copy the base network to the expected rescaled path
+            'cp {input} {output[0]} && echo "bus,scale\nALL,1.0" > {output[1]}'
+else:
+    rule rescale_loads:
+        output:
+            "data/interim/network_rescaled.nc",
+            "results/tables/load_scaling.csv"
+        shell:
+            RUN("pypsa_thesis.preprocess")
+
 
 rule enable_expansion:
     input:
