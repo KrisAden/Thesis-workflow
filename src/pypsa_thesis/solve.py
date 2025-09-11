@@ -26,35 +26,20 @@ def _setup_logging(level: str = "INFO") -> None:
 
 
 def _solver_from_cfg(cfg: dict) -> Tuple[str, Optional[Dict]]:
-    """
-    Read solver name and options from config.
-
-    Expected structure:
-    parameters:
-      solve:
-        solver: "gurobi" | "highs" | "cplex" | ...
-        solver_options: { ... }   # passed straight to linopy/pypsa
-    """
     solve = (cfg.get("parameters", {}) or {}).get("solve", {}) or {}
     name = str(solve.get("solver", "gurobi"))
-
     opts = solve.get("solver_options", None)
     if opts is not None and not isinstance(opts, dict):
         raise ValueError("parameters.solve.solver_options must be a mapping (YAML dict).")
     return name, opts
 
 
-# Gurobi parameters that are legitimately strings and must NOT be auto-cast
 _STRING_PARAMS_OK = {
     "LogFile", "ResultFile", "CSManager", "ComputeServer", "Server", "Token",
     "WLSAccessID", "WLSSecret", "LicenseID"
 }
 
 def _sanitize_gurobi_opts(opts: Optional[Dict]) -> Optional[Dict]:
-    """
-    Cast numeric-looking strings to int/float (handles '1e-5'), but keep known
-    string params as strings. Safe no-op if opts is None.
-    """
     if not opts:
         return opts
     out = {}
@@ -65,7 +50,7 @@ def _sanitize_gurobi_opts(opts: Optional[Dict]) -> Optional[Dict]:
                 if re.fullmatch(r"[+-]?\d+", s):
                     v = int(s)
                 else:
-                    v = float(s)  # handles 1e-5 etc.
+                    v = float(s)
             except Exception:
                 pass
         out[k] = v
@@ -77,12 +62,7 @@ def _sanitize_gurobi_opts(opts: Optional[Dict]) -> Optional[Dict]:
 # ---------------------------
 
 def compute_total_co2(n: pypsa.Network) -> float:
-    """
-    Compute total CO₂ emissions (tCO2) from the solved dispatch using
-    carrier attribute `co2_emissions` in tCO2/MWh of output.
-    """
     total = 0.0
-
     w = n.snapshot_weightings
     w_gen = getattr(w, "generators", w)
     w_lnk = getattr(w, "links", w)
@@ -109,7 +89,6 @@ def compute_total_co2(n: pypsa.Network) -> float:
 
 
 def add_global_co2_cap(n: pypsa.Network, cap_tco2: float) -> None:
-    """Add/update a GlobalConstraint limiting total carrier-attributed CO₂."""
     if "co2_cap" in getattr(n, "global_constraints", pd.DataFrame()).index:
         n.global_constraints.at["co2_cap", "constant"] = float(cap_tco2)
     else:
@@ -123,51 +102,49 @@ def add_global_co2_cap(n: pypsa.Network, cap_tco2: float) -> None:
 
 
 # ---------------------------
-# Helper to run optimize and *always* emit a debug artifact
+# Helper to run optimize with pre-save
 # ---------------------------
 
-def _run_opt(n: pypsa.Network, solver_name: str, solver_options: Optional[Dict], rep_path: Path) -> None:
-    # Print types (helps catch bad YAML casts)
+def _run_opt(n: pypsa.Network, solver_name: str, solver_options: Optional[Dict], rep_path: Path, out_path: Path) -> None:
     for k, v in (solver_options or {}).items():
         logging.info(f"opt {k}: {v!r} (type={type(v).__name__})")
 
+    # Save pre-optimization snapshot
+    pre_path = out_path.with_name(out_path.stem + "_preopt.nc")
+    pio.save_network(n, pre_path)
+    logging.info(f"Saved pre-optimization network: {pre_path}")
+
     status = termination = None
     try:
-        # PyPSA >= 0.35 returns (status, termination) from optimize()
         res = n.optimize(solver_name=solver_name, solver_options=solver_options)
         if isinstance(res, tuple) and len(res) == 2:
             status, termination = res
         else:
-            # Best-effort fallbacks
             status = getattr(n, "status", None)
             termination = getattr(n, "termination_condition", None)
     except Exception as e:
         status = getattr(n, "status", None)
         termination = getattr(n, "termination_condition", None)
-        dbg = pd.DataFrame([{
+        dbg_path = Path(rep_path).with_suffix(".debug.csv")
+        pd.DataFrame([{
             "status": str(status),
             "termination_condition": str(termination),
             "error": repr(e),
-        }])
-        dbg_path = Path(rep_path).with_suffix(".debug.csv")
-        dbg.to_csv(dbg_path, index=False)
-        logging.exception("Optimization raised an exception (status=%s, termination=%s). Debug: %s",
+        }]).to_csv(dbg_path, index=False)
+        logging.exception("Optimization raised exception (status=%s, termination=%s). Debug: %s",
                           status, termination, dbg_path)
         raise
 
-    # Write a debug row even on non-exception outcomes, so failures aren’t silent
     ok = str(status).lower() in {"ok", "optimal", "success"} or str(termination).lower() in {"optimal"}
     if not ok:
-        dbg = pd.DataFrame([{
+        dbg_path = Path(rep_path).with_suffix(".debug.csv")
+        pd.DataFrame([{
             "status": str(status),
             "termination_condition": str(termination),
             "error": "",
-        }])
-        dbg_path = Path(rep_path).with_suffix(".debug.csv")
-        dbg.to_csv(dbg_path, index=False)
-        logging.error("Optimization finished with non-OK result (status=%s, termination=%s). Debug: %s",
+        }]).to_csv(dbg_path, index=False)
+        logging.error("Optimization finished non-OK (status=%s, termination=%s). Debug: %s",
                       status, termination, dbg_path)
-        # raise to let Snakemake fail the rule
         raise RuntimeError(f"Non-OK optimization result: status={status}, termination={termination}")
 
 
@@ -181,9 +158,8 @@ def main() -> None:
     ap.add_argument("--network-in", help="Input network (defaults to cfg.paths.costed_network)")
     ap.add_argument("--network-out", help="Output solved network (.nc)")
     ap.add_argument("--report-out", help="CSV report with objective/status/emissions")
-    ap.add_argument("--reduction", type=float, default=0.0,
-                    help="Fractional reduction vs baseline (0..1). 0 = baseline (no cap).")
-    ap.add_argument("--write-baseline", help="CSV to write baseline_emissions (only used when reduction=0).")
+    ap.add_argument("--reduction", type=float, default=0.0)
+    ap.add_argument("--write-baseline", help="CSV to write baseline_emissions (only when reduction=0).")
     ap.add_argument("--baseline-file", help="CSV with 'baseline_emissions' column (required when reduction>0).")
     args = ap.parse_args()
 
@@ -197,17 +173,14 @@ def main() -> None:
     rep_path.parent.mkdir(parents=True, exist_ok=True)
 
     n = pio.load_network(in_path)
-
     solver_name, solver_options = _solver_from_cfg(cfg)
     solver_options = _sanitize_gurobi_opts(solver_options)
     logging.info(f"Solver: {solver_name} | options: {solver_options or {}} | reduction: {args.reduction:.2%}")
 
-    # ---------------- Baseline solve (no cap) ----------------
     if args.reduction <= 0.0 + 1e-12:
-        _run_opt(n, solver_name, solver_options, rep_path)
+        _run_opt(n, solver_name, solver_options, rep_path, out_path)
         baseline = compute_total_co2(n)
         logging.info(f"Baseline emissions (tCO2): {baseline:,.6f}")
-
         pio.save_network(n, out_path)
         pd.DataFrame([{
             "reduction": 0.0,
@@ -217,16 +190,13 @@ def main() -> None:
             "allowed_emissions": baseline,
             "actual_emissions": baseline,
         }]).to_csv(rep_path, index=False)
-
-        logging.info(f"Wrote solved baseline: {out_path} | report: {rep_path}")
         if args.write_baseline:
             Path(args.write_baseline).parent.mkdir(parents=True, exist_ok=True)
             pd.DataFrame([{"baseline_emissions": baseline}]).to_csv(args.write_baseline, index=False)
         return
 
-    # --------------- Constrained solve (cap) -----------------
     if not args.baseline_file:
-        raise SystemExit("Constrained run requires --baseline-file pointing to CSV with 'baseline_emissions'.")
+        raise SystemExit("Constrained run requires --baseline-file with 'baseline_emissions'.")
 
     bl = pd.read_csv(args.baseline_file)
     if "baseline_emissions" not in bl.columns or bl.empty:
@@ -235,11 +205,10 @@ def main() -> None:
     baseline = float(bl["baseline_emissions"].iloc[0])
     cap = baseline * (1.0 - float(args.reduction))
     add_global_co2_cap(n, cap)
-    logging.info(f"Applied CO₂ cap (tCO2): {cap:,.6f} from baseline {baseline:,.6f} and reduction {args.reduction:.2%}")
+    logging.info(f"Applied CO₂ cap {cap:,.6f} (baseline {baseline:,.6f}, reduction {args.reduction:.2%})")
 
-    _run_opt(n, solver_name, solver_options, rep_path)
+    _run_opt(n, solver_name, solver_options, rep_path, out_path)
     actual = compute_total_co2(n)
-
     pio.save_network(n, out_path)
     pd.DataFrame([{
         "reduction": float(args.reduction),
@@ -249,8 +218,6 @@ def main() -> None:
         "allowed_emissions": cap,
         "actual_emissions": actual,
     }]).to_csv(rep_path, index=False)
-
-    logging.info(f"Wrote solved constrained: {out_path} | report: {rep_path}")
 
 
 if __name__ == "__main__":
