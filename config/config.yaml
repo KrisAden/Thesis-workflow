@@ -10,7 +10,24 @@ paths:
   tables_dir: "results/tables"
 
 parameters:
+  preprocess:
+    bypass: true
   gtoe_to_twh: 11.63   # 1 Gtoe = 11.63 TWh
+  storage:
+    add_battery: true
+    add_hydrogen: true
+  renewables:
+    keep_existing: true
+  expansion:
+    lines:
+      enable: true
+      absolute_max: 1e6
+      min_equals_current: true
+    links:
+      enable: true
+      absolute_max: 1e6
+      min_equals_current: true
+  co2_reductions: [0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,0.93,0.96,0.99,1]
   solve:
     solver: "gurobi"
     solver_options:
