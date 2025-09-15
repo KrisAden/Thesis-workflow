@@ -31,13 +31,16 @@ parameters:
   solve:
     solver: "gurobi"
     solver_options:
+      Threads: 4
       Method: 2
+      Crossover: 0
+      BarConvTol: 1e-5
+      NodefileStart: 0.5
+      MemLimit: 80000
       Presolve: 2
       NumericFocus: 3
-      PreSparsify: 1
-      ScaleFlag: 0
-      FeasibilityTol: 1e-6
-      OptimalityTol: 1e-6
+      AggFill: 0
+      ScaleFlag: 2
       LogFile: "gurobi_solver.log"
 logging:
   level: "INFO"

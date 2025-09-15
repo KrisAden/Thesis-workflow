@@ -189,12 +189,6 @@ def main():
 
     n = pio.load_network(in_path)
 
-    # Override: Set s_nom_max and p_nom_max to 3x current values
-    if len(n.lines):
-        n.lines["s_nom_max"] = 3 * n.lines["s_nom"].astype(float)
-    if len(n.links):
-        n.links["p_nom_max"] = 3 * n.links["p_nom"].astype(float)
-
     xp = cfg.get("parameters", {}).get("expansion", {}) or {}
     lines_cfg = xp.get("lines", {}) or {}
     links_cfg = xp.get("links", {}) or {}
