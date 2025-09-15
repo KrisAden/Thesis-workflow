@@ -21,7 +21,7 @@ parameters:
   expansion:
     lines:
       enable: true
-      absolute_max: 1e6
+      absolute_max: 1e6 # Currently overwritten in build_network where nom_max=nom *3
       min_equals_current: true
     links:
       enable: true
@@ -31,11 +31,11 @@ parameters:
   solve:
     solver: "gurobi"
     solver_options:
-      Method: 1
+      Method: 2
       Presolve: 2
-      NumericFocus: 2
+      NumericFocus: 3
       PreSparsify: 1
-      ScaleFlag: -1
+      ScaleFlag: 0
       FeasibilityTol: 1e-6
       OptimalityTol: 1e-6
       LogFile: "gurobi_solver.log"
