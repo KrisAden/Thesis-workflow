@@ -11,7 +11,7 @@ RENEW_CARRIERS = [
 ]
 
 # Common names for hydro-like tech across datasets
-HYDRO_GENERATOR_ALIASES = {"hydro"}
+HYDRO_GENERATOR_ALIASES = {"hydro", "PHS"}
 
 
 def set_renewable_bounds(n: pypsa.Network, keep_existing: bool = True) -> None:
