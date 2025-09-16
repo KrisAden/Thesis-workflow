@@ -104,7 +104,7 @@ rule solve_baseline:
     input:
         base="data/interim/network_expansion.nc"
     output:
-        net="results/networks/solved_baselinecosted_expansion.nc",
+        net="results/networks/solved_baseline_costed_expansion.nc",
         report="results/tables/solve_baseline_costed_expansion.csv",
         emissions="results/tables/baseline_emissions.csv"
     shell:
