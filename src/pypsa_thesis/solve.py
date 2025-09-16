@@ -1,3 +1,16 @@
+import logging
+import pandas as pd
+
+# Attach duals only if the constraint exists
+def _assign_dual_if_present(n, cname):
+    if hasattr(n, "model") and cname in n.model.constraints:
+        try:
+            mu = n.model.dual[n.model.constraints[cname]]
+            # TODO: map mu into the right n.* table; depends on your structure
+        except Exception:
+            logging.exception("Failed assigning duals for %s", cname)
+    else:
+        logging.info("Constraint %s not in model; skipping dual assignment.", cname)
 # src/pypsa_thesis/solve.py
 from __future__ import annotations
 
@@ -62,30 +75,31 @@ def _sanitize_gurobi_opts(opts: Optional[Dict]) -> Optional[Dict]:
 # ---------------------------
 
 def compute_total_co2(n: pypsa.Network) -> float:
-    total = 0.0
-    w = n.snapshot_weightings
-    w_gen = getattr(w, "generators", w)
-    w_lnk = getattr(w, "links", w)
+    """
+    Sum CO₂ = sum_t sum_g p_t,g * co2_factor_g
+    Robust to missing columns and misaligned indexes.
+    """
+    if not hasattr(n, "generators_t") or "p" not in n.generators_t:
+        return 0.0
 
-    if hasattr(n, "generators_t") and "p" in n.generators_t and len(n.generators):
-        fac_g = n.generators["carrier"].map(
-            lambda c: float(n.carriers.at[c, "co2_emissions"])
-            if ("co2_emissions" in n.carriers and c in n.carriers.index and pd.notna(n.carriers.at[c, "co2_emissions"]))
-            else 0.0
-        ).fillna(0.0)
-        e_g = n.generators_t.p.mul(w_gen, axis=0).sum(axis=0).fillna(0.0)
-        total += float(e_g.dot(fac_g))
+    p = n.generators_t.p                   # DataFrame [snapshots x generators]
+    co2 = n.generators.get("co2_factor")   # Series indexed by generator
 
-    if hasattr(n, "links_t") and "p0" in n.links_t and len(n.links):
-        fac_l = n.links["carrier"].map(
-            lambda c: float(n.carriers.at[c, "co2_emissions"])
-            if ("co2_emissions" in n.carriers and c in n.carriers.index and pd.notna(n.carriers.at[c, "co2_emissions"]))
-            else 0.0
-        ).fillna(0.0)
-        e_l = n.links_t.p0.clip(lower=0.0).mul(w_lnk, axis=0).sum(axis=0).fillna(0.0)
-        total += float(e_l.dot(fac_l))
+    if co2 is None:
+        return 0.0
 
-    return float(total)
+    # Align precisely to p's columns, fill missing with 0
+    co2 = co2.reindex(p.columns).fillna(0.0).astype(float)
+
+    # Optional: apply snapshot weightings if present
+    try:
+        w = n.snapshot_weightings["generators"]  # PyPSA >=0.20 style
+        p = p.mul(w, axis=0)
+    except Exception:
+        pass
+
+    # Multiply elementwise and sum — avoids pandas .dot index pitfalls
+    return float((p.mul(co2, axis=1)).to_numpy().sum())
 
 
 def add_global_co2_cap(n: pypsa.Network, cap_tco2: float) -> None:
@@ -184,9 +198,34 @@ def main() -> None:
 
     if args.reduction <= 0.0 + 1e-12:
         _run_opt(n, solver_name, solver_options, rep_path, out_path)
-        baseline = compute_total_co2(n)
-        logging.info(f"Baseline emissions (tCO2): {baseline:,.6f}")
+        # Always save the solved network, even if CO2 calculation fails
         pio.save_network(n, out_path)
+        logging.info(f"Wrote solved network: {out_path}")
+
+        # Attach duals for constraints if needed
+        # for cname in ["co2_cap", ...]:
+        #     _assign_dual_if_present(n, cname)
+
+        # Baseline CO2 (optional)
+        baseline = None
+        if args.write_baseline:
+            Path(args.write_baseline).parent.mkdir(parents=True, exist_ok=True)
+            try:
+                baseline = compute_total_co2(n)
+                pd.DataFrame([{"co2_total": baseline}]).to_csv(args.write_baseline, index=False)
+                logging.info("Wrote baseline emissions: %s", args.write_baseline)
+            except Exception:
+                logging.exception("Baseline CO2 calculation failed; writing zero.")
+                pd.DataFrame([{"co2_total": 0.0}]).to_csv(args.write_baseline, index=False)
+                baseline = 0.0
+        else:
+            try:
+                baseline = compute_total_co2(n)
+                logging.info(f"Baseline emissions (tCO2): {baseline:,.6f}")
+            except Exception:
+                logging.exception("Baseline CO2 calculation failed.")
+                baseline = 0.0
+
         pd.DataFrame([{
             "reduction": 0.0,
             "objective": getattr(n, "objective", float("nan")),
@@ -195,9 +234,6 @@ def main() -> None:
             "allowed_emissions": baseline,
             "actual_emissions": baseline,
         }]).to_csv(rep_path, index=False)
-        if args.write_baseline:
-            Path(args.write_baseline).parent.mkdir(parents=True, exist_ok=True)
-            pd.DataFrame([{"baseline_emissions": baseline}]).to_csv(args.write_baseline, index=False)
         return
 
     if not args.baseline_file:

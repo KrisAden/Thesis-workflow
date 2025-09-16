@@ -67,15 +67,16 @@ else:
 
 rule enable_expansion:
     input:
-        "data/interim/network_rescaled.nc"
+        "data/interim/network_costed.nc"              # <-- costed input
     output:
         "data/interim/network_expansion.nc",
         "results/tables/tx_expansion_bounds.csv"
     shell:
-        # 1) build the expansion network (as before)
-        # 2) immediately apply renewable bounds IN-PLACE, controlled by config flag
-        RUN("pypsa_thesis.build_network") + " && " +
-        RUN("pypsa_thesis.apply_renewable_bounds --network-in {output[0]} --network-out {output[0]}")
+        RUN('pypsa_thesis.build_network '
+            '--network-in {input} --network-out {output[0]}') \
+        + " && " + \
+        RUN('pypsa_thesis.apply_renewable_bounds '
+            '--network-in {output[0]} --network-out {output[0]}')
 
 
 rule add_storage:
@@ -101,10 +102,10 @@ rule apply_costs:
 
 rule solve_baseline:
     input:
-        base="data/interim/network_costed.nc"
+        base="data/interim/network_expansion.nc"
     output:
-        net="results/networks/solved_baseline_costed.nc",
-        report="results/tables/solve_baseline_costed.csv",
+        net="results/networks/solved_baselinecosted_expansion.nc",
+        report="results/tables/solve_baseline_costed_expansion.csv",
         emissions="results/tables/baseline_emissions.csv"
     shell:
         RUN('pypsa_thesis.solve '
