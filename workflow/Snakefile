@@ -80,7 +80,7 @@ rule enable_expansion:
 
 rule add_storage:
     input:
-        "data/interim/network_expansion.nc",
+        "data/raw/elec_s_37.nc",
         "data/raw/storage_costs.csv"
     output:
         "data/interim/network_storage.nc",
