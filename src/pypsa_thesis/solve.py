@@ -1,3 +1,4 @@
+from __future__ import annotations
 import logging
 import pandas as pd
 
@@ -12,7 +13,6 @@ def _assign_dual_if_present(n, cname):
     else:
         logging.info("Constraint %s not in model; skipping dual assignment.", cname)
 # src/pypsa_thesis/solve.py
-from __future__ import annotations
 
 import argparse
 import logging
