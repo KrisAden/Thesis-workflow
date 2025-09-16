@@ -90,7 +90,7 @@ rule add_storage:
 
 rule apply_costs:
     input:
-        "data/interim/network_storage.nc",
+        "data/raw/elec_s_37.nc",
         "data/raw/generator_costs.csv"
     output:
         "data/interim/network_costed.nc",
@@ -103,8 +103,8 @@ rule solve_baseline:
     input:
         base="data/interim/network_costed.nc"
     output:
-        net="results/networks/solved_baseline.nc",
-        report="results/tables/solve_baseline.csv",
+        net="results/networks/solved_baseline_costed.nc",
+        report="results/tables/solve_baseline_costed.csv",
         emissions="results/tables/baseline_emissions.csv"
     shell:
         RUN('pypsa_thesis.solve '
