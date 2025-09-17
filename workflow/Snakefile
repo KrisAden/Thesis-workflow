@@ -71,47 +71,49 @@ rule enable_expansion:
     output:
         "data/interim/network_expansion.nc",
         "results/tables/tx_expansion_bounds.csv",
-        "results/tables/tx_bounds_debug.csv"   # new
+        "results/tables/tx_bounds_debug.csv",
         "results/tables/tx_bounds_offenders.csv"
     shell:
-        RUN('pypsa_thesis.build_network --network-in {input} --network-out {output[0]}') + " && " + \
-        RUN('pypsa_thesis.apply_renewable_bounds --network-in {output[0]} --network-out {output[0]}') + r""" && python - <<'PY'
+        (
+            RUN('pypsa_thesis.build_network '
+                '--network-in {input} --network-out {output[0]}')
+            + " && " +
+            RUN('pypsa_thesis.apply_renewable_bounds '
+                '--network-in {output[0]} --network-out {output[0]}')
+            + r""" && python - <<'PY'
 import numpy as np, pandas as pd, pypsa
 n = pypsa.Network(r"{output[0]}")
 TH = 1e8
+
 rows = []
+offenders = []
+
 def rpt(name, df, col, flag):
     if len(df) and col in df:
-        ext = df.get(flag, False)
-        if not hasattr(ext, "values"):
-            ext = np.repeat(bool(ext), len(df))
-        import pandas as pd
-        ext = pd.Series(ext, index=df.index).fillna(False).astype(bool)
+        ext_raw = df.get(flag, False)
+        if hasattr(ext_raw, "values"):
+            ext = pd.Series(ext_raw, index=df.index).fillna(False).astype(bool)
+        else:
+            ext = pd.Series([bool(ext_raw)]*len(df), index=df.index)
         ub = df[col].astype(float).replace([np.inf, -np.inf], np.inf)
-        big = ub[ext & (ub > TH)]
-        rows.append(dict(component=name, column=col, max=float(ub.max()), count_ge_threshold=int(big.size)))
-pd.DataFrame(rows).to_csv(r"{output[2]}", index=False)
-print(open(r"{output[2]}").read())
-PY"""
-+ r""" && python - <<'PY'
-import numpy as np, pandas as pd, pypsa
-n = pypsa.Network(r"{output[0]}")
-TH = 1e8
-rows, offenders = [], []
-def rpt(name, df, col, flag):
-    if len(df) and col in df:
-        ext = pd.Series(df.get(flag, False), index=df.index).fillna(False).astype(bool) \
-              if hasattr(df.get(flag, False), "values") else pd.Series([bool(df.get(flag, False))]*len(df), index=df.index)
-        ub = df[col].astype(float).replace([np.inf, -np.inf], np.inf)
-        big = ub[ext & (ub > TH)]
-        rows.append(dict(component=name, column=col, max=float(ub.max()), count_ge_threshold=int(big.size)))
-        if big.size:
-            top = big.sort_values(ascending=False).head(50)
-            offenders.extend([dict(component=name, name=i, ub=float(v)) for i, v in top.items()])
+        bigmask = ext & (ub > TH)
+        rows.append(dict(component=name, column=col,
+                         max=float(ub.max()) if len(ub) else float("nan"),
+                         count_ge_threshold=int(bigmask.sum())))
+        if bigmask.any():
+            top = ub[bigmask].sort_values(ascending=False).head(50)
+            for idx, val in top.items():
+                offenders.append(dict(component=name, name=str(idx), ub=float(val)))
+
+rpt("lines", n.lines, "s_nom_max", "s_nom_extendable")
+rpt("links", n.links, "p_nom_max", "p_nom_extendable")
+rpt("generators", n.generators, "p_nom_max", "p_nom_extendable")
+
 pd.DataFrame(rows).to_csv(r"{output[2]}", index=False)
 pd.DataFrame(offenders).to_csv(r"{output[3]}", index=False)
 print(open(r"{output[2]}").read())
 PY"""
+        )
 
 
 
