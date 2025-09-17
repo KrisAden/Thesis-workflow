@@ -150,6 +150,57 @@ def enable_transmission_expansion(
 
     return pd.DataFrame(rows)
 
+def cap_generator_expansion_absolute(
+    n: pypsa.Network,
+    abs_caps: dict[str, float] | None = None,
+    *,
+    only_extendable: bool = True,
+    min_equals_current: bool = True,
+) -> None:
+    """
+    Apply absolute p_nom_max caps to generators by carrier.
+
+    - abs_caps: mapping like {"biomass": 36000, "nuclear": 64000} (MW).
+    - only_extendable: cap only rows with p_nom_extendable==True.
+    - min_equals_current: ensure p_nom_min = current so existing capacity isn't removed.
+    """
+    if not abs_caps or not len(n.generators):
+        return
+
+    g = n.generators
+    # normalize carrier names to lower for matching
+    carr_lower = g["carrier"].astype(str).str.lower()
+
+    if "p_nom_extendable" not in g:
+        g["p_nom_extendable"] = False
+
+    ext_mask_all = g["p_nom_extendable"].fillna(False).astype(bool) if only_extendable else pd.Series(True, index=g.index)
+
+    # ensure columns exist
+    if "p_nom_max" not in g:
+        g["p_nom_max"] = np.inf
+    g["p_nom"] = g["p_nom"].fillna(0.0)
+
+    for carr, cap in (abs_caps or {}).items():
+        cap = float(cap)
+        mask = (carr_lower == str(carr).lower()) & ext_mask_all
+        if not mask.any():
+            continue
+
+        # new max = min(existing max, absolute cap)
+        old = g.loc[mask, "p_nom_max"].replace([np.inf, -np.inf], np.inf)
+        g.loc[mask, "p_nom_max"] = np.minimum(old, cap)
+
+        if min_equals_current:
+            # Keep existing capacity: p_nom_min = current, but not above max
+            g.loc[mask, "p_nom_min"] = np.minimum(g.loc[mask, "p_nom"], g.loc[mask, "p_nom_max"])
+
+        # Guard: if someone had min > max, fix by lowering min
+        bad = mask & g["p_nom_min"].notnull() & (g["p_nom_min"] > g["p_nom_max"])
+        if bad.any():
+            g.loc[bad, "p_nom_min"] = g.loc[bad, "p_nom_max"]
+
+
 
 def main():
     parser = argparse.ArgumentParser(
@@ -202,6 +253,17 @@ def main():
         lines_min_equals_current=bool(lines_cfg.get("min_equals_current", True)),
         links_min_equals_current=bool(links_cfg.get("min_equals_current", True)),
     )
+
+    xp = cfg.get("parameters", {}).get("expansion", {}) or {}
+    gen_cfg = xp.get("generators", {}) or {}
+
+    cap_generator_expansion_absolute(
+        n,
+        abs_caps=gen_cfg.get("absolute_max_by_carrier", {}),
+        only_extendable=True,
+        min_equals_current=bool(gen_cfg.get("min_equals_current", True)),
+    )
+
 
     # Write a quick sanity report for contradictions (min>max)
     vdf = _bound_violations_tx(n)

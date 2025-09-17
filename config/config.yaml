@@ -27,6 +27,12 @@ parameters:
       enable: true
       absolute_max: 20000
       min_equals_current: true
+  generators:
+    enable: true
+    min_equals_current: false
+    absolute_max_by_varrier:
+      biomass: 36000 #MW
+      nuclear: 64000 #MW
   co2_reductions: [0]
   solve:
     solver: "gurobi"
