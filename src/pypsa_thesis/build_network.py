@@ -200,6 +200,57 @@ def cap_generator_expansion_absolute(
         if bad.any():
             g.loc[bad, "p_nom_min"] = g.loc[bad, "p_nom_max"]
 
+def cap_generator_expansion_relative(
+    n: pypsa.Network,
+    rel_caps: dict[str, dict[str, float]] | None = None,
+    *,
+    only_extendable: bool = True,
+    min_equals_current: bool = True,
+    floor: float = 1.0,
+) -> None:
+    """
+    Apply p_nom_max caps of the form: p_nom_max = p_nom * multiplier,
+    restricted by (carrier, bus).
+
+    rel_caps example:
+      {"geothermal": {"IT0 0": 10.0, "PT0 0": 10.0}}
+    """
+    if not rel_caps or not len(n.generators):
+        return
+
+    g = n.generators
+
+    # Ensure required columns
+    if "p_nom_extendable" not in g:
+        g["p_nom_extendable"] = False
+    if "p_nom_max" not in g:
+        g["p_nom_max"] = np.inf
+
+    ext = g["p_nom_extendable"].fillna(False).astype(bool) if only_extendable else pd.Series(True, index=g.index)
+    g["p_nom"] = g["p_nom"].fillna(0.0)
+
+    carr = g["carrier"].astype(str).str.lower()
+    bus  = g["bus"].astype(str)
+
+    for carrier_name, bus_map in (rel_caps or {}).items():
+        c_lower = str(carrier_name).lower()
+        for bus_name, mult in (bus_map or {}).items():
+            m = (carr == c_lower) & (bus == str(bus_name)) & ext
+            if not m.any():
+                continue
+            cap = (g.loc[m, "p_nom"].astype(float) * float(mult)).clip(lower=floor)
+            old = g.loc[m, "p_nom_max"].replace([np.inf, -np.inf], np.inf)
+            g.loc[m, "p_nom_max"] = np.minimum(old, cap)
+
+            if min_equals_current:
+                # keep existing capacity but never above the max
+                g.loc[m, "p_nom_min"] = np.minimum(g.loc[m, "p_nom"], g.loc[m, "p_nom_max"])
+
+            # Guard: fix any min>max
+            bad = m & g["p_nom_min"].notnull() & (g["p_nom_min"] > g["p_nom_max"])
+            if bad.any():
+                g.loc[bad, "p_nom_min"] = g.loc[bad, "p_nom_max"]
+
 
 
 def main():
@@ -260,9 +311,17 @@ def main():
     cap_generator_expansion_absolute(
         n,
         abs_caps=gen_cfg.get("absolute_max_by_carrier", {}),
-        only_extendable=bool(gen_cfg.get("only_extendable", True)) is True and True or False,
+        only_extendable=bool(gen_cfg.get("only_extendable", True)),
         min_equals_current=bool(gen_cfg.get("min_equals_current", True)),
     )
+
+    cap_generator_expansion_relative(
+        n,
+        rel_caps=gen_cfg.get("relative_multiplier_by_carrier_bus", {}),
+        only_extendable=bool(gen_cfg.get("only_extendable", True)),
+        min_equals_current=bool(gen_cfg.get("min_equals_current", True)),
+    )
+
 
 
     # Write a quick sanity report for contradictions (min>max)

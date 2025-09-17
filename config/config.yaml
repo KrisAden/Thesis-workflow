@@ -35,7 +35,11 @@ parameters:
       min_equals_current: true
       absolute_max_by_carrier:
         biomass: 36000   # MW
-        nuclear: 64000   # MW
+        nuclear: 640000   # MW
+      relative_multiplier_by_carrier_bus:
+        geothermal:
+          "IT0 0": 10
+          "PT0 0": 10
   co2_reductions: [0]
   solve:
     solver: "gurobi"
