@@ -12,7 +12,7 @@ paths:
 parameters:
   preprocess:
     bypass: false
-  gtoe_to_twh: 11.63   # 1 Gtoe = 11.63 TWh
+  gtoe_to_twh: 11.63
   storage:
     add_battery: false
     add_hydrogen: false
@@ -27,12 +27,15 @@ parameters:
       enable: true
       absolute_max: 20000
       min_equals_current: true
-  generators:
-    enable: true
-    min_equals_current: false
-    absolute_max_by_varrier:
-      biomass: 36000 #MW
-      nuclear: 64000 #MW
+    generators:
+      enable: true
+      # cap ALL generators of these carriers (not just extendable ones)
+      only_extendable: false
+      # keep existing capacity from being reduced (optional, but usually sensible)
+      min_equals_current: true
+      absolute_max_by_carrier:
+        biomass: 36000   # MW
+        nuclear: 64000   # MW
   co2_reductions: [0]
   solve:
     solver: "gurobi"
@@ -48,6 +51,5 @@ parameters:
       AggFill: 0
       ScaleFlag: 2
       LogFile: "gurobi_solver.log"
-logging:
-  level: "INFO"
+
 

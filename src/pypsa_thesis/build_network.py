@@ -260,7 +260,7 @@ def main():
     cap_generator_expansion_absolute(
         n,
         abs_caps=gen_cfg.get("absolute_max_by_carrier", {}),
-        only_extendable=True,
+        only_extendable=bool(gen_cfg.get("only_extendable", True)) is True and True or False,
         min_equals_current=bool(gen_cfg.get("min_equals_current", True)),
     )
 
