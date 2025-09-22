@@ -206,18 +206,18 @@ def main() -> None:
         # for cname in ["co2_cap", ...]:
         #     _assign_dual_if_present(n, cname)
 
-        # Baseline CO2 (optional)
+                # Baseline CO2 (optional)
         baseline = None
         if args.write_baseline:
             Path(args.write_baseline).parent.mkdir(parents=True, exist_ok=True)
             try:
                 baseline = compute_total_co2(n)
-                pd.DataFrame([{"co2_total": baseline}]).to_csv(args.write_baseline, index=False)
-                logging.info("Wrote baseline emissions: %s", args.write_baseline)
             except Exception:
                 logging.exception("Baseline CO2 calculation failed; writing zero.")
-                pd.DataFrame([{"co2_total": 0.0}]).to_csv(args.write_baseline, index=False)
                 baseline = 0.0
+            # Always write the standard column name expected by constrained runs
+            pd.DataFrame([{"baseline_emissions": baseline}]).to_csv(args.write_baseline, index=False)
+            logging.info("Wrote baseline emissions: %s", args.write_baseline)
         else:
             try:
                 baseline = compute_total_co2(n)
@@ -225,6 +225,7 @@ def main() -> None:
             except Exception:
                 logging.exception("Baseline CO2 calculation failed.")
                 baseline = 0.0
+
 
         pd.DataFrame([{
             "reduction": 0.0,
