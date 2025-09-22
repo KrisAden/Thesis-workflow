@@ -28,18 +28,13 @@ parameters:
       absolute_max: 20000
       min_equals_current: true
     generators:
-      enable: true
-      # cap ALL generators of these carriers (not just extendable ones)
-      only_extendable: false
-      # keep existing capacity from being reduced (optional, but usually sensible)
+      relative_multiplier_by_carrier:
+        geothermal: 10.0
+        nuclear: 10.0
+        biomass: 10.0
+      only_extendable: true
       min_equals_current: true
-      absolute_max_by_carrier:
-        biomass: 36000   # MW
-        nuclear: 640000   # MW
-      relative_multiplier_by_carrier_bus:
-        geothermal:
-          "IT0 0": 10
-          "PT0 0": 10
+      floor: 1.0
   co2_reductions: [0]
   solve:
     solver: "gurobi"

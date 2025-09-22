@@ -35,6 +35,7 @@ rule all:
         "data/interim/network_costed.nc",
         "results/tables/load_scaling.csv",
         "results/tables/tx_expansion_bounds.csv",
+        "results/tables/gen_expansion_bounds.csv",
         "results/tables/storage_costs_applied.csv",
         "results/tables/generator_capital_costs.csv",
         # Baseline solve (only if 0 in the list)
@@ -88,6 +89,20 @@ rule enable_transmission_expansion:
             '--report-out {output.bounds} '
             '--violations-out {output.viol}')
 
+rule enable_generator_expansion:
+    input:
+        "data/interim/network_costed_tx.nc"
+    output:
+        network="data/interim/network_costed_tx_gen.nc",
+        bounds="results/tables/gen_expansion_bounds.csv",
+        viol="results/tables/gen_bound_violations.csv"
+    shell:
+        RUN('pypsa_thesis.apply_generatorexpansion '
+            '--network-in {input} '
+            '--network-out {output.network} '
+            '--report-out {output.bounds} '
+            '--violations-out {output.viol}')
+
 
 rule add_storage:
     input:
@@ -103,7 +118,7 @@ rule add_storage:
 
 rule solve_baseline:
     input:
-        base="data/interim/network_costed_tx.nc"
+        base="data/interim/network_costed_tx_gen.nc"
     output:
         net="results/networks/solved_baseline_costed_expansion.nc",
         report="results/tables/solve_baseline_costed_expansion.csv",
@@ -118,7 +133,7 @@ rule solve_baseline:
 
 rule solve_with_cap:
     input:
-        base="data/interim/network_costed.nc",
+        base="data/interim/network_costed_tx_gen.nc",
         baseline="results/tables/baseline_emissions.csv"
     output:
         net="results/networks/solved_reduction_{r}.nc",
