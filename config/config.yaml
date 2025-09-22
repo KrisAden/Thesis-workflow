@@ -35,7 +35,7 @@ parameters:
       only_extendable: true
       min_equals_current: true
       floor: 1.0
-  co2_reductions: [0, 0.05]
+  co2_reductions: [0, 50]
   solve:
     solver: "gurobi"
     solver_options:
