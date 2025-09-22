@@ -66,31 +66,40 @@ def _sanitize_gurobi_opts(opts: Optional[Dict]) -> Optional[Dict]:
 
 def compute_total_co2(n: pypsa.Network) -> float:
     """
-    Sum CO₂ = sum_t sum_g p_t,g * co2_factor_g
-    Robust to missing columns and index misalignment.
+    Sum CO₂ = sum_t sum_g p_t,g * factor_g.
+    Uses generators.co2_factor if present; otherwise maps from carriers.co2_emissions.
+    Applies snapshot weightings if available.
     """
-    if not hasattr(n, "generators_t") or "p" not in n.generators_t:
+    if not hasattr(n, "generators_t") or "p" not in n.generators_t or len(n.generators) == 0:
         return 0.0
 
-    p = n.generators_t.p  # DataFrame [snapshots x generators]
-    co2 = n.generators.get("co2_factor")  # Series indexed by generator
+    p = n.generators_t.p  # [snapshots x generators]
 
-    if co2 is None:
-        return 0.0
-
-    # Align precisely to p's columns, fill missing with 0
-    co2 = co2.reindex(p.columns).fillna(0.0).astype(float)
-
-    # Optional: apply snapshot weightings if present
+    # Apply snapshot weightings if available
     try:
-        # PyPSA often provides weightings under snapshot_weightings['generators']
-        w = n.snapshot_weightings["generators"]
-        p = p.mul(w, axis=0)
+        w = n.snapshot_weightings.get("generators", None)
+        if w is not None:
+            p = p.mul(w, axis=0)
     except Exception:
         pass
 
-    # Multiply elementwise and sum — avoids pandas .dot index pitfalls
-    return float((p.mul(co2, axis=1)).to_numpy().sum())
+    # Get emission factors per generator
+    if "co2_factor" in n.generators.columns:
+        fac = n.generators["co2_factor"]
+    else:
+        # Map generator carriers to carriers.co2_emissions
+        carr = n.generators["carrier"].astype(str)
+        f_by_carr = n.carriers.get("co2_emissions")
+        if f_by_carr is None:
+            # No info anywhere → zero
+            return 0.0
+        fac = carr.map(f_by_carr)
+
+    fac = fac.fillna(0.0).astype(float).reindex(p.columns).fillna(0.0)
+
+    # Column-wise multiply and sum all entries
+    return float(p.mul(fac, axis=1).to_numpy().sum())
+
 
 
 def add_global_co2_cap(n: pypsa.Network, cap_tco2: float) -> None:
