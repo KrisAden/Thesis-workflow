@@ -64,58 +64,29 @@ else:
         shell:
             RUN("pypsa_thesis.preprocess")
 
+rule apply_costs:
+    input:
+        "data/raw/elec_s_37.nc",
+        "data/raw/generator_costs.csv"
+    output:
+        "data/interim/network_costed.nc",
+        "results/tables/generator_capital_costs.csv"
+    shell:
+        RUN("pypsa_thesis.apply_costs --network-in {input[0]} --network-out {output[0]} --table-out {output[1]}")
 
-rule enable_expansion:
+rule enable_transmission_expansion:
     input:
         "data/interim/network_costed.nc"
     output:
-        "data/interim/network_expansion.nc",
-        "results/tables/tx_expansion_bounds.csv",
-        "results/tables/tx_bounds_debug.csv",
-        "results/tables/tx_bounds_offenders.csv"
+        network="data/interim/network_costed_tx.nc",
+        bounds="results/tables/tx_expansion_bounds.csv",
+        viol="results/tables/tx_bound_violations.csv"
     shell:
-        (
-            RUN('pypsa_thesis.build_network '
-                '--network-in {input} --network-out {output[0]}')
-            + " && " +
-            RUN('pypsa_thesis.apply_renewable_bounds '
-                '--network-in {output[0]} --network-out {output[0]}')
-            + r""" && python - <<'PY'
-import numpy as np, pandas as pd, pypsa
-n = pypsa.Network(r"{output[0]}")
-TH = 1e8
-
-rows = []
-offenders = []
-
-def rpt(name, df, col, flag):
-    if len(df) and col in df:
-        ext_raw = df.get(flag, False)
-        if hasattr(ext_raw, "values"):
-            ext = pd.Series(ext_raw, index=df.index).fillna(False).astype(bool)
-        else:
-            ext = pd.Series([bool(ext_raw)]*len(df), index=df.index)
-        ub = df[col].astype(float).replace([np.inf, -np.inf], np.inf)
-        bigmask = ext & (ub > TH)
-        rows.append(dict(component=name, column=col,
-                         max=float(ub.max()) if len(ub) else float("nan"),
-                         count_ge_threshold=int(bigmask.sum())))
-        if bigmask.any():
-            top = ub[bigmask].sort_values(ascending=False).head(50)
-            for idx, val in top.items():
-                offenders.append(dict(component=name, name=str(idx), ub=float(val)))
-
-rpt("lines", n.lines, "s_nom_max", "s_nom_extendable")
-rpt("links", n.links, "p_nom_max", "p_nom_extendable")
-rpt("generators", n.generators, "p_nom_max", "p_nom_extendable")
-
-pd.DataFrame(rows).to_csv(r"{output[2]}", index=False)
-pd.DataFrame(offenders).to_csv(r"{output[3]}", index=False)
-print(open(r"{output[2]}").read())
-PY"""
-        )
-
-
+        RUN('pypsa_thesis.apply_transmissionexpansion '
+            '--network-in {input} '
+            '--network-out {output.network} '
+            '--report-out {output.bounds} '
+            '--violations-out {output.viol}')
 
 
 rule add_storage:
@@ -128,20 +99,11 @@ rule add_storage:
     shell:
         RUN("pypsa_thesis.apply_storage --network-in {input[0]} --network-out {output[0]} --table-out {output[1]}")
 
-rule apply_costs:
-    input:
-        "data/raw/elec_s_37.nc",
-        "data/raw/generator_costs.csv"
-    output:
-        "data/interim/network_costed.nc",
-        "results/tables/generator_capital_costs.csv"
-    shell:
-        RUN("pypsa_thesis.apply_costs --network-in {input[0]} --network-out {output[0]} --table-out {output[1]}")
 
 
 rule solve_baseline:
     input:
-        base="data/interim/network_expansion.nc"
+        base="data/interim/network_costed_tx.nc"
     output:
         net="results/networks/solved_baseline_costed_expansion.nc",
         report="results/tables/solve_baseline_costed_expansion.csv",
