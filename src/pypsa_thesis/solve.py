@@ -1,18 +1,5 @@
-from __future__ import annotations
-import logging
-import pandas as pd
-
-# Attach duals only if the constraint exists
-def _assign_dual_if_present(n, cname):
-    if hasattr(n, "model") and cname in n.model.constraints:
-        try:
-            mu = n.model.dual[n.model.constraints[cname]]
-            # TODO: map mu into the right n.* table; depends on your structure
-        except Exception:
-            logging.exception("Failed assigning duals for %s", cname)
-    else:
-        logging.info("Constraint %s not in model; skipping dual assignment.", cname)
 # src/pypsa_thesis/solve.py
+from __future__ import annotations
 
 import argparse
 import logging
@@ -20,8 +7,8 @@ import re
 from pathlib import Path
 from typing import Dict, Tuple, Optional
 
-import pandas as pd
 import numpy as np
+import pandas as pd
 import pypsa
 
 from . import io as pio
@@ -47,12 +34,14 @@ def _solver_from_cfg(cfg: dict) -> Tuple[str, Optional[Dict]]:
     return name, opts
 
 
+# gurobi options that are allowed to remain strings
 _STRING_PARAMS_OK = {
     "LogFile", "ResultFile", "CSManager", "ComputeServer", "Server", "Token",
     "WLSAccessID", "WLSSecret", "LicenseID"
 }
 
 def _sanitize_gurobi_opts(opts: Optional[Dict]) -> Optional[Dict]:
+    """Convert numeric strings to int/float except for whitelisted string params."""
     if not opts:
         return opts
     out = {}
@@ -65,6 +54,7 @@ def _sanitize_gurobi_opts(opts: Optional[Dict]) -> Optional[Dict]:
                 else:
                     v = float(s)
             except Exception:
+                # leave as-is if it can't be parsed numerically
                 pass
         out[k] = v
     return out
@@ -77,13 +67,13 @@ def _sanitize_gurobi_opts(opts: Optional[Dict]) -> Optional[Dict]:
 def compute_total_co2(n: pypsa.Network) -> float:
     """
     Sum CO₂ = sum_t sum_g p_t,g * co2_factor_g
-    Robust to missing columns and misaligned indexes.
+    Robust to missing columns and index misalignment.
     """
     if not hasattr(n, "generators_t") or "p" not in n.generators_t:
         return 0.0
 
-    p = n.generators_t.p                   # DataFrame [snapshots x generators]
-    co2 = n.generators.get("co2_factor")   # Series indexed by generator
+    p = n.generators_t.p  # DataFrame [snapshots x generators]
+    co2 = n.generators.get("co2_factor")  # Series indexed by generator
 
     if co2 is None:
         return 0.0
@@ -93,7 +83,8 @@ def compute_total_co2(n: pypsa.Network) -> float:
 
     # Optional: apply snapshot weightings if present
     try:
-        w = n.snapshot_weightings["generators"]  # PyPSA >=0.20 style
+        # PyPSA often provides weightings under snapshot_weightings['generators']
+        w = n.snapshot_weightings["generators"]
         p = p.mul(w, axis=0)
     except Exception:
         pass
@@ -119,7 +110,14 @@ def add_global_co2_cap(n: pypsa.Network, cap_tco2: float) -> None:
 # Helper to run optimize with pre-save
 # ---------------------------
 
-def _run_opt(n: pypsa.Network, solver_name: str, solver_options: Optional[Dict], rep_path: Path, out_path: Path) -> None:
+def _run_opt(
+    n: pypsa.Network,
+    solver_name: str,
+    solver_options: Optional[Dict],
+    rep_path: Path,
+    out_path: Path,
+) -> None:
+    # Info-log each solver option (helps reproducibility)
     for k, v in (solver_options or {}).items():
         logging.info(f"opt {k}: {v!r} (type={type(v).__name__})")
 
@@ -145,8 +143,10 @@ def _run_opt(n: pypsa.Network, solver_name: str, solver_options: Optional[Dict],
             "termination_condition": str(termination),
             "error": repr(e),
         }]).to_csv(dbg_path, index=False)
-        logging.exception("Optimization raised exception (status=%s, termination=%s). Debug: %s",
-                          status, termination, dbg_path)
+        logging.exception(
+            "Optimization raised exception (status=%s, termination=%s). Debug: %s",
+            status, termination, dbg_path
+        )
         raise
 
     ok = str(status).lower() in {"ok", "optimal", "success"} or str(termination).lower() in {"optimal"}
@@ -157,8 +157,10 @@ def _run_opt(n: pypsa.Network, solver_name: str, solver_options: Optional[Dict],
             "termination_condition": str(termination),
             "error": "",
         }]).to_csv(dbg_path, index=False)
-        logging.error("Optimization finished non-OK (status=%s, termination=%s). Debug: %s",
-                      status, termination, dbg_path)
+        logging.error(
+            "Optimization finished non-OK (status=%s, termination=%s). Debug: %s",
+            status, termination, dbg_path
+        )
         raise RuntimeError(f"Non-OK optimization result: status={status}, termination={termination}")
 
 
@@ -167,14 +169,17 @@ def _run_opt(n: pypsa.Network, solver_name: str, solver_options: Optional[Dict],
 # ---------------------------
 
 def main() -> None:
-    ap = argparse.ArgumentParser(description="Solve network with optional global CO₂ cap (baseline or constrained).")
+    ap = argparse.ArgumentParser(
+        description="Solve network with optional global CO₂ cap (baseline or constrained)."
+    )
     ap.add_argument("--config", default="config/config.yaml")
     ap.add_argument("--network-in", help="Input network (defaults to cfg.paths.costed_network)")
     ap.add_argument("--network-out", help="Output solved network (.nc)")
     ap.add_argument("--report-out", help="CSV report with objective/status/emissions")
-    ap.add_argument("--reduction", type=float, default=0.0)
+    ap.add_argument("--reduction", type=float, default=0.0,
+                    help="CO2 reduction as fraction (0–1) or percent (0–100).")
     ap.add_argument("--write-baseline", help="CSV to write baseline_emissions (only when reduction=0).")
-    ap.add_argument("--baseline-file", help="CSV with 'baseline_emissions' column (required when reduction>0).")
+    ap.add_argument("--baseline-file", help="CSV with 'baseline_emissions' (or legacy 'co2_total') column (required when reduction>0).")
     args = ap.parse_args()
 
     cfg = pio.read_yaml(args.config)
@@ -186,27 +191,30 @@ def main() -> None:
     out_path.parent.mkdir(parents=True, exist_ok=True)
     rep_path.parent.mkdir(parents=True, exist_ok=True)
 
+    # Normalize reduction: accept 0–1 (fraction) or 0–100 (percent)
+    red_raw = float(args.reduction)
+    red_frac = red_raw / 100.0 if red_raw > 1.0 else red_raw
+    # clamp to [0, ~1)
+    red_frac = max(0.0, min(red_frac, 0.999999))
+
     n = pio.load_network(in_path)
     solver_name, solver_options = _solver_from_cfg(cfg)
     solver_options = _sanitize_gurobi_opts(solver_options)
-    logging.info(f"Solver: {solver_name} | options: {solver_options or {}} | reduction: {args.reduction:.2%}")
+    logging.info(f"Solver: {solver_name} | options: {solver_options or {}} | reduction: {red_frac:.2%}")
 
     # Always save pre-optimization network before calling optimize
     pre_path = out_path.with_name(out_path.stem + "_preopt.nc")
     pio.save_network(n, pre_path)
     logging.info(f"Saved pre-optimization network: {pre_path}")
 
-    if args.reduction <= 0.0 + 1e-12:
+    # Baseline (unconstrained) run
+    if red_frac <= 0.0 + 1e-12:
         _run_opt(n, solver_name, solver_options, rep_path, out_path)
-        # Always save the solved network, even if CO2 calculation fails
+        # Save solved network
         pio.save_network(n, out_path)
         logging.info(f"Wrote solved network: {out_path}")
 
-        # Attach duals for constraints if needed
-        # for cname in ["co2_cap", ...]:
-        #     _assign_dual_if_present(n, cname)
-
-                # Baseline CO2 (optional)
+        # Compute and write baseline emissions if requested
         baseline = None
         if args.write_baseline:
             Path(args.write_baseline).parent.mkdir(parents=True, exist_ok=True)
@@ -215,7 +223,7 @@ def main() -> None:
             except Exception:
                 logging.exception("Baseline CO2 calculation failed; writing zero.")
                 baseline = 0.0
-            # Always write the standard column name expected by constrained runs
+            # Write using the standard column name expected by constrained runs
             pd.DataFrame([{"baseline_emissions": baseline}]).to_csv(args.write_baseline, index=False)
             logging.info("Wrote baseline emissions: %s", args.write_baseline)
         else:
@@ -225,7 +233,6 @@ def main() -> None:
             except Exception:
                 logging.exception("Baseline CO2 calculation failed.")
                 baseline = 0.0
-
 
         pd.DataFrame([{
             "reduction": 0.0,
@@ -237,23 +244,31 @@ def main() -> None:
         }]).to_csv(rep_path, index=False)
         return
 
+    # Constrained run (needs baseline)
     if not args.baseline_file:
-        raise SystemExit("Constrained run requires --baseline-file with 'baseline_emissions'.")
+        raise SystemExit("Constrained run requires --baseline-file with 'baseline_emissions' (or legacy 'co2_total').")
 
     bl = pd.read_csv(args.baseline_file)
-    if "baseline_emissions" not in bl.columns or bl.empty:
-        raise SystemExit(f"{args.baseline_file} missing 'baseline_emissions'")
+    if bl.empty:
+        raise SystemExit(f"{args.baseline_file} is empty")
 
-    baseline = float(bl["baseline_emissions"].iloc[0])
-    cap = baseline * (1.0 - float(args.reduction))
+    if "baseline_emissions" in bl.columns:
+        baseline = float(bl["baseline_emissions"].iloc[0])
+    elif "co2_total" in bl.columns:  # backward-compat
+        baseline = float(bl["co2_total"].iloc[0])
+    else:
+        raise SystemExit(f"{args.baseline_file} missing 'baseline_emissions' (or legacy 'co2_total')")
+
+    cap = baseline * (1.0 - red_frac)
     add_global_co2_cap(n, cap)
-    logging.info(f"Applied CO₂ cap {cap:,.6f} (baseline {baseline:,.6f}, reduction {args.reduction:.2%})")
+    logging.info(f"Applied CO₂ cap {cap:,.6f} (baseline {baseline:,.6f}, reduction {red_frac:.2%})")
 
     _run_opt(n, solver_name, solver_options, rep_path, out_path)
     actual = compute_total_co2(n)
     pio.save_network(n, out_path)
+
     pd.DataFrame([{
-        "reduction": float(args.reduction),
+        "reduction": red_frac,
         "objective": getattr(n, "objective", float("nan")),
         "status": str(getattr(n, "status", "")),
         "termination_condition": str(getattr(n, "termination_condition", "")),
