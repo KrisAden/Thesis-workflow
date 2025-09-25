@@ -56,3 +56,12 @@ git reset --hard origin/main
 git clean -fd   # omit this if you want to keep any untracked files
 
 snakemake -s workflow/Snakefile --cores 1 -p
+
+
+
+python scripts/compare_network_changes.py
+# quick check the file really has a number:
+sed -n '1,3p' results/tables/baseline_emissions.csv
+
+# 2) Run the constrained solve
+snakemake -s workflow/Snakefile results/networks/solved_reduction_50.nc -p --cores 4
