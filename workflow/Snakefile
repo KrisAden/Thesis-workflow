@@ -67,7 +67,7 @@ else:
 
 rule apply_costs:
     input:
-        "data/raw/elec_s_37.nc",
+        "data/interim/network_rescaled.nc",
         "data/raw/generator_costs.csv"
     output:
         "data/interim/network_costed.nc",
@@ -146,19 +146,19 @@ rule solve_baseline:
             '--write-baseline {output.emissions}')
 
 
-rule solve_with_cap:
-    input:
-        base="data/interim/network_costed_tx__ren_gen.nc",
-        baseline="results/tables/baseline_emissions.csv"
-    output:
-        net="results/networks/solved_reduction_{r}.nc",
-        report="results/tables/solve_reduction_{r}.csv"
-    params:
-        reduction="{r}"
-    shell:
-        RUN('pypsa_thesis.solve '
-            '--network-in {input.base} '
-            '--network-out {output.net} '
-            '--report-out {output.report} '
-            '--reduction {params.reduction} '
-            '--baseline-file {input.baseline}')
+#rule solve_with_cap:
+#    input:
+#        base="data/interim/network_costed_tx__ren_gen.nc",
+#        baseline="results/tables/baseline_emissions.csv"
+#    output:
+#        net="results/networks/solved_reduction_{r}.nc",
+#        report="results/tables/solve_reduction_{r}.csv"
+#    params:
+#        reduction="{r}"
+#    shell:
+#        RUN('pypsa_thesis.solve '
+#            '--network-in {input.base} '
+#            '--network-out {output.net} '
+#           '--report-out {output.report} '
+#            '--reduction {params.reduction} '
+#            '--baseline-file {input.baseline}')
