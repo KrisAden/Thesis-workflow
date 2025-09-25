@@ -30,21 +30,32 @@ HAS_BASELINE = any(float(r) == 0 for r in REDUCTIONS)
 
 rule all:
     input:
-        "data/interim/network_expansion.nc",
-        "data/interim/network_storage.nc",
+        # intermediary nets you actually create
+        "data/interim/network_rescaled.nc",
         "data/interim/network_costed.nc",
+        "data/interim/network_costed_tx.nc",
+        "data/interim/network_costed_tx_ren.nc",
+        "data/interim/network_costed_tx__ren_gen.nc",
+
+        # tables you actually write
         "results/tables/load_scaling.csv",
-        "results/tables/tx_expansion_bounds.csv",
-        "results/tables/gen_expansion_bounds.csv",
-        "results/tables/storage_costs_applied.csv",
         "results/tables/generator_capital_costs.csv",
-        # Baseline solve (only if 0 in the list)
-        *(["results/networks/solved_baseline.nc",
-           "results/tables/solve_baseline.csv",
-           "results/tables/baseline_emissions.csv"] if HAS_BASELINE else []),
-        # Constrained solves
-        expand("results/networks/solved_reduction_{r}.nc", r=REDUC_GT0),
-        expand("results/tables/solve_reduction_{r}.csv", r=REDUC_GT0)
+        "results/tables/tx_expansion_bounds.csv",
+        "results/tables/tx_bound_violations.csv",
+        "results/tables/renewable_bounds_report.csv",
+        "results/tables/renewable_bound_violations.csv",
+        "results/tables/gen_expansion_bounds.csv",
+        "results/tables/gen_bound_violations.csv",
+
+        # baseline solve artifacts (since 0 is in co2_reductions)
+        "results/networks/solved_baseline_costed_expansion.nc",
+        "results/tables/solve_baseline_costed_expansion.csv",
+        "results/tables/baseline_emissions.csv",
+
+        # if you later re-enable constrained runs, add these two expands back
+        # expand("results/networks/solved_reduction_{r}.nc", r=REDUC_GT0),
+        # expand("results/tables/solve_reduction_{r}.csv", r=REDUC_GT0),
+
 
 if BYPASS_RESCALE:
     # Copy base -> "rescaled" and write a dummy scaling table
