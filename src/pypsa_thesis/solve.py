@@ -66,55 +66,73 @@ def _sanitize_gurobi_opts(opts: Optional[Dict]) -> Optional[Dict]:
 
 def compute_total_co2(n: pypsa.Network) -> float:
     """
-    CO₂ = sum_t sum_g p_t,g * factor_g.
-    Uses generators['co2_factor'] if present; otherwise maps from
-    carriers['co2_emissions'] by generator carrier.
-    Applies snapshot weightings if available.
+    Compute total CO2 in *tCO2*, aligned with a primary-energy style cap using
+    carriers['co2_emissions'] in tCO2/MWh_fuel.
+
+    Counts:
+      - Generators: fuel_MWh = (electric_MWh / efficiency)
+      - Links: fuel_MWh from input side (-p0), no extra efficiency factor
+    Applies snapshot_weightings (column 'generators' if present, else the Series).
     """
-    # Need dispatch
-    if not hasattr(n, "generators_t") or "p" not in n.generators_t or len(n.generators) == 0:
+
+    # snapshot weights (hours represented by each snapshot)
+    w = getattr(n, "snapshot_weightings", None)
+    if w is None:
+        raise ValueError("Network has no snapshot_weightings")
+    if hasattr(w, "generators"):
+        w = w.generators  # PyPSA≥0.20 DataFrame column
+    # else assume it's already a Series of weights
+
+    # emission factors by carrier (tCO2 per MWh_fuel)
+    if "co2_emissions" not in n.carriers.columns:
         return 0.0
+    ef_by_carrier = pd.to_numeric(n.carriers["co2_emissions"], errors="coerce").fillna(0.0)
 
-    p = n.generators_t.p  # [snapshots x generators]
+    total_t = 0.0
 
-    # Apply snapshot weightings if available (PyPSA >= 0.20)
-    try:
-        w = n.snapshot_weightings.get("generators", None)
-        if w is not None:
-            p = p.mul(w, axis=0)
-    except Exception:
-        pass
+    # ----- Generators -----
+    if not n.generators.empty and hasattr(n.generators_t, "p"):
+        P = n.generators_t.p  # MW_e
+        E_e = P.mul(w, axis=0).sum(axis=0)  # MWh_e per generator
+        eff = n.generators.get("efficiency", pd.Series(1.0, index=n.generators.index)).replace(0, np.nan).fillna(1.0)
+        E_fuel = (E_e / eff).fillna(E_e)  # MWh_fuel
+        ef = n.generators["carrier"].map(ef_by_carrier).fillna(0.0)  # t/MWh_fuel
+        total_t += float((E_fuel * ef).sum())
 
-    # Get emission factors per generator
-    if "co2_factor" in n.generators.columns:
-        fac = n.generators["co2_factor"]
-    else:
-        carr = n.generators["carrier"].astype(str)
-        f_by_carr = n.carriers.get("co2_emissions")
-        if f_by_carr is None:
-            return 0.0
-        # ensure numeric
-        f_by_carr = pd.to_numeric(f_by_carr, errors="coerce").fillna(0.0)
-        fac = carr.map(f_by_carr)
+    # ----- Links (fuel input on bus0) -----
+    # Assumes thermal links consume fuel on bus0: P_in = -p0 (positive when consuming).
+    if not n.links.empty and hasattr(n.links_t, "p0"):
+        P_in = (-n.links_t.p0).clip(lower=0.0)  # MW_fuel
+        E_fuel = P_in.mul(w, axis=0).sum(axis=0)  # MWh_fuel per link
 
-    fac = pd.to_numeric(fac, errors="coerce").fillna(0.0)
-    fac = fac.reindex(p.columns).fillna(0.0)
+        # Try link.carrier → carriers.co2_emissions; fallback via bus0's carrier
+        ef_link = pd.Series(0.0, index=n.links.index)
+        if "carrier" in n.links.columns:
+            ef_link = n.links["carrier"].map(ef_by_carrier).fillna(0.0)
+        if "bus0" in n.links.columns and "carrier" in n.buses.columns:
+            ef_bus0 = n.links["bus0"].map(n.buses["carrier"]).map(ef_by_carrier).fillna(0.0)
+            ef_link = ef_link.where(ef_link != 0.0, ef_bus0)
 
-    return float(p.mul(fac, axis=1).to_numpy().sum())
+        total_t += float((E_fuel * ef_link).sum())
+
+    return total_t  # tCO2
+
 
 
 
 def add_global_co2_cap(n: pypsa.Network, cap_tco2: float) -> None:
     if "co2_cap" in getattr(n, "global_constraints", pd.DataFrame()).index:
         n.global_constraints.at["co2_cap", "constant"] = float(cap_tco2)
+        n.global_constraints.at["co2_cap", "type"] = "primary_energy"
+        n.global_constraints.at["co2_cap", "carrier_attribute"] = "co2_emissions"
     else:
         n.add(
-            "GlobalConstraint",
-            "co2_cap",
-            sense="<=",
-            constant=float(cap_tco2),
+            "GlobalConstraint", "co2_cap",
+            sense="<=", constant=float(cap_tco2),
+            type="primary_energy",
             carrier_attribute="co2_emissions",
         )
+
 
 def _normalize_reduction(x: float) -> float:
     """

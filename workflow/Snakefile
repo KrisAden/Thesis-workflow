@@ -30,31 +30,22 @@ HAS_BASELINE = any(float(r) == 0 for r in REDUCTIONS)
 
 rule all:
     input:
-        # intermediary nets you actually create
+        # Intermediates you actually make
         "data/interim/network_rescaled.nc",
         "data/interim/network_costed.nc",
         "data/interim/network_costed_tx.nc",
-        "data/interim/network_costed_tx_ren.nc",
-        "data/interim/network_costed_tx__ren_gen.nc",
-
-        # tables you actually write
+        "data/interim/network_costed_tx_gen.nc",
         "results/tables/load_scaling.csv",
-        "results/tables/generator_capital_costs.csv",
         "results/tables/tx_expansion_bounds.csv",
-        "results/tables/tx_bound_violations.csv",
-        "results/tables/renewable_bounds_report.csv",
-        "results/tables/renewable_bound_violations.csv",
         "results/tables/gen_expansion_bounds.csv",
-        "results/tables/gen_bound_violations.csv",
-
-        # baseline solve artifacts (since 0 is in co2_reductions)
-        "results/networks/solved_baseline_costed_expansion.nc",
-        "results/tables/solve_baseline_costed_expansion.csv",
-        "results/tables/baseline_emissions.csv",
-
-        # if you later re-enable constrained runs, add these two expands back
-        # expand("results/networks/solved_reduction_{r}.nc", r=REDUC_GT0),
-        # expand("results/tables/solve_reduction_{r}.csv", r=REDUC_GT0),
+        "results/tables/generator_capital_costs.csv",
+        # Baseline solve (only if 0 in the list)
+        *(["results/networks/solved_baseline_costed_expansion.nc",
+           "results/tables/solve_baseline_costed_expansion.csv",
+           "results/tables/baseline_emissions.csv"] if HAS_BASELINE else []),
+        # Constrained solves (if any >0)
+        expand("results/networks/solved_reduction_{r}.nc", r=REDUC_GT0),
+        expand("results/tables/solve_reduction_{r}.csv", r=REDUC_GT0)
 
 
 if BYPASS_RESCALE:
@@ -100,28 +91,14 @@ rule enable_transmission_expansion:
             '--report-out {output.bounds} '
             '--violations-out {output.viol}')
 
-rule apply_renewable_bounds:
-    input:
-        "data/interim/network_costed_tx.nc"
-    output:
-        network="data/interim/network_costed_tx_ren.nc",
-        report="results/tables/renewable_bounds_report.csv",
-        viol="results/tables/renewable_bound_violations.csv"
-    shell:
-        RUN('pypsa_thesis.apply_renewable_bounds '
-            '--network-in {input} '
-            '--network-out {output.network} '
-            '--report-out {output.report} '
-            '--violations-out {output.viol}')
-
 
 rule enable_generator_expansion:
     input:
-        "data/interim/network_costed_tx_ren.nc"
+        "data/interim/network_costed_tx.nc"
     output:
-        network="data/interim/network_costed_tx__ren_gen.nc",
-        bounds="results/tables/gen_expansion_bounds.csv",
-        viol="results/tables/gen_bound_violations.csv"
+        network = "data/interim/network_costed_tx_gen.nc",
+        bounds  = "results/tables/gen_expansion_bounds.csv",
+        viol    = "results/tables/gen_bounds_violations.csv"
     shell:
         RUN('pypsa_thesis.apply_generatorexpansion '
             '--network-in {input} '
@@ -130,21 +107,21 @@ rule enable_generator_expansion:
             '--violations-out {output.viol}')
 
 
-#rule add_storage:
-#    input:
-#        "data/raw/elec_s_37.nc",
-#        "data/raw/storage_costs.csv"
-#    output:
-#        "data/interim/network_storage.nc",
-#        "results/tables/storage_costs_applied.csv"
-#    shell:
-#        RUN("pypsa_thesis.apply_storage --network-in {input[0]} --network-out {output[0]} --table-out {output[1]}")
+rule add_storage:
+    input:
+        "data/raw/elec_s_37.nc",
+        "data/raw/storage_costs.csv"
+    output:
+        "data/interim/network_storage.nc",
+        "results/tables/storage_costs_applied.csv"
+    shell:
+        RUN("pypsa_thesis.apply_storage --network-in {input[0]} --network-out {output[0]} --table-out {output[1]}")
 
 
 
 rule solve_baseline:
     input:
-        base="data/interim/network_costed_tx__ren_gen.nc"
+        base="data/interim/network_costed_tx_gen.nc"
     output:
         net="results/networks/solved_baseline_costed_expansion.nc",
         report="results/tables/solve_baseline_costed_expansion.csv",
@@ -159,7 +136,7 @@ rule solve_baseline:
 
 rule solve_with_cap:
     input:
-        base="data/interim/network_costed_tx__ren_gen.nc",
+        base="data/interim/network_costed_tx_gen.nc",
         baseline="results/tables/baseline_emissions.csv"
     output:
         net="results/networks/solved_reduction_{r}.nc",
@@ -170,6 +147,6 @@ rule solve_with_cap:
         RUN('pypsa_thesis.solve '
             '--network-in {input.base} '
             '--network-out {output.net} '
-           '--report-out {output.report} '
+            '--report-out {output.report} '
             '--reduction {params.reduction} '
             '--baseline-file {input.baseline}')

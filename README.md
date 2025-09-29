@@ -40,28 +40,8 @@ pip install gurobipy
 export GRB_LICENSE_FILE="$PWD/licenses/grb.lic"
 snakemake -s workflow/Snakefile --cores 1 -p
 
+# Make sure you’re on the main branch
+git checkout main
 
-to pull updates to hpc:
-# go to the repo (your earlier path looked like /work/Thesis-workflow)
-cd /work/KristofferHedegaardAden#2272/Thesis-workflow
-
-# make sure we’re on main and fetch latest
-git fetch origin
-git switch main 2>/dev/null || git checkout main
-
-# HARD reset local branch to the remote commit (DISCARDS local edits)
-git reset --hard origin/main
-
-# optionally clean untracked files/dirs (keeps ignored items like data/raw)
-git clean -fd   # omit this if you want to keep any untracked files
-
-snakemake -s workflow/Snakefile --cores 1 -p
-
-
-
-python scripts/compare_network_changes.py
-# quick check the file really has a number:
-sed -n '1,3p' results/tables/baseline_emissions.csv
-
-# 2) Run the constrained solve
-snakemake -s workflow/Snakefile results/networks/solved_reduction_50.nc -p --cores 4
+# Pull down the changes from GitHub
+git pull origin main
