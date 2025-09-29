@@ -30,20 +30,18 @@ HAS_BASELINE = any(float(r) == 0 for r in REDUCTIONS)
 
 rule all:
     input:
-        # Intermediates you actually make
         "data/interim/network_rescaled.nc",
         "data/interim/network_costed.nc",
         "data/interim/network_costed_tx.nc",
         "data/interim/network_costed_tx_gen.nc",
+        "data/interim/network_costed_tx_gen_sto.nc",   # add this
         "results/tables/load_scaling.csv",
         "results/tables/tx_expansion_bounds.csv",
         "results/tables/gen_expansion_bounds.csv",
         "results/tables/generator_capital_costs.csv",
-        # Baseline solve (only if 0 in the list)
         *(["results/networks/solved_baseline_costed_expansion.nc",
            "results/tables/solve_baseline_costed_expansion.csv",
            "results/tables/baseline_emissions.csv"] if HAS_BASELINE else []),
-        # Constrained solves (if any >0)
         expand("results/networks/solved_reduction_{r}.nc", r=REDUC_GT0),
         expand("results/tables/solve_reduction_{r}.csv", r=REDUC_GT0)
 
