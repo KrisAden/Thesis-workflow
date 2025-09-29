@@ -14,8 +14,8 @@ parameters:
     bypass: false
   gtoe_to_twh: 11.63
   storage:
-    add_battery: false
-    add_hydrogen: false
+    add_battery: true
+    add_hydrogen: true
   renewables:
     keep_existing: true
   expansion:
