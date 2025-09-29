@@ -109,10 +109,10 @@ rule enable_generator_expansion:
 
 rule add_storage:
     input:
-        "data/raw/elec_s_37.nc",
+        "data/interim/network_costed_tx_gen.nc",
         "data/raw/storage_costs.csv"
     output:
-        "data/interim/network_storage.nc",
+        "data/interim/network_costed_tx_gen_sto.nc",
         "results/tables/storage_costs_applied.csv"
     shell:
         RUN("pypsa_thesis.apply_storage --network-in {input[0]} --network-out {output[0]} --table-out {output[1]}")
@@ -121,7 +121,7 @@ rule add_storage:
 
 rule solve_baseline:
     input:
-        base="data/interim/network_costed_tx_gen.nc"
+        base="data/interim/network_costed_tx_gen_sto.nc"
     output:
         net="results/networks/solved_baseline_costed_expansion.nc",
         report="results/tables/solve_baseline_costed_expansion.csv",
@@ -136,7 +136,7 @@ rule solve_baseline:
 
 rule solve_with_cap:
     input:
-        base="data/interim/network_costed_tx_gen.nc",
+        base="data/interim/network_costed_tx_gen_sto.nc",
         baseline="results/tables/baseline_emissions.csv"
     output:
         net="results/networks/solved_reduction_{r}.nc",
