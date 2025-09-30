@@ -39,16 +39,19 @@ parameters:
   solve:
     solver: "gurobi"
     solver_options:
-      Threads: 2
+      Threads: 4
       Method: 2
-      Crossover: 0
-      BarConvTol: 1e-5
+      Crossover: -1
+      BarConvTol: 1e-6
+      BarCorrectors: -1
       NodefileStart: 0.5
-      BarOrder: 1
-      MemLimit: 80000
-      Presolve: 2
-      NumericFocus: 2
-      AggFill: 10
+      BarHomogeneous: 0
+      BarOrder: -1
+      MemLimit: 120000
+      Presolve: -1
+      NumericFocus: 0
+      AggFill: -1
+      Aggregate: 2
       ScaleFlag: 2
       LogFile: "gurobi_solver.log"
 
