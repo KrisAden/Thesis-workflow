@@ -911,6 +911,143 @@ def plot_total_system_cost(config, output_path, output_formats, dpi=300, has_bas
     plt.close(fig)
 
 
+def collect_marginal_prices_by_level(networks_by_percent):
+    """Collect marginal prices from all networks and organize by CO2 reduction level."""
+    dfs = []
+    for co2_pct, net in networks_by_percent.items():
+        try:
+            prices = net.buses_t.marginal_price.copy()
+            # Add a column for CO₂ level
+            prices["CO2_Level"] = co2_pct
+            # Set MultiIndex: (CO2_Level, Snapshot)
+            prices = prices.set_index("CO2_Level", append=True)
+            prices = prices.reorder_levels(["CO2_Level", prices.index.names[0]])
+            dfs.append(prices)
+            print(f"  ✓ Collected marginal prices for {co2_pct}% reduction")
+        except Exception as e:
+            print(f"⚠️ Skipping {co2_pct}% due to error: {e}")
+    
+    # Concatenate all
+    if not dfs:
+        print("No marginal price data collected.")
+        return None
+    df_all = pd.concat(dfs).sort_index()
+    return df_all
+
+
+def calculate_mean_prices_by_level(df_marginal_prices):
+    """Calculate mean marginal price per region for each decarbonization level."""
+    # Remove the 'CO2_Level' column if it's present in the columns (should only be in the index)
+    if "CO2_Level" in df_marginal_prices.columns:
+        df_marginal_prices = df_marginal_prices.drop(columns=["CO2_Level"])
+    
+    # Group by CO₂ level (first index), then take mean across all snapshots for each region
+    mean_prices_by_level = df_marginal_prices.groupby(level="CO2_Level").mean()
+    
+    return mean_prices_by_level
+
+
+def plot_mean_price_bellcurve(config, output_path, output_formats, dpi=300, has_baseline=True):
+    """Plot mean marginal prices by region in bell curve arrangement for each CO₂ reduction level."""
+    print("Creating mean price bell curve plots...")
+    
+    if not pypsa:
+        print("PyPSA not available - skipping mean price bell curve plots")
+        return
+    
+    # Load networks
+    networks_by_percent = load_networks_from_results(config, has_baseline)
+    
+    if not networks_by_percent:
+        print("No networks found - cannot create plot")
+        return
+    
+    # Collect marginal prices from all networks
+    print("  → Collecting marginal prices...")
+    df_marginal_prices = collect_marginal_prices_by_level(networks_by_percent)
+    
+    if df_marginal_prices is None or df_marginal_prices.empty:
+        print("No marginal price data - cannot create plot")
+        return
+    
+    # Calculate mean prices by level
+    print("  → Calculating mean prices by level...")
+    mean_prices_by_level = calculate_mean_prices_by_level(df_marginal_prices)
+    
+    # Get all available levels
+    levels_to_plot = sorted(mean_prices_by_level.index.tolist())
+    print(f"  ✓ Creating bell curve plots for levels: {levels_to_plot}")
+    
+    # Set font properties
+    font = {'fontsize': 12, 'fontweight': 'bold'}
+    
+    # Create plots for each level (we'll save all levels in a single multi-page PDF or separate files)
+    for level in levels_to_plot:
+        if level not in mean_prices_by_level.index:
+            print(f"Level {level} not found in data, skipping.")
+            continue
+            
+        prices = mean_prices_by_level.loc[level].dropna()
+        
+        if prices.empty:
+            print(f"No price data for level {level}%, skipping.")
+            continue
+            
+        # Sort regions by mean price (descending)
+        sorted_prices = prices.sort_values(ascending=False)
+        n = len(sorted_prices)
+        
+        # Arrange so largest is in the middle, next largest to the right, next to the left, etc.
+        bellcurve_prices = [None] * n
+        bellcurve_regions = [None] * n
+        center = n // 2
+        
+        for i, (region, value) in enumerate(sorted_prices.items()):
+            pos = center + ((i+1)//2) * (-1 if i%2 else 1)
+            bellcurve_prices[pos] = value
+            bellcurve_regions[pos] = region
+
+        mean_val = prices.mean()
+        std_val = prices.std()
+
+        # Assign colors: darker blue for bars below (mean - std), else skyblue
+        bar_colors = [
+            'royalblue' if (v is not None and v < mean_val - std_val) else 'skyblue'
+            for v in bellcurve_prices
+        ]
+
+        # Create the plot
+        fig, ax = plt.subplots(figsize=(max(10, n//2), 6))
+        
+        bars = ax.bar(range(n), bellcurve_prices, color=bar_colors, edgecolor='k', alpha=0.8)
+        ax.axhline(mean_val, color='red', linestyle='-', linewidth=3, 
+                   label=f"Mean: {mean_val:.2f}")
+        ax.axhline(mean_val + std_val, color='orange', linestyle='--', linewidth=3, 
+                   label=f"+1 Std: {mean_val + std_val:.2f}")
+        ax.axhline(mean_val - std_val, color='orange', linestyle='--', linewidth=3, 
+                   label=f"-1 Std: {mean_val - std_val:.2f}")
+        
+        ax.set_xticks(range(n))
+        ax.set_xticklabels(bellcurve_regions, rotation=90)
+        ax.set_ylabel("Mean Marginal Price (€/MWh)", **font)
+        ax.set_xlabel("Region", **font)
+        ax.set_title(f"Mean Regional Prices\nCO₂ Reduction Level: {level}%", **font)
+        ax.legend(loc='lower right')
+        ax.grid(axis='y', alpha=0.5)
+        
+        plt.tight_layout()
+
+        # Save in all requested formats
+        for fmt in output_formats:
+            output_file = output_path / f"mean_price_bellcurve_{level}pct.{fmt}"
+            fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+            print(f"  ✓ Saved plot as {output_file}")
+
+        plt.close(fig)
+    
+    print(f"  ✓ Created bell curve plots for {len(levels_to_plot)} CO₂ reduction levels")
+
+
 def load_config(config_path):
     """Load configuration from YAML file."""
     with open(config_path, 'r') as f:
@@ -1264,6 +1401,7 @@ def main():
         "interregional_transmission_expansion": lambda: plot_interregional_transmission_expansion(config, output_path, output_formats, dpi, args.has_baseline),
         "storage_expansion_boxplots": lambda: plot_storage_expansion_boxplots(config, output_path, output_formats, dpi, args.has_baseline),
         "total_system_cost": lambda: plot_total_system_cost(config, output_path, output_formats, dpi, args.has_baseline),
+        "mean_price_bellcurve": lambda: plot_mean_price_bellcurve(config, output_path, output_formats, dpi, args.has_baseline),
         "network_topology": lambda: plot_network_topology(networks, output_path, output_formats, dpi),
         "generation_mix": lambda: plot_generation_mix(networks, tables, output_path, output_formats, dpi),
         "transmission_flows": lambda: plot_transmission_flows(networks, output_path, output_formats, dpi),

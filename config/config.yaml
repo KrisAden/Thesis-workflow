@@ -65,6 +65,7 @@ parameters:
       interregional_transmission_expansion: true
       storage_expansion_boxplots: true
       total_system_cost: true
+      mean_price_bellcurve: true
       network_topology: false
       generation_mix: false
       transmission_flows: false
