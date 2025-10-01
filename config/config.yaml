@@ -62,6 +62,7 @@ parameters:
       electricity_cost: true
       generation_mix_actual: true
       renewable_penetration_boxplots: true
+      interregional_transmission_expansion: true
       network_topology: false
       generation_mix: false
       transmission_flows: false
