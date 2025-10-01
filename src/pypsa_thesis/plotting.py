@@ -9,6 +9,7 @@ import argparse
 import yaml
 import os
 import sys
+import shutil
 from pathlib import Path
 import pandas as pd
 import numpy as np
@@ -1045,6 +1046,17 @@ def plot_mean_price_bellcurve(config, output_path, output_formats, dpi=300, has_
 
         plt.close(fig)
     
+    # Create summary files that Snakemake expects
+    # These will be empty placeholder files since the real plots are the individual level files
+    for fmt in output_formats:
+        summary_file = output_path / f"mean_price_bellcurve.{fmt}"
+        # Create a simple summary plot or copy the first level's plot
+        if levels_to_plot:
+            first_level_file = output_path / f"mean_price_bellcurve_{levels_to_plot[0]}pct.{fmt}"
+            if first_level_file.exists():
+                shutil.copy2(first_level_file, summary_file)
+                print(f"  ✓ Created summary file {summary_file}")
+    
     print(f"  ✓ Created bell curve plots for {len(levels_to_plot)} CO₂ reduction levels")
 
 
@@ -1117,7 +1129,7 @@ def plot_mean_price_boxplots(config, output_path, output_formats, dpi=300, has_b
     
     box = ax.boxplot(
         data,
-        labels=labels,
+        tick_labels=labels,
         patch_artist=True,
         showmeans=False,
         meanline=False,
