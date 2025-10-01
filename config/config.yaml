@@ -63,6 +63,7 @@ parameters:
       generation_mix_actual: true
       renewable_penetration_boxplots: true
       interregional_transmission_expansion: true
+      storage_expansion_boxplots: true
       network_topology: false
       generation_mix: false
       transmission_flows: false

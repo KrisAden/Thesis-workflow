@@ -700,6 +700,145 @@ def plot_interregional_transmission_expansion(config, output_path, output_format
     plt.close(fig)
 
 
+def compute_storage_expansion_by_region(network):
+    """Compute storage expansion by region."""
+    storage_units = network.storage_units.copy()
+    buses = network.buses
+    
+    # Map storage units to regions
+    storage_units["region"] = buses.loc[storage_units["bus"], "country"].values
+    
+    # Calculate expansion (p_nom_opt - p_nom), clipped to positive values
+    storage_units["expansion"] = (storage_units["p_nom_opt"] - storage_units["p_nom"]).clip(lower=0)
+    
+    # Group by region and sum expansion
+    expansion_by_region = storage_units.groupby("region")["expansion"].sum()
+    
+    return expansion_by_region.to_dict()
+
+
+def plot_storage_expansion_boxplots(config, output_path, output_formats, dpi=300, has_baseline=True):
+    """Plot boxplots of storage expansion by region for each CO₂ reduction level."""
+    print("Creating storage expansion boxplots...")
+    
+    if not pypsa:
+        print("PyPSA not available - skipping storage expansion boxplots")
+        return
+    
+    # Load networks
+    networks_by_percent = load_networks_from_results(config, has_baseline)
+    
+    if not networks_by_percent:
+        print("No networks found - cannot create plot")
+        return
+    
+    # Compute storage expansion for all levels
+    storage_expansion_by_level = {}
+    
+    for co2_pct, net in networks_by_percent.items():
+        try:
+            storage_expansion_by_level[co2_pct] = compute_storage_expansion_by_region(net)
+            print(f"  ✓ Calculated storage expansion for {co2_pct}% reduction")
+        except Exception as e:
+            print(f"⚠️ Skipping {co2_pct}% due to error: {e}")
+    
+    if not storage_expansion_by_level:
+        print("No storage expansion data - cannot create plot")
+        return
+    
+    # Create DataFrame
+    df_storage_expansion = pd.DataFrame(storage_expansion_by_level).T.sort_index()
+    df_storage_expansion = df_storage_expansion.fillna(0)  # Fill NaN with 0 for regions without storage
+    
+    # Get all available levels for plotting
+    levels_to_plot = sorted(df_storage_expansion.index.tolist())
+    print(f"  ✓ Creating boxplots for levels: {levels_to_plot}")
+    
+    # Prepare boxplot data
+    boxplot_data = []
+    labels = []
+    region_lists = []
+    
+    for level in levels_to_plot:
+        if level not in df_storage_expansion.index:
+            print(f"⚠️ Level {level}% not found in data, skipping.")
+            continue
+        vals = df_storage_expansion.loc[level]
+        # Include all regions, even those with zero expansion
+        boxplot_data.append(vals.values)
+        labels.append(f"{level}%")
+        region_lists.append(list(vals.index))
+
+    if not boxplot_data:
+        print("No valid data for boxplots")
+        return
+
+    # Create the plot
+    fig, ax = plt.subplots(figsize=(2 + 2*len(labels), 6))
+    
+    # Set font properties
+    font = {'fontsize': 12, 'fontweight': 'bold'}
+    
+    # Create boxplot
+    box = ax.boxplot(
+        boxplot_data,
+        labels=labels,
+        patch_artist=True,
+        boxprops=dict(facecolor='lightgreen', color='k'),
+        medianprops=dict(color='darkgreen', linewidth=2),
+        whiskerprops=dict(color='k'),
+        capprops=dict(color='k'),
+        flierprops=dict(marker='o', color='orange', alpha=0.8)
+    )
+
+    # Overlay the mean as a red line and the median as a green line for each box
+    for i, data in enumerate(boxplot_data):
+        if len(data) > 0:
+            mean_val = np.mean(data)
+            median_val = np.median(data)
+            ax.plot([i+1-0.2, i+1+0.2], [mean_val, mean_val], color='red', linewidth=2, 
+                    label='Mean' if i == 0 else "")
+            ax.plot([i+1-0.2, i+1+0.2], [median_val, median_val], color='darkgreen', linewidth=2, 
+                    label='Median' if i == 0 else "")
+
+    # Annotate outliers with region names in orange
+    for i, flier in enumerate(box['fliers']):
+        y_outliers = flier.get_ydata()
+        x_outliers = flier.get_xdata()
+        regions = region_lists[i]
+        values = boxplot_data[i]
+        
+        if len(values) > 0:
+            q1 = np.percentile(values, 25)
+            q3 = np.percentile(values, 75)
+            iqr = q3 - q1
+            lower_bound = q1 - 1.5 * iqr
+            upper_bound = q3 + 1.5 * iqr
+            outlier_indices = [j for j, v in enumerate(values) if v < lower_bound or v > upper_bound]
+            
+            for x, y, idx in zip(x_outliers, y_outliers, outlier_indices):
+                if idx < len(regions):
+                    ax.annotate(str(regions[idx]), (x, y), textcoords="offset points", 
+                               xytext=(5,5), ha='left', fontsize=10, color='orange', 
+                               fontweight='bold')
+
+    ax.set_ylabel("Storage Expansion (MW)", **font)
+    ax.set_xlabel("CO₂ Reduction Level", **font)
+    ax.set_title("Storage Expansion by Region", **font)
+    ax.legend(loc="upper left")
+    ax.grid(axis='y', alpha=0.5)
+
+    plt.tight_layout()
+
+    # Save in all requested formats
+    for fmt in output_formats:
+        output_file = output_path / f"storage_expansion_boxplots.{fmt}"
+        fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+        print(f"  ✓ Saved plot as {output_file}")
+
+    plt.close(fig)
+
+
 def load_config(config_path):
     """Load configuration from YAML file."""
     with open(config_path, 'r') as f:
@@ -1051,6 +1190,7 @@ def main():
         "generation_mix_actual": lambda: plot_generation_mix_actual(config, output_path, output_formats, dpi, args.has_baseline),
         "renewable_penetration_boxplots": lambda: plot_renewable_penetration_boxplots(config, output_path, output_formats, dpi, args.has_baseline),
         "interregional_transmission_expansion": lambda: plot_interregional_transmission_expansion(config, output_path, output_formats, dpi, args.has_baseline),
+        "storage_expansion_boxplots": lambda: plot_storage_expansion_boxplots(config, output_path, output_formats, dpi, args.has_baseline),
         "network_topology": lambda: plot_network_topology(networks, output_path, output_formats, dpi),
         "generation_mix": lambda: plot_generation_mix(networks, tables, output_path, output_formats, dpi),
         "transmission_flows": lambda: plot_transmission_flows(networks, output_path, output_formats, dpi),
