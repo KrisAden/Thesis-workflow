@@ -1195,6 +1195,49 @@ def plot_mean_price_boxplots(config, output_path, output_formats, dpi=300, has_b
     print(f"  ✓ Created boxplot with {len(levels_to_plot)} CO₂ reduction levels")
 
 
+def get_europe_map():
+    """Get Europe map data, handling GeoPandas version differences."""
+    try:
+        # Try the old method first for backward compatibility
+        world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+        europe = world[world['continent'] == 'Europe']
+        return europe
+    except (AttributeError, Exception):
+        try:
+            # Create a simple Europe bounding box as fallback
+            print("  → Using simplified Europe bounding box for maps")
+            # Create a simple rectangular background for Europe
+            from shapely.geometry import Polygon
+            
+            # Europe bounding box coordinates
+            europe_bounds = Polygon([(-15, 35), (35, 35), (35, 72), (-15, 72), (-15, 35)])
+            europe_gdf = gpd.GeoDataFrame([1], geometry=[europe_bounds], crs="EPSG:4326")
+            return europe_gdf
+        except Exception as e:
+            print(f"  ⚠️ Could not load map data: {e}")
+            return None
+
+
+def get_carrier_color_map():
+    """Define consistent color mapping for energy carriers/technologies."""
+    return {
+        'hydro': '#377eb8',      # Blue
+        'nuclear': '#e41a1c',    # Red
+        'coal': '#8B4513',       # Brown  
+        'lignite': '#A0522D',    # Darker brown
+        'CCGT': '#4daf4a',       # Green
+        'OCGT': '#90EE90',       # Light green
+        'oil': '#000000',        # Black
+        'biomass': '#32CD32',    # Lime green
+        'geothermal': '#FF6347', # Tomato
+        'ror': '#377eb8',        # Blue
+        'solar': '#ffff33',      # Yellow
+        'onwind': '#984ea3',     # Purple
+        'offwind-ac': '#ff7f00', # Orange
+        'offwind-dc': '#a65628', # Dark orange
+    }
+
+
 def get_carrier_color_map():
     """Define consistent color mapping for energy carriers/technologies."""
     return {
@@ -1285,9 +1328,9 @@ def plot_generation_map(network, level, output_path, output_formats, dpi=300):
     fig, ax = plt.subplots(figsize=(16, 12))
     
     # Load world map and focus on Europe
-    world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
-    europe = world[world['continent'] == 'Europe']
-    europe.plot(ax=ax, color='lightgray', edgecolor='k', alpha=0.7, zorder=0)
+    europe = get_europe_map()
+    if europe is not None:
+        europe.plot(ax=ax, color='lightgray', edgecolor='k', alpha=0.7, zorder=0)
     
     # Calculate maximum total capacity for scaling pie sizes
     max_total_cap = cap_by_node_carrier.sum(axis=1).max()
@@ -1363,9 +1406,9 @@ def plot_transmission_map(network, level, output_path, output_formats, dpi=300):
     fig, ax = plt.subplots(figsize=(16, 12))
     
     # Load world map and focus on Europe
-    world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
-    europe = world[world['continent'] == 'Europe']
-    europe.plot(ax=ax, color='lightgray', edgecolor='k', alpha=0.7, zorder=0)
+    europe = get_europe_map()
+    if europe is not None:
+        europe.plot(ax=ax, color='lightgray', edgecolor='k', alpha=0.7, zorder=0)
     
     # Find maximum capacity for line width scaling
     max_line_cap = max(lines["capacity"].max(), links["capacity"].max())
@@ -1434,9 +1477,9 @@ def plot_storage_map(network, level, output_path, output_formats, dpi=300):
     fig, ax = plt.subplots(figsize=(16, 12))
     
     # Load world map and focus on Europe
-    world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
-    europe = world[world['continent'] == 'Europe']
-    europe.plot(ax=ax, color='lightgray', edgecolor='k', alpha=0.7, zorder=0)
+    europe = get_europe_map()
+    if europe is not None:
+        europe.plot(ax=ax, color='lightgray', edgecolor='k', alpha=0.7, zorder=0)
     
     storage_legend_handles = []
     
@@ -1560,6 +1603,31 @@ def plot_network_maps(config, output_path, output_formats, dpi=300, has_baseline
     
     print(f"  ✓ Created {map_counts['generation']} generation maps, {map_counts['transmission']} transmission maps, {map_counts['storage']} storage maps")
     print(f"  ✓ All maps saved to {maps_path}")
+    
+    # Create summary files that Snakemake expects
+    for fmt in output_formats:
+        summary_file = output_path / f"network_maps.{fmt}"
+        # Create a simple text-based summary plot since we created individual maps
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.text(0.5, 0.7, f"Network Maps Created", ha='center', va='center', 
+                fontsize=20, fontweight='bold', transform=ax.transAxes)
+        ax.text(0.5, 0.5, f"Generated maps for {len(levels_to_plot)} CO₂ reduction levels:", 
+                ha='center', va='center', fontsize=14, transform=ax.transAxes)
+        ax.text(0.5, 0.4, f"• {map_counts['generation']} generation capacity maps", 
+                ha='center', va='center', fontsize=12, transform=ax.transAxes)
+        ax.text(0.5, 0.35, f"• {map_counts['transmission']} transmission network maps", 
+                ha='center', va='center', fontsize=12, transform=ax.transAxes)
+        ax.text(0.5, 0.3, f"• {map_counts['storage']} storage capacity maps", 
+                ha='center', va='center', fontsize=12, transform=ax.transAxes)
+        ax.text(0.5, 0.2, f"All detailed maps saved to: {maps_path}", 
+                ha='center', va='center', fontsize=10, style='italic', transform=ax.transAxes)
+        ax.set_xlim(0, 1)
+        ax.set_ylim(0, 1)
+        ax.axis('off')
+        
+        fig.savefig(summary_file, dpi=dpi, bbox_inches='tight')
+        plt.close(fig)
+        print(f"  ✓ Created summary file {summary_file}")
 
 
 def load_config(config_path):
