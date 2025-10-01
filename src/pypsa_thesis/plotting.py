@@ -164,6 +164,76 @@ def plot_renewable_capacity_inequality(config, output_path, output_formats, dpi=
     plt.close(fig)
 
 
+def plot_total_renewable_capacity(config, output_path, output_formats, dpi=300, has_baseline=True):
+    """Plot total installed renewable capacity across CO₂ reduction scenarios."""
+    print("Creating total renewable capacity plot...")
+    
+    if not pypsa:
+        print("PyPSA not available - skipping total renewable capacity plot")
+        return
+    
+    # Load networks
+    networks_by_percent = load_networks_from_results(config, has_baseline)
+    
+    if not networks_by_percent:
+        print("No networks found - cannot create plot")
+        return
+    
+    # Calculate total installed renewable capacity for each scenario
+    total_renewable_capacities = {}
+    
+    for co2_pct, net in networks_by_percent.items():
+        try:
+            region_caps = extract_installed_renewable_capacities(net)
+            total_renewable_capacities[co2_pct] = region_caps.sum()
+            print(f"  ✓ Total renewable capacity for {co2_pct}% reduction: {region_caps.sum():.1f} MW")
+        except Exception as e:
+            print(f"⚠️ Skipping {co2_pct}% due to error: {e}")
+
+    if not total_renewable_capacities:
+        print("No valid results - cannot create plot")
+        return
+        
+    # Convert the results to a DataFrame for plotting
+    df_total_capacity = pd.DataFrame(
+        list(total_renewable_capacities.items()),
+        columns=["CO₂ Reduction (%)", "Total Renewable Capacity (MW)"]
+    ).sort_values("CO₂ Reduction (%)")
+
+    # Create the plot
+    fig, ax = plt.subplots(figsize=(10, 6))
+    
+    # Set font properties
+    font = {'fontsize': 12, 'fontweight': 'bold'}
+
+    # Plot total renewable capacity
+    ax.plot(
+        df_total_capacity["CO₂ Reduction (%)"],
+        df_total_capacity["Total Renewable Capacity (MW)"],
+        marker="o",
+        label="Total Renewable Capacity",
+        color="tab:green",
+        linewidth=2,
+        markersize=8
+    )
+    
+    ax.set_xlabel("CO₂ Reduction (%)", **font)
+    ax.set_ylabel("Total Renewable Capacity (MW)", **font)
+    ax.set_title("Total Installed Renewable Capacity vs CO₂ Reduction", **font)
+    ax.grid(True, alpha=0.3)
+    ax.legend()
+
+    plt.tight_layout()
+
+    # Save in all requested formats
+    for fmt in output_formats:
+        output_file = output_path / f"total_renewable_capacity.{fmt}"
+        fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+        print(f"  ✓ Saved plot as {output_file}")
+
+    plt.close(fig)
+
+
 def load_config(config_path):
     """Load configuration from YAML file."""
     with open(config_path, 'r') as f:
@@ -510,6 +580,7 @@ def main():
     # Generate requested plots
     plot_functions = {
         "renewable_capacity_inequality": lambda: plot_renewable_capacity_inequality(config, output_path, output_formats, dpi, args.has_baseline),
+        "total_renewable_capacity": lambda: plot_total_renewable_capacity(config, output_path, output_formats, dpi, args.has_baseline),
         "network_topology": lambda: plot_network_topology(networks, output_path, output_formats, dpi),
         "generation_mix": lambda: plot_generation_mix(networks, tables, output_path, output_formats, dpi),
         "transmission_flows": lambda: plot_transmission_flows(networks, output_path, output_formats, dpi),
