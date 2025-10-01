@@ -1204,68 +1204,18 @@ def get_europe_map():
         return europe
     except (AttributeError, Exception):
         try:
-            # New method: Download directly from Natural Earth
-            print("  → Downloading Natural Earth data for map background...")
-            import urllib.request
-            import tempfile
-            import zipfile
-            import os
+            # Create a simple Europe bounding box as fallback
+            print("  → Using simplified Europe bounding box for maps")
+            # Create a simple rectangular background for Europe
+            from shapely.geometry import Polygon
             
-            # Create temporary directory
-            temp_dir = tempfile.mkdtemp()
-            zip_path = os.path.join(temp_dir, "naturalearth.zip")
-            
-            # Download Natural Earth 110m cultural data
-            url = "https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110m/cultural/ne_110m_admin_0_countries.zip"
-            urllib.request.urlretrieve(url, zip_path)
-            
-            # Extract the zip file
-            with zipfile.ZipFile(zip_path, 'r') as zip_ref:
-                zip_ref.extractall(temp_dir)
-            
-            # Find the shapefile
-            shp_path = None
-            for file in os.listdir(temp_dir):
-                if file.endswith('.shp'):
-                    shp_path = os.path.join(temp_dir, file)
-                    break
-            
-            if shp_path:
-                world = gpd.read_file(shp_path)
-                europe = world[world['CONTINENT'] == 'Europe']
-                print("  ✓ Successfully downloaded and loaded Natural Earth data")
-                return europe
-            else:
-                raise Exception("Shapefile not found in downloaded data")
-                
+            # Europe bounding box coordinates
+            europe_bounds = Polygon([(-15, 35), (35, 35), (35, 72), (-15, 72), (-15, 35)])
+            europe_gdf = gpd.GeoDataFrame([1], geometry=[europe_bounds], crs="EPSG:4326")
+            return europe_gdf
         except Exception as e:
-            print(f"  ⚠️ Could not download Natural Earth data: {e}")
-            try:
-                # Final fallback: Create a detailed Europe outline
-                print("  → Creating detailed Europe outline as fallback...")
-                from shapely.geometry import Polygon
-                
-                # More detailed Europe boundaries (approximate country outlines)
-                europe_outline = [
-                    (-10, 35), (-7, 36), (-6, 43), (-1, 43), (3, 42), (7, 44), (8, 46), 
-                    (6, 47), (7, 48), (10, 47), (13, 47), (16, 48), (19, 49), (22, 48),
-                    (26, 48), (28, 46), (30, 45), (32, 44), (34, 42), (36, 41), (38, 40),
-                    (39, 42), (40, 45), (42, 47), (44, 48), (45, 50), (44, 52), (42, 54),
-                    (40, 56), (38, 58), (35, 60), (32, 62), (28, 64), (24, 66), (20, 68),
-                    (16, 70), (12, 71), (8, 71), (4, 70), (0, 69), (-4, 68), (-8, 66),
-                    (-10, 64), (-12, 62), (-13, 60), (-14, 58), (-14, 56), (-13, 54),
-                    (-12, 52), (-11, 50), (-10, 48), (-10, 46), (-9, 44), (-8, 42),
-                    (-9, 40), (-10, 38), (-10, 35)
-                ]
-                
-                europe_polygon = Polygon(europe_outline)
-                europe_gdf = gpd.GeoDataFrame([{'name': 'Europe'}], geometry=[europe_polygon], crs="EPSG:4326")
-                print("  ✓ Created detailed Europe outline")
-                return europe_gdf
-                
-            except Exception as e2:
-                print(f"  ⚠️ Could not create Europe outline: {e2}")
-                return None
+            print(f"  ⚠️ Could not load map data: {e}")
+            return None
 
 
 def get_carrier_color_map():
