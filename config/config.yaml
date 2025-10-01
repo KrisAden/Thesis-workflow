@@ -66,6 +66,7 @@ parameters:
       storage_expansion_boxplots: true
       total_system_cost: true
       mean_price_bellcurve: true
+      mean_price_boxplots: true
       network_topology: false
       generation_mix: false
       transmission_flows: false

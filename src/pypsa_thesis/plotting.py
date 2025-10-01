@@ -1048,6 +1048,133 @@ def plot_mean_price_bellcurve(config, output_path, output_formats, dpi=300, has_
     print(f"  ✓ Created bell curve plots for {len(levels_to_plot)} CO₂ reduction levels")
 
 
+def plot_mean_price_boxplots(config, output_path, output_formats, dpi=300, has_baseline=True):
+    """
+    Plot boxplots of mean marginal prices by region for each CO₂ reduction level.
+    Shows whiskers, outliers in purple, and overlays mean (red) and median (blue) lines.
+    Outliers are annotated with their region names.
+    """
+    print("Creating mean price boxplots...")
+    
+    if not pypsa:
+        print("PyPSA not available - skipping mean price boxplots")
+        return
+    
+    # Load networks
+    networks_by_percent = load_networks_from_results(config, has_baseline)
+    
+    if not networks_by_percent:
+        print("No networks found - cannot create plot")
+        return
+    
+    # Collect marginal prices from all networks
+    print("  → Collecting marginal prices...")
+    df_marginal_prices = collect_marginal_prices_by_level(networks_by_percent)
+    
+    if df_marginal_prices is None or df_marginal_prices.empty:
+        print("No marginal price data - cannot create plot")
+        return
+    
+    # Calculate mean prices by level
+    print("  → Calculating mean prices by level...")
+    mean_prices_by_level = calculate_mean_prices_by_level(df_marginal_prices)
+    
+    # Get all available levels
+    levels_to_plot = sorted(mean_prices_by_level.index.tolist())
+    print(f"  ✓ Creating boxplots for levels: {levels_to_plot}")
+    
+    # Prepare data for boxplots
+    data = []
+    labels = []
+    means = []
+    medians = []
+    region_lists = []
+    
+    for level in levels_to_plot:
+        if level not in mean_prices_by_level.index:
+            print(f"Level {level} not found in data, skipping.")
+            continue
+        prices = mean_prices_by_level.loc[level].dropna()
+        if prices.empty:
+            print(f"No price data for level {level}%, skipping.")
+            continue
+            
+        data.append(prices.values)
+        labels.append(f"{level}%")
+        means.append(prices.mean())
+        medians.append(np.median(prices.values))
+        region_lists.append(prices.index.tolist())
+    
+    if not data:
+        print("No valid data for boxplots")
+        return
+    
+    # Set font properties
+    font = {'fontsize': 12, 'fontweight': 'bold'}
+    
+    # Create the plot
+    fig, ax = plt.subplots(figsize=(max(8, 2 + 2*len(data)), 6))
+    
+    box = ax.boxplot(
+        data,
+        labels=labels,
+        patch_artist=True,
+        showmeans=False,
+        meanline=False,
+        boxprops=dict(facecolor='skyblue', color='k'),
+        medianprops=dict(color='blue', linewidth=2),
+        whiskerprops=dict(color='k'),
+        capprops=dict(color='k'),
+        flierprops=dict(marker='o', color='purple', alpha=0.8)  # Outliers in purple
+    )
+
+    # Overlay the mean as a red line and the median as a blue line
+    for i, (mean, median) in enumerate(zip(means, medians)):
+        ax.plot([i+1-0.2, i+1+0.2], [mean, mean], color='red', linewidth=2, 
+                label='Mean' if i == 0 else "")
+        ax.plot([i+1-0.2, i+1+0.2], [median, median], color='blue', linewidth=2, 
+                label='Median' if i == 0 else "")
+
+    # Annotate outliers with region names
+    for i, flier in enumerate(box['fliers']):
+        y_outliers = flier.get_ydata()
+        x_outliers = flier.get_xdata()
+        regions = region_lists[i]
+        values = data[i]
+        
+        # Compute IQR for this box
+        q1 = np.percentile(values, 25)
+        q3 = np.percentile(values, 75)
+        iqr = q3 - q1
+        lower_bound = q1 - 1.5 * iqr
+        upper_bound = q3 + 1.5 * iqr
+        
+        # Find outlier indices
+        outlier_indices = [j for j, v in enumerate(values) if v < lower_bound or v > upper_bound]
+        
+        for x, y, idx in zip(x_outliers, y_outliers, outlier_indices):
+            if idx < len(regions):  # Safety check
+                ax.annotate(regions[idx], (x, y), textcoords="offset points", 
+                           xytext=(5, 5), ha='left', fontsize=10, color='purple', 
+                           fontweight='bold')
+
+    ax.set_ylabel("Mean Marginal Price (€/MWh)", **font)
+    ax.set_xlabel("CO₂ Reduction Level", **font)
+    ax.set_title("Regional Mean Marginal Price Distribution by CO₂ Reduction Level", **font)
+    ax.legend()
+    ax.grid(axis='y', alpha=0.5)
+    plt.tight_layout()
+
+    # Save in all requested formats
+    for fmt in output_formats:
+        output_file = output_path / f"mean_price_boxplots.{fmt}"
+        fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+        print(f"  ✓ Saved plot as {output_file}")
+
+    plt.close(fig)
+    print(f"  ✓ Created boxplot with {len(levels_to_plot)} CO₂ reduction levels")
+
+
 def load_config(config_path):
     """Load configuration from YAML file."""
     with open(config_path, 'r') as f:
@@ -1402,6 +1529,8 @@ def main():
         "storage_expansion_boxplots": lambda: plot_storage_expansion_boxplots(config, output_path, output_formats, dpi, args.has_baseline),
         "total_system_cost": lambda: plot_total_system_cost(config, output_path, output_formats, dpi, args.has_baseline),
         "mean_price_bellcurve": lambda: plot_mean_price_bellcurve(config, output_path, output_formats, dpi, args.has_baseline),
+        "mean_price_boxplots": lambda: plot_mean_price_boxplots(config, output_path, output_formats, dpi, args.has_baseline),
+        "mean_price_boxplots": lambda: plot_mean_price_boxplots(config, output_path, output_formats, dpi, args.has_baseline),
         "network_topology": lambda: plot_network_topology(networks, output_path, output_formats, dpi),
         "generation_mix": lambda: plot_generation_mix(networks, tables, output_path, output_formats, dpi),
         "transmission_flows": lambda: plot_transmission_flows(networks, output_path, output_formats, dpi),
