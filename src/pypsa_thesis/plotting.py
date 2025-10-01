@@ -839,6 +839,78 @@ def plot_storage_expansion_boxplots(config, output_path, output_formats, dpi=300
     plt.close(fig)
 
 
+def plot_total_system_cost(config, output_path, output_formats, dpi=300, has_baseline=True):
+    """Plot total system cost across CO₂ reduction scenarios."""
+    print("Creating total system cost plot...")
+    
+    if not pypsa:
+        print("PyPSA not available - skipping total system cost plot")
+        return
+    
+    # Load networks
+    networks_by_percent = load_networks_from_results(config, has_baseline)
+    
+    if not networks_by_percent:
+        print("No networks found - cannot create plot")
+        return
+    
+    # Extract system cost for each CO₂ reduction level
+    system_costs = {}
+    
+    for co2_pct, net in networks_by_percent.items():
+        try:
+            system_costs[co2_pct] = net.objective  # Total system cost
+            print(f"  ✓ System cost for {co2_pct}% reduction: {net.objective:.0f} €")
+        except Exception as e:
+            print(f"⚠️ Skipping {co2_pct}% due to error: {e}")
+
+    if not system_costs:
+        print("No valid results - cannot create plot")
+        return
+        
+    # Convert the results to a DataFrame for plotting
+    df_system_costs = pd.DataFrame(
+        list(system_costs.items()),
+        columns=["CO₂ Reduction (%)", "System Cost (€)"]
+    ).sort_values("CO₂ Reduction (%)")
+
+    # Create the plot
+    fig, ax = plt.subplots(figsize=(10, 6))
+    
+    # Set font properties
+    font = {'fontsize': 12, 'fontweight': 'bold'}
+
+    # Plot system cost
+    ax.plot(
+        df_system_costs["CO₂ Reduction (%)"],
+        df_system_costs["System Cost (€)"],
+        marker="o",
+        label="System Cost",
+        color="tab:blue",
+        linewidth=2,
+        markersize=8
+    )
+    
+    ax.set_xlabel("CO₂ Reduction (%)", **font)
+    ax.set_ylabel("System Cost (€)", **font)
+    ax.set_title("Total System Cost vs CO₂ Reduction", **font)
+    ax.grid(True, alpha=0.3)
+    ax.legend()
+
+    # Format y-axis to show values in scientific notation or with appropriate scaling
+    ax.ticklabel_format(style='scientific', axis='y', scilimits=(0,0))
+
+    plt.tight_layout()
+
+    # Save in all requested formats
+    for fmt in output_formats:
+        output_file = output_path / f"total_system_cost.{fmt}"
+        fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+        print(f"  ✓ Saved plot as {output_file}")
+
+    plt.close(fig)
+
+
 def load_config(config_path):
     """Load configuration from YAML file."""
     with open(config_path, 'r') as f:
@@ -1191,6 +1263,7 @@ def main():
         "renewable_penetration_boxplots": lambda: plot_renewable_penetration_boxplots(config, output_path, output_formats, dpi, args.has_baseline),
         "interregional_transmission_expansion": lambda: plot_interregional_transmission_expansion(config, output_path, output_formats, dpi, args.has_baseline),
         "storage_expansion_boxplots": lambda: plot_storage_expansion_boxplots(config, output_path, output_formats, dpi, args.has_baseline),
+        "total_system_cost": lambda: plot_total_system_cost(config, output_path, output_formats, dpi, args.has_baseline),
         "network_topology": lambda: plot_network_topology(networks, output_path, output_formats, dpi),
         "generation_mix": lambda: plot_generation_mix(networks, tables, output_path, output_formats, dpi),
         "transmission_flows": lambda: plot_transmission_flows(networks, output_path, output_formats, dpi),
