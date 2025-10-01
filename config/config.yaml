@@ -59,6 +59,7 @@ parameters:
     plot_types:
       renewable_capacity_inequality: true
       total_renewable_capacity: true
+      electricity_cost: true
       network_topology: false
       generation_mix: false
       transmission_flows: false
