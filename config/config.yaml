@@ -60,6 +60,7 @@ parameters:
       renewable_capacity_inequality: true
       total_renewable_capacity: true
       electricity_cost: true
+      generation_mix_actual: true
       network_topology: false
       generation_mix: false
       transmission_flows: false

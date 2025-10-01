@@ -310,6 +310,91 @@ def plot_electricity_cost(config, output_path, output_formats, dpi=300, has_base
     plt.close(fig)
 
 
+def plot_generation_mix_actual(config, output_path, output_formats, dpi=300, has_baseline=True):
+    """Plot actual electricity generation mix (MWh) as stacked bar chart across CO₂ reduction scenarios."""
+    print("Creating actual generation mix plot...")
+    
+    if not pypsa:
+        print("PyPSA not available - skipping generation mix plot")
+        return
+    
+    # Load networks
+    networks_by_percent = load_networks_from_results(config, has_baseline)
+    
+    if not networks_by_percent:
+        print("No networks found - cannot create plot")
+        return
+    
+    # Prepare generation mix data as actual electricity generated (MWh)
+    generation_mix = []
+    
+    for co2_pct, net in networks_by_percent.items():
+        try:
+            # Weighted generation (MWh) across all snapshots
+            weighted_gen = net.generators_t.p.multiply(net.snapshot_weightings["objective"], axis=0)
+
+            # Map generator carriers correctly to columns
+            carriers = net.generators["carrier"]
+            weighted_gen.columns = carriers
+
+            # Sum total generation per carrier over time
+            gen_mix = weighted_gen.sum().groupby(level=0).sum()
+
+            # Add CO₂ reduction level
+            gen_mix["CO₂ Reduction (%)"] = co2_pct
+            generation_mix.append(gen_mix)
+            
+            print(f"  ✓ Processed generation mix for {co2_pct}% reduction")
+        except Exception as e:
+            print(f"⚠️ Skipping {co2_pct}% due to error: {e}")
+
+    if not generation_mix:
+        print("No valid results - cannot create plot")
+        return
+        
+    # Convert to DataFrame
+    df_generation_mix = pd.DataFrame(generation_mix).fillna(0).set_index("CO₂ Reduction (%)")
+    df_generation_mix.sort_index(inplace=True)
+    
+    # Remove columns with all zeros
+    df_generation_mix = df_generation_mix.loc[:, (df_generation_mix != 0).any(axis=0)]
+
+    # Create the plot
+    fig, ax = plt.subplots(figsize=(12, 8))
+    
+    # Set font properties
+    font = {'fontsize': 12, 'fontweight': 'bold'}
+
+    # Plot actual generation (MWh) as stacked bar chart
+    df_generation_mix.plot(
+        kind="bar",
+        stacked=True,
+        ax=ax,
+        colormap="tab20",
+        width=0.8
+    )
+    
+    ax.set_xlabel("CO₂ Reduction (%)", **font)
+    ax.set_ylabel("Total Generation (MWh)", **font)
+    ax.set_title("Electricity Generation Mix (MWh) by CO₂ Reduction Level", **font)
+    
+    # Rotate x-axis labels for better readability
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=45, ha='right')
+    
+    # Move legend outside the plot
+    ax.legend(title="Carrier", bbox_to_anchor=(1.05, 1), loc='upper left')
+    
+    plt.tight_layout()
+
+    # Save in all requested formats
+    for fmt in output_formats:
+        output_file = output_path / f"generation_mix_actual.{fmt}"
+        fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+        print(f"  ✓ Saved plot as {output_file}")
+
+    plt.close(fig)
+
+
 def load_config(config_path):
     """Load configuration from YAML file."""
     with open(config_path, 'r') as f:
@@ -658,6 +743,7 @@ def main():
         "renewable_capacity_inequality": lambda: plot_renewable_capacity_inequality(config, output_path, output_formats, dpi, args.has_baseline),
         "total_renewable_capacity": lambda: plot_total_renewable_capacity(config, output_path, output_formats, dpi, args.has_baseline),
         "electricity_cost": lambda: plot_electricity_cost(config, output_path, output_formats, dpi, args.has_baseline),
+        "generation_mix_actual": lambda: plot_generation_mix_actual(config, output_path, output_formats, dpi, args.has_baseline),
         "network_topology": lambda: plot_network_topology(networks, output_path, output_formats, dpi),
         "generation_mix": lambda: plot_generation_mix(networks, tables, output_path, output_formats, dpi),
         "transmission_flows": lambda: plot_transmission_flows(networks, output_path, output_formats, dpi),
