@@ -35,24 +35,36 @@ parameters:
       only_extendable: true
       min_equals_current: true
       floor: 1.0
-  co2_reductions: [0, 50]
+  co2_reductions: [0, 10, 20, 30, 40]
   solve:
     solver: "gurobi"
     solver_options:
       Threads: 4
       Method: 2
       Crossover: 0
+      MarkowitzTol: 0.5
       BarConvTol: 1e-6
       BarCorrectors: -1
-      NodefileStart: 0.5
-      BarHomogeneous: 0
+      BarHomogeneous: 1
       BarOrder: -1
       MemLimit: 120000
-      Presolve: -1
+      Presolve: 2
       NumericFocus: 0
       AggFill: -1
       Aggregate: 2
       ScaleFlag: 2
       LogFile: "gurobi_solver.log"
+  plotting:
+    enable: true
+    plot_types:
+      renewable_capacity_inequality: true
+      network_topology: false
+      generation_mix: false
+      transmission_flows: false
+      storage_utilization: false
+      emissions_summary: false
+      cost_breakdown: false
+    output_formats: ["png", "pdf"]
+    dpi: 300
 
 

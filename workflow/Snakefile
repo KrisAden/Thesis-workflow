@@ -24,6 +24,11 @@ REDUCTIONS = _cfg.get("parameters", {}).get("co2_reductions", [0])
 
 BYPASS_RESCALE = _cfg.get("parameters", {}).get("preprocess", {}).get("bypass", False)
 
+# Plotting configuration
+PLOTTING_ENABLED = _cfg.get("parameters", {}).get("plotting", {}).get("enable", False)
+PLOT_TYPES = {k: v for k, v in _cfg.get("parameters", {}).get("plotting", {}).get("plot_types", {}).items() if v}
+OUTPUT_FORMATS = _cfg.get("parameters", {}).get("plotting", {}).get("output_formats", ["png"])
+
 # Convenience: split baseline (0) vs constrained (>0)
 REDUC_GT0 = [r for r in REDUCTIONS if float(r) > 0]
 HAS_BASELINE = any(float(r) == 0 for r in REDUCTIONS)
@@ -43,7 +48,10 @@ rule all:
            "results/tables/solve_baseline_costed_expansion.csv",
            "results/tables/baseline_emissions.csv"] if HAS_BASELINE else []),
         expand("results/networks/solved_reduction_{r}.nc", r=REDUC_GT0),
-        expand("results/tables/solve_reduction_{r}.csv", r=REDUC_GT0)
+        expand("results/tables/solve_reduction_{r}.csv", r=REDUC_GT0),
+        *([expand("results/plots/{plot_type}.{fmt}", 
+                  plot_type=list(PLOT_TYPES.keys()), 
+                  fmt=OUTPUT_FORMATS)] if PLOTTING_ENABLED else [])
 
 
 if BYPASS_RESCALE:
@@ -148,3 +156,31 @@ rule solve_with_cap:
             '--report-out {output.report} '
             '--reduction {params.reduction} '
             '--baseline-file {input.baseline}')
+
+
+rule make_plots:
+    input:
+        # Always include reduction networks and tables
+        reduction_nets=expand("results/networks/solved_reduction_{r}.nc", r=REDUC_GT0),
+        reduction_tables=expand("results/tables/solve_reduction_{r}.csv", r=REDUC_GT0),
+        bounds_tables=[
+            "results/tables/tx_expansion_bounds.csv",
+            "results/tables/gen_expansion_bounds.csv"
+        ],
+        # Conditionally include baseline files
+        baseline_files=(["results/networks/solved_baseline_costed_expansion.nc",
+                        "results/tables/solve_baseline_costed_expansion.csv"] if HAS_BASELINE else [])
+    output:
+        expand("results/plots/{plot_type}.{fmt}", 
+               plot_type=list(PLOT_TYPES.keys()), 
+               fmt=OUTPUT_FORMATS)
+    params:
+        plot_types=lambda wc: ",".join(PLOT_TYPES.keys()),
+        output_formats=lambda wc: ",".join(OUTPUT_FORMATS),
+        has_baseline=HAS_BASELINE
+    shell:
+        RUN('pypsa_thesis.plotting '
+            '--plot-types {params.plot_types} '
+            '--output-dir results/plots '
+            '--output-formats {params.output_formats} '
+            '--has-baseline {params.has_baseline}')
