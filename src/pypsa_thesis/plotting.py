@@ -24,6 +24,14 @@ except ImportError:
     print("Warning: PyPSA not available. Some network plotting features may not work.")
     pypsa = None
 
+# Try to import geopandas for mapping
+try:
+    import geopandas as gpd
+    from matplotlib.patches import Patch
+except ImportError:
+    print("Warning: GeoPandas not available. Map plotting features may not work.")
+    gpd = None
+
 
 def gini_coefficient(x):
     """Calculate Gini coefficient for inequality measurement."""
@@ -1187,6 +1195,373 @@ def plot_mean_price_boxplots(config, output_path, output_formats, dpi=300, has_b
     print(f"  ✓ Created boxplot with {len(levels_to_plot)} CO₂ reduction levels")
 
 
+def get_carrier_color_map():
+    """Define consistent color mapping for energy carriers/technologies."""
+    return {
+        'hydro': '#377eb8',      # Blue
+        'nuclear': '#e41a1c',    # Red
+        'coal': '#8B4513',       # Brown  
+        'lignite': '#A0522D',    # Darker brown
+        'CCGT': '#4daf4a',       # Green
+        'OCGT': '#90EE90',       # Light green
+        'oil': '#000000',        # Black
+        'biomass': '#32CD32',    # Lime green
+        'geothermal': '#FF6347', # Tomato
+        'ror': '#377eb8',        # Blue
+        'solar': '#ffff33',      # Yellow
+        'onwind': '#984ea3',     # Purple
+        'offwind-ac': '#ff7f00', # Orange
+        'offwind-dc': '#a65628', # Dark orange
+    }
+
+
+def get_storage_color_map():
+    """Define consistent color mapping for storage technologies."""
+    return {
+        'PHS': '#1f77b4',      # Blue for Pumped Hydro Storage
+        'hydro': '#17becf',    # Cyan for other hydro storage
+        'battery': '#2ca02c',  # Green for batteries
+        'Battery': '#2ca02c',  # Green for batteries (uppercase)
+        'H2': '#ff7f0e',       # Orange for hydrogen
+        'hydrogen': '#ff7f0e'  # Orange for hydrogen (lowercase)
+    }
+
+
+def prepare_network_data_for_maps(network):
+    """Prepare network data for mapping visualization."""
+    if not network:
+        return None, None, None, None, None
+    
+    # Prepare bus data
+    bus_df = network.buses.copy()
+    
+    # Prepare generation data
+    generators = network.generators.copy()
+    generators["capacity"] = generators["p_nom_opt"]  # Use optimized capacity
+    cap_by_node_carrier = generators.groupby(["bus", "carrier"])["capacity"].sum().unstack(fill_value=0)
+    cap_by_node_carrier = cap_by_node_carrier.reindex(bus_df.index, fill_value=0) / 1000  # Convert to GW
+    
+    # Prepare transmission lines data
+    lines = network.lines.copy()
+    lines["bus0_x"] = network.buses.loc[lines["bus0"], "x"].values
+    lines["bus0_y"] = network.buses.loc[lines["bus0"], "y"].values  
+    lines["bus1_x"] = network.buses.loc[lines["bus1"], "x"].values
+    lines["bus1_y"] = network.buses.loc[lines["bus1"], "y"].values
+    lines["capacity"] = lines["s_nom_opt"] / 1000  # Convert to GW
+    
+    # Prepare links data  
+    links = network.links.copy()
+    links["bus0_x"] = network.buses.loc[links["bus0"], "x"].values
+    links["bus0_y"] = network.buses.loc[links["bus0"], "y"].values
+    links["bus1_x"] = network.buses.loc[links["bus1"], "x"].values  
+    links["bus1_y"] = network.buses.loc[links["bus1"], "y"].values
+    links["capacity"] = links["p_nom_opt"] / 1000  # Convert to GW
+    
+    # Prepare storage data
+    storage_by_node_carrier = None
+    if hasattr(network, "storage_units") and len(network.storage_units) > 0:
+        storage = network.storage_units.copy()
+        storage["node"] = storage["bus"]
+        storage_by_node_carrier = storage.groupby(["node", "carrier"])["p_nom_opt"].sum().unstack(fill_value=0)
+        storage_by_node_carrier = storage_by_node_carrier.reindex(bus_df.index, fill_value=0) / 1000  # Convert to GW
+    
+    return bus_df, cap_by_node_carrier, lines, links, storage_by_node_carrier
+
+
+def plot_generation_map(network, level, output_path, output_formats, dpi=300):
+    """Create generation capacity map for a specific CO₂ reduction level."""
+    if not gpd or not pypsa:
+        print(f"Skipping generation map for {level}% - missing dependencies")
+        return
+    
+    # Prepare data
+    bus_df, cap_by_node_carrier, _, _, _ = prepare_network_data_for_maps(network)
+    if bus_df is None:
+        return
+    
+    carrier_color_map = get_carrier_color_map()
+    
+    # Create figure
+    fig, ax = plt.subplots(figsize=(16, 12))
+    
+    # Load world map and focus on Europe
+    world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+    europe = world[world['continent'] == 'Europe']
+    europe.plot(ax=ax, color='lightgray', edgecolor='k', alpha=0.7, zorder=0)
+    
+    # Calculate maximum total capacity for scaling pie sizes
+    max_total_cap = cap_by_node_carrier.sum(axis=1).max()
+    
+    # Create pie charts at each bus location
+    buses_with_capacity = 0
+    for node, row in bus_df.iterrows():
+        caps = cap_by_node_carrier.loc[node] 
+        total_cap = caps.sum()
+        
+        if total_cap < 0.1:  # Skip nodes with very small capacity (< 100 MW)
+            continue
+            
+        buses_with_capacity += 1
+        
+        # Calculate pie size based on total capacity
+        size = 18000 * total_cap / max_total_cap
+        
+        # Prepare data for pie chart
+        fracs = []
+        colors = []
+        labels = []
+        
+        for carrier in cap_by_node_carrier.columns:
+            val = caps.get(carrier, 0)
+            if val > 0.05:  # Only show technologies with >50 MW
+                fracs.append(val)
+                colors.append(carrier_color_map.get(carrier, 'gray'))
+                labels.append(carrier)
+        
+        if fracs:  # Only create pie if there's data
+            x, y = row["x"], row["y"]
+            ax.pie(fracs, colors=colors, radius=np.sqrt(size)/100, center=(x, y), frame=True)
+            # Add small black dot at center
+            ax.plot(x, y, "o", color="k", markersize=2, zorder=3)
+    
+    # Create legend for technologies that are present
+    present_carriers = [c for c in cap_by_node_carrier.columns if cap_by_node_carrier[c].sum() > 0.1]
+    legend_patches = [Patch(color=carrier_color_map.get(c, 'gray'), label=c) for c in present_carriers]
+    ax.legend(handles=legend_patches, title="Generation Technologies", 
+              loc="upper right", fontsize=11, title_fontsize=13, 
+              bbox_to_anchor=(1.22, 1))
+    
+    # Set map extent to cover the network area with some padding
+    ax.set_xlim(bus_df['x'].min() - 2, bus_df['x'].max() + 2)
+    ax.set_ylim(bus_df['y'].min() - 2, bus_df['y'].max() + 2)
+    ax.set_title(f"Installed Generation Capacity by Technology\nCO₂ Reduction Level: {level}%\n(Pie size proportional to total capacity)", 
+                 fontsize=16, fontweight="bold", pad=20)
+    ax.axis("off")
+    
+    plt.tight_layout()
+    
+    # Save in all requested formats
+    for fmt in output_formats:
+        output_file = output_path / "maps" / f"generation_map_{level}pct.{fmt}"
+        fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+    
+    plt.close(fig)
+
+
+def plot_transmission_map(network, level, output_path, output_formats, dpi=300):
+    """Create transmission network map for a specific CO₂ reduction level."""
+    if not gpd or not pypsa:
+        print(f"Skipping transmission map for {level}% - missing dependencies")
+        return
+    
+    # Prepare data
+    bus_df, _, lines, links, _ = prepare_network_data_for_maps(network)
+    if bus_df is None:
+        return
+    
+    # Create figure
+    fig, ax = plt.subplots(figsize=(16, 12))
+    
+    # Load world map and focus on Europe
+    world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+    europe = world[world['continent'] == 'Europe']
+    europe.plot(ax=ax, color='lightgray', edgecolor='k', alpha=0.7, zorder=0)
+    
+    # Find maximum capacity for line width scaling
+    max_line_cap = max(lines["capacity"].max(), links["capacity"].max())
+    
+    # Plot AC lines (green)
+    line_count = 0
+    for _, row in lines.iterrows():
+        if row["capacity"] > 0.0001:  # Only show lines with >100 kW capacity
+            lw = 2 + 15 * row["capacity"] / max_line_cap  # Line width scaling
+            ax.plot([row["bus0_x"], row["bus1_x"]], [row["bus0_y"], row["bus1_y"]], 
+                    color="green", linewidth=lw, alpha=0.8, zorder=1)
+            line_count += 1
+    
+    # Plot DC links (purple, dashed)
+    link_count = 0
+    for _, row in links.iterrows():
+        if row["capacity"] > 0.0001:  # Only show links with >100 kW capacity
+            lw = 2 + 15 * row["capacity"] / max_line_cap  # Line width scaling
+            ax.plot([row["bus0_x"], row["bus1_x"]], [row["bus0_y"], row["bus1_y"]], 
+                    color="purple", linewidth=lw, alpha=0.8, zorder=1, linestyle="--")
+            link_count += 1
+    
+    # Add bus locations as small dots
+    for node, row in bus_df.iterrows():
+        ax.plot(row["x"], row["y"], "o", color="red", markersize=4, zorder=3, alpha=0.7)
+    
+    # Create legend
+    line_patch = Patch(color="green", label="AC Lines")
+    link_patch = Patch(color="purple", label="DC Links")
+    bus_patch = Patch(color="red", label="Buses/Nodes")
+    ax.legend(handles=[line_patch, link_patch, bus_patch], 
+              loc="upper right", fontsize=12, title="Transmission Infrastructure", 
+              title_fontsize=14, bbox_to_anchor=(1.25, 1))
+    
+    # Set map extent
+    ax.set_xlim(bus_df['x'].min() - 2, bus_df['x'].max() + 2)
+    ax.set_ylim(bus_df['y'].min() - 2, bus_df['y'].max() + 2)
+    ax.set_title(f"Transmission Infrastructure\nCO₂ Reduction Level: {level}%\n(Line width proportional to capacity)", 
+                 fontsize=16, fontweight="bold", pad=20)
+    ax.axis("off")
+    
+    plt.tight_layout()
+    
+    # Save in all requested formats
+    for fmt in output_formats:
+        output_file = output_path / "maps" / f"transmission_map_{level}pct.{fmt}"
+        fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+    
+    plt.close(fig)
+
+
+def plot_storage_map(network, level, output_path, output_formats, dpi=300):
+    """Create storage capacity map for a specific CO₂ reduction level."""
+    if not gpd or not pypsa:
+        print(f"Skipping storage map for {level}% - missing dependencies")
+        return
+    
+    # Prepare data
+    bus_df, _, _, _, storage_by_node_carrier = prepare_network_data_for_maps(network)
+    if bus_df is None:
+        return
+    
+    storage_color_map = get_storage_color_map()
+    
+    # Create figure
+    fig, ax = plt.subplots(figsize=(16, 12))
+    
+    # Load world map and focus on Europe
+    world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
+    europe = world[world['continent'] == 'Europe']
+    europe.plot(ax=ax, color='lightgray', edgecolor='k', alpha=0.7, zorder=0)
+    
+    storage_legend_handles = []
+    
+    if storage_by_node_carrier is not None and storage_by_node_carrier.sum().sum() > 0:
+        max_storage = storage_by_node_carrier.sum(axis=1).max()
+        
+        # Storage types present
+        storage_types = storage_by_node_carrier.columns.tolist()
+        
+        # Create pie charts for nodes with storage
+        storage_nodes = 0
+        for node, row in bus_df.iterrows():
+            caps = storage_by_node_carrier.loc[node]
+            total_storage = caps.sum()
+            
+            if total_storage < 0.01:  # Skip nodes with very small storage (< 10 MW)
+                continue
+                
+            storage_nodes += 1
+            
+            # Calculate pie size based on total storage capacity
+            size = 18000 * total_storage / max_storage
+            
+            # Prepare data for pie chart
+            fracs = []
+            colors = []
+            labels = []
+            
+            for storage_type in storage_types:
+                val = caps.get(storage_type, 0)
+                if val > 0.005:  # Only show storage types with >5 MW
+                    fracs.append(val)
+                    colors.append(storage_color_map.get(storage_type, 'gray'))
+                    labels.append(storage_type)
+            
+            if fracs:  # Only create pie if there's data
+                x, y = row["x"], row["y"]
+                ax.pie(fracs, colors=colors, radius=np.sqrt(size)/100, center=(x, y), frame=True)
+                # Add small black dot at center
+                ax.plot(x, y, "o", color="k", markersize=2, zorder=3)
+        
+        # Create legend for storage types that are present
+        present_storage_types = [c for c in storage_types if storage_by_node_carrier[c].sum() > 0]
+        storage_legend_handles = [Patch(color=storage_color_map.get(c, 'gray'), label=c) 
+                                 for c in present_storage_types]
+        
+        ax.set_title(f"Storage Capacity by Node and Type\nCO₂ Reduction Level: {level}%\n(Pie size proportional to total storage capacity)", 
+                     fontsize=16, fontweight="bold", pad=20)
+    else:
+        ax.set_title(f"Storage Capacity\nCO₂ Reduction Level: {level}%\nNo Storage Units Present", 
+                     fontsize=16, fontweight="bold", pad=20)
+    
+    # Add legend if storage exists
+    if storage_legend_handles:
+        ax.legend(handles=storage_legend_handles, 
+                  loc="upper right", fontsize=12, title="Storage Technologies", 
+                  title_fontsize=14, bbox_to_anchor=(1.25, 1))
+    
+    # Set map extent
+    ax.set_xlim(bus_df['x'].min() - 2, bus_df['x'].max() + 2)
+    ax.set_ylim(bus_df['y'].min() - 2, bus_df['y'].max() + 2)
+    ax.axis("off")
+    
+    plt.tight_layout()
+    
+    # Save in all requested formats
+    for fmt in output_formats:
+        output_file = output_path / "maps" / f"storage_map_{level}pct.{fmt}"
+        fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+    
+    plt.close(fig)
+
+
+def plot_network_maps(config, output_path, output_formats, dpi=300, has_baseline=True):
+    """Create generation, transmission, and storage maps for all CO₂ reduction levels."""
+    print("Creating network maps for all CO₂ reduction levels...")
+    
+    if not gpd or not pypsa:
+        print("GeoPandas or PyPSA not available - skipping network maps")
+        return
+    
+    # Create maps subdirectory
+    maps_path = output_path / "maps"
+    maps_path.mkdir(exist_ok=True)
+    print(f"  → Created maps directory: {maps_path}")
+    
+    # Load networks
+    networks_by_percent = load_networks_from_results(config, has_baseline)
+    
+    if not networks_by_percent:
+        print("No networks found - cannot create maps")
+        return
+    
+    # Get all available levels
+    levels_to_plot = sorted(networks_by_percent.keys())
+    print(f"  ✓ Creating maps for levels: {levels_to_plot}")
+    
+    map_counts = {"generation": 0, "transmission": 0, "storage": 0}
+    
+    for level, network in networks_by_percent.items():
+        print(f"  → Processing {level}% CO₂ reduction level...")
+        
+        try:
+            # Generation map
+            plot_generation_map(network, level, output_path, output_formats, dpi)
+            map_counts["generation"] += 1
+            print(f"    ✓ Created generation map")
+            
+            # Transmission map
+            plot_transmission_map(network, level, output_path, output_formats, dpi)
+            map_counts["transmission"] += 1
+            print(f"    ✓ Created transmission map")
+            
+            # Storage map
+            plot_storage_map(network, level, output_path, output_formats, dpi)
+            map_counts["storage"] += 1
+            print(f"    ✓ Created storage map")
+            
+        except Exception as e:
+            print(f"    ⚠️ Error creating maps for {level}%: {e}")
+    
+    print(f"  ✓ Created {map_counts['generation']} generation maps, {map_counts['transmission']} transmission maps, {map_counts['storage']} storage maps")
+    print(f"  ✓ All maps saved to {maps_path}")
+
+
 def load_config(config_path):
     """Load configuration from YAML file."""
     with open(config_path, 'r') as f:
@@ -1542,7 +1917,7 @@ def main():
         "total_system_cost": lambda: plot_total_system_cost(config, output_path, output_formats, dpi, args.has_baseline),
         "mean_price_bellcurve": lambda: plot_mean_price_bellcurve(config, output_path, output_formats, dpi, args.has_baseline),
         "mean_price_boxplots": lambda: plot_mean_price_boxplots(config, output_path, output_formats, dpi, args.has_baseline),
-        "mean_price_boxplots": lambda: plot_mean_price_boxplots(config, output_path, output_formats, dpi, args.has_baseline),
+        "network_maps": lambda: plot_network_maps(config, output_path, output_formats, dpi, args.has_baseline),
         "network_topology": lambda: plot_network_topology(networks, output_path, output_formats, dpi),
         "generation_mix": lambda: plot_generation_mix(networks, tables, output_path, output_formats, dpi),
         "transmission_flows": lambda: plot_transmission_flows(networks, output_path, output_formats, dpi),

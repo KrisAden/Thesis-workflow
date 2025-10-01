@@ -67,12 +67,7 @@ parameters:
       total_system_cost: true
       mean_price_bellcurve: true
       mean_price_boxplots: true
-      network_topology: false
-      generation_mix: false
-      transmission_flows: false
-      storage_utilization: false
-      emissions_summary: false
-      cost_breakdown: false
+      network_maps: true
     output_formats: ["png", "pdf"]
     dpi: 300
 
