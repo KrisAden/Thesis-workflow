@@ -395,6 +395,157 @@ def plot_generation_mix_actual(config, output_path, output_formats, dpi=300, has
     plt.close(fig)
 
 
+def calculate_renewable_penetration_by_region(networks_by_percent):
+    """Calculate renewable penetration by region for each CO2 reduction level."""
+    renewable_penetration_by_region = {}
+    
+    # Loop through each network and CO2 reduction level
+    for co2_pct, net in networks_by_percent.items():
+        try:
+            weights = net.snapshot_weightings["objective"]
+
+            # Identify renewable generators (including nuclear, biomass, geothermal)
+            renewable_carriers = ["solar", "onwind", "offwind-ac", "offwind-dc", "nuclear", "biomass", "geothermal", "ror", "hydro"]
+            renewable_gens = net.generators.index[net.generators.carrier.isin(renewable_carriers)]
+
+            # Group buses by region
+            region_map = net.buses["country"]
+            generation = net.generators_t.p.multiply(weights, axis=0)
+            renewable_gen = generation[renewable_gens]
+
+            # Map each generator to its region and sum renewable generation
+            gen_regions = net.generators.loc[renewable_gens, "bus"].map(region_map)
+            renewable_by_region = renewable_gen.groupby(gen_regions, axis=1).sum().sum()
+
+            # Get load by region
+            load = net.loads_t.p_set.multiply(weights, axis=0)
+            load_regions = net.loads.bus.map(region_map)
+            load_by_region = load.groupby(load_regions, axis=1).sum().sum()
+
+            # Compute penetration (as a fraction of load)
+            penetration = (renewable_by_region / load_by_region).fillna(0)
+            renewable_penetration_by_region[co2_pct] = penetration
+            
+            print(f"  ✓ Calculated renewable penetration for {co2_pct}% reduction")
+
+        except Exception as e:
+            print(f"⚠️ Skipping {co2_pct}% due to error: {e}")
+    
+    # Create the DataFrame: Rows = decarbonization levels, Columns = regions
+    df_penetration = pd.DataFrame(renewable_penetration_by_region).T.sort_index()
+    
+    return df_penetration
+
+
+def plot_renewable_penetration_boxplots(config, output_path, output_formats, dpi=300, has_baseline=True):
+    """Plot boxplots of renewable penetration by region for each CO₂ reduction level."""
+    print("Creating renewable penetration boxplots...")
+    
+    if not pypsa:
+        print("PyPSA not available - skipping renewable penetration boxplots")
+        return
+    
+    # Load networks
+    networks_by_percent = load_networks_from_results(config, has_baseline)
+    
+    if not networks_by_percent:
+        print("No networks found - cannot create plot")
+        return
+    
+    # Calculate renewable penetration by region
+    df_penetration = calculate_renewable_penetration_by_region(networks_by_percent)
+    
+    if df_penetration.empty:
+        print("No penetration data - cannot create plot")
+        return
+    
+    # Get all available CO2 reduction levels
+    levels_to_plot = sorted(df_penetration.index.tolist())
+    print(f"  ✓ Creating boxplots for levels: {levels_to_plot}")
+    
+    # Prepare data for boxplot
+    data = []
+    labels = []
+    means = []
+    medians = []
+    region_lists = []
+    
+    for level in levels_to_plot:
+        if level not in df_penetration.index:
+            print(f"Level {level} not found in data, skipping.")
+            continue
+        vals = df_penetration.loc[level].dropna()
+        data.append(vals.values)
+        labels.append(f"{level}%")
+        means.append(vals.mean())
+        medians.append(np.median(vals.values))
+        region_lists.append(vals.index.tolist())
+
+    # Create the plot
+    fig, ax = plt.subplots(figsize=(2 + 2*len(data), 6))
+    
+    # Set font properties
+    font = {'fontsize': 12, 'fontweight': 'bold'}
+    
+    # Create boxplot
+    box = ax.boxplot(
+        data,
+        labels=labels,
+        patch_artist=True,
+        showmeans=False,
+        meanline=False,
+        boxprops=dict(facecolor='lightblue', color='k'),
+        medianprops=dict(color='blue', linewidth=2),
+        whiskerprops=dict(color='k'),
+        capprops=dict(color='k'),
+        flierprops=dict(marker='o', color='purple', alpha=0.8)
+    )
+
+    # Overlay the mean as a red line and the median as a blue line
+    for i, (mean, median) in enumerate(zip(means, medians)):
+        ax.plot([i+1-0.2, i+1+0.2], [mean, mean], color='red', linewidth=2, 
+                label='Mean' if i == 0 else "")
+        ax.plot([i+1-0.2, i+1+0.2], [median, median], color='blue', linewidth=2, 
+                label='Median' if i == 0 else "")
+
+    # Annotate outliers with region names
+    for i, flier in enumerate(box['fliers']):
+        y_outliers = flier.get_ydata()
+        x_outliers = flier.get_xdata()
+        regions = region_lists[i]
+        values = data[i]
+        
+        if len(values) > 0:
+            q1 = np.percentile(values, 25)
+            q3 = np.percentile(values, 75)
+            iqr = q3 - q1
+            lower_bound = q1 - 1.5 * iqr
+            upper_bound = q3 + 1.5 * iqr
+            outlier_indices = [j for j, v in enumerate(values) if v < lower_bound or v > upper_bound]
+            
+            for x, y, idx in zip(x_outliers, y_outliers, outlier_indices):
+                if idx < len(regions):
+                    ax.annotate(regions[idx], (x, y), textcoords="offset points", 
+                               xytext=(5,5), ha='left', fontsize=10, color='purple', 
+                               fontweight='bold')
+
+    ax.set_ylabel("Renewable Penetration (Fraction of Load)", **font)
+    ax.set_xlabel("CO₂ Reduction Level", **font)
+    ax.set_title("Renewable Penetration Distribution by Region", **font)
+    ax.legend(loc='upper left')
+    ax.grid(axis='y', alpha=0.5)
+
+    plt.tight_layout()
+
+    # Save in all requested formats
+    for fmt in output_formats:
+        output_file = output_path / f"renewable_penetration_boxplots.{fmt}"
+        fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+        print(f"  ✓ Saved plot as {output_file}")
+
+    plt.close(fig)
+
+
 def load_config(config_path):
     """Load configuration from YAML file."""
     with open(config_path, 'r') as f:
@@ -744,6 +895,7 @@ def main():
         "total_renewable_capacity": lambda: plot_total_renewable_capacity(config, output_path, output_formats, dpi, args.has_baseline),
         "electricity_cost": lambda: plot_electricity_cost(config, output_path, output_formats, dpi, args.has_baseline),
         "generation_mix_actual": lambda: plot_generation_mix_actual(config, output_path, output_formats, dpi, args.has_baseline),
+        "renewable_penetration_boxplots": lambda: plot_renewable_penetration_boxplots(config, output_path, output_formats, dpi, args.has_baseline),
         "network_topology": lambda: plot_network_topology(networks, output_path, output_formats, dpi),
         "generation_mix": lambda: plot_generation_mix(networks, tables, output_path, output_formats, dpi),
         "transmission_flows": lambda: plot_transmission_flows(networks, output_path, output_formats, dpi),

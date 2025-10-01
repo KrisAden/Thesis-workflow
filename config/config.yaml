@@ -61,6 +61,7 @@ parameters:
       total_renewable_capacity: true
       electricity_cost: true
       generation_mix_actual: true
+      renewable_penetration_boxplots: true
       network_topology: false
       generation_mix: false
       transmission_flows: false
