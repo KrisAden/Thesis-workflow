@@ -589,6 +589,319 @@ def plot_green_investment_inequality_load_scaled(config, output_path, output_for
     plt.close(fig)
 
 
+def plot_renewable_capacity_pentiles(config, output_path, output_formats, dpi=300, has_baseline=True):
+    """Plot renewable capacity distribution by pentiles across CO₂ reduction scenarios."""
+    print("Creating renewable capacity pentiles analysis plot...")
+    
+    if not pypsa:
+        print("PyPSA not available - skipping renewable capacity pentiles plot")
+        return
+    
+    # Load networks
+    networks_by_percent = load_networks_from_results(config, has_baseline)
+    
+    if not networks_by_percent:
+        print("No networks found - cannot create plot")
+        return
+    
+    # Analyze pentiles for each scenario
+    results = []
+    for co2_pct, net in networks_by_percent.items():
+        try:
+            region_caps = extract_installed_renewable_capacities(net)
+            pentiles = analyze_capacity_by_pentiles(region_caps)
+            
+            result = {"CO₂ Reduction (%)": int(co2_pct)}
+            
+            for pentile_name, pentile_data in pentiles.items():
+                result[f"{pentile_name}_fraction"] = pentile_data["fraction"]
+            
+            results.append(result)
+            print(f"  ✓ Analyzed pentiles for {co2_pct}% reduction")
+        except Exception as e:
+            print(f"⚠️ Skipping {co2_pct}% due to error: {e}")
+
+    if not results:
+        print("No valid results - cannot create plot")
+        return
+        
+    df = pd.DataFrame(results).sort_values("CO₂ Reduction (%)")
+
+    # Create the plot
+    fig, ax = plt.subplots(figsize=(12, 8))
+
+    # Set font properties
+    font = {'fontsize': 12, 'fontweight': 'bold'}
+
+    # Colors for each pentile
+    colors = ['#d62728', '#ff7f0e', '#2ca02c', '#1f77b4', '#9467bd']  # Red, Orange, Green, Blue, Purple
+    markers = ['o', 's', '^', 'D', 'v']
+    
+    # Plot each pentile
+    for i, (color, marker) in enumerate(zip(colors, markers)):
+        pentile_col = f"pentile_{i+1}_fraction"
+        if pentile_col in df.columns:
+            ax.plot(df["CO₂ Reduction (%)"], df[pentile_col], 
+                   marker=marker, label=f"Pentile {i+1} (Top {20*(i+1)}%)", 
+                   color=color, linewidth=2, markersize=8)
+
+    # Format y-axis as percentage
+    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: '{:.0%}'.format(y)))
+    
+    ax.set_ylabel("Fraction of Total Renewable Capacity", **font)
+    ax.set_xlabel("CO₂ Reduction (%)", **font)
+    ax.set_title("Renewable Capacity Distribution by Region Pentiles", **font)
+
+    # Style the plot
+    ax.grid(True, alpha=0.3)
+    ax.legend(loc="center right", fontsize=10)
+    ax.set_ylim(0, max(0.6, df[[col for col in df.columns if col.endswith('_fraction')]].max().max() * 1.1))
+
+    plt.tight_layout()
+
+    # Save in all requested formats
+    for fmt in output_formats:
+        output_file = output_path / f"renewable_capacity_pentiles.{fmt}"
+        fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+        print(f"  ✓ Saved plot as {output_file}")
+
+    plt.close(fig)
+
+
+def plot_middle_pentile_characteristics(config, output_path, output_formats, dpi=300, has_baseline=True):
+    """Plot characteristics of middle pentile regions to understand their investment drivers."""
+    print("Creating middle pentile characteristics analysis plot...")
+    
+    if not pypsa:
+        print("PyPSA not available - skipping middle pentile characteristics plot")
+        return
+    
+    # Load networks
+    networks_by_percent = load_networks_from_results(config, has_baseline)
+    
+    if not networks_by_percent:
+        print("No networks found - cannot create plot")
+        return
+    
+    # Focus on a specific scenario (e.g., 50% reduction) for detailed analysis
+    target_scenario = 50
+    if target_scenario not in networks_by_percent:
+        # Fall back to highest available scenario
+        target_scenario = max(networks_by_percent.keys())
+    
+    network = networks_by_percent[target_scenario]
+    
+    try:
+        # Get renewable capacities and pentile analysis
+        region_caps = extract_installed_renewable_capacities(network)
+        pentiles = analyze_capacity_by_pentiles(region_caps)
+        characteristics = extract_regional_characteristics(network)
+        
+        # Focus on middle pentiles (2nd, 3rd, 4th)
+        middle_regions = []
+        for pentile_num in [2, 3, 4]:
+            pentile_key = f"pentile_{pentile_num}"
+            if pentile_key in pentiles:
+                middle_regions.extend(pentiles[pentile_key]["regions"])
+        
+        if not middle_regions:
+            print("No middle pentile regions found")
+            return
+        
+        # Extract characteristics for middle regions
+        middle_chars = {region: characteristics[region] for region in middle_regions if region in characteristics}
+        
+        if not middle_chars:
+            print("No characteristics data for middle regions")
+            return
+        
+        # Prepare data for plotting
+        regions = list(middle_chars.keys())
+        wind_caps = [middle_chars[r]["wind_capacity"] for r in regions]
+        solar_caps = [middle_chars[r]["solar_capacity"] for r in regions]
+        loads = [middle_chars[r]["total_load"] for r in regions]
+        storage_caps = [middle_chars[r]["storage_capacity"] for r in regions]
+        
+        # Create subplot figure
+        fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(15, 12))
+        font = {'fontsize': 11, 'fontweight': 'bold'}
+        
+        # 1. Wind vs Solar capacity
+        ax1.scatter(wind_caps, solar_caps, alpha=0.7, s=100, color='tab:green')
+        ax1.set_xlabel("Wind Capacity (MW)", **font)
+        ax1.set_ylabel("Solar Capacity (MW)", **font)
+        ax1.set_title("Wind vs Solar in Middle Pentile Regions", **font)
+        ax1.grid(True, alpha=0.3)
+        
+        # Add region labels
+        for i, region in enumerate(regions):
+            ax1.annotate(region, (wind_caps[i], solar_caps[i]), 
+                        xytext=(5, 5), textcoords='offset points', fontsize=8)
+        
+        # 2. Load vs Total Renewable Capacity
+        total_renewable = [wind_caps[i] + solar_caps[i] for i in range(len(regions))]
+        ax2.scatter(loads, total_renewable, alpha=0.7, s=100, color='tab:blue')
+        ax2.set_xlabel("Annual Load (MWh)", **font)
+        ax2.set_ylabel("Total Renewable Capacity (MW)", **font)
+        ax2.set_title("Load vs Renewable Capacity", **font)
+        ax2.grid(True, alpha=0.3)
+        
+        # Add region labels
+        for i, region in enumerate(regions):
+            ax2.annotate(region, (loads[i], total_renewable[i]), 
+                        xytext=(5, 5), textcoords='offset points', fontsize=8)
+        
+        # 3. Storage capacity distribution
+        ax3.bar(range(len(regions)), storage_caps, color='tab:orange', alpha=0.7)
+        ax3.set_xlabel("Regions", **font)
+        ax3.set_ylabel("Storage Capacity (MW)", **font)
+        ax3.set_title("Storage Capacity in Middle Pentile Regions", **font)
+        ax3.set_xticks(range(len(regions)))
+        ax3.set_xticklabels(regions, rotation=45, ha='right')
+        ax3.grid(True, alpha=0.3)
+        
+        # 4. Renewable capacity intensity (capacity per unit load)
+        intensity = [total_renewable[i] / max(loads[i], 1) for i in range(len(regions))]
+        ax4.bar(range(len(regions)), intensity, color='tab:red', alpha=0.7)
+        ax4.set_xlabel("Regions", **font)
+        ax4.set_ylabel("Renewable Intensity (MW/MWh)", **font)
+        ax4.set_title("Renewable Capacity Intensity", **font)
+        ax4.set_xticks(range(len(regions)))
+        ax4.set_xticklabels(regions, rotation=45, ha='right')
+        ax4.grid(True, alpha=0.3)
+        
+        plt.suptitle(f"Middle Pentile Region Characteristics ({target_scenario}% CO₂ Reduction)", 
+                    fontsize=14, fontweight='bold')
+        plt.tight_layout()
+        
+        # Save in all requested formats
+        for fmt in output_formats:
+            output_file = output_path / f"middle_pentile_characteristics.{fmt}"
+            fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+            print(f"  ✓ Saved plot as {output_file}")
+        
+        plt.close(fig)
+        
+        print(f"  ✓ Analyzed {len(middle_regions)} middle pentile regions: {', '.join(middle_regions)}")
+        
+    except Exception as e:
+        print(f"⚠️ Error in middle pentile analysis: {e}")
+
+
+def plot_capacity_expansion_evolution(config, output_path, output_formats, dpi=300, has_baseline=True):
+    """Plot how renewable capacity expansion evolves across scenarios for different region groups."""
+    print("Creating capacity expansion evolution plot...")
+    
+    if not pypsa:
+        print("PyPSA not available - skipping capacity expansion evolution plot")
+        return
+    
+    # Load networks
+    networks_by_percent = load_networks_from_results(config, has_baseline)
+    
+    if not networks_by_percent:
+        print("No networks found - cannot create plot")
+        return
+    
+    # Need baseline for expansion calculation
+    if 0 not in networks_by_percent:
+        print("Baseline network not found - cannot calculate expansion")
+        return
+    
+    baseline_network = networks_by_percent[0]
+    baseline_caps = extract_installed_renewable_capacities(baseline_network)
+    
+    # Classify regions based on baseline capacity
+    sorted_baseline = baseline_caps.sort_values(ascending=False)
+    n_regions = len(sorted_baseline)
+    
+    # Define region groups
+    top_regions = set(sorted_baseline.iloc[:max(1, n_regions//5)].index)  # Top 20%
+    middle_regions = set(sorted_baseline.iloc[n_regions//5:4*n_regions//5].index)  # Middle 60%
+    bottom_regions = set(sorted_baseline.iloc[4*n_regions//5:].index)  # Bottom 20%
+    
+    results = []
+    for co2_pct, net in networks_by_percent.items():
+        if co2_pct == 0:  # Skip baseline
+            continue
+            
+        try:
+            current_caps = extract_installed_renewable_capacities(net)
+            
+            # Calculate expansion for each group
+            top_expansion = sum(max(0, current_caps.get(r, 0) - baseline_caps.get(r, 0)) for r in top_regions)
+            middle_expansion = sum(max(0, current_caps.get(r, 0) - baseline_caps.get(r, 0)) for r in middle_regions)
+            bottom_expansion = sum(max(0, current_caps.get(r, 0) - baseline_caps.get(r, 0)) for r in bottom_regions)
+            
+            total_expansion = top_expansion + middle_expansion + bottom_expansion
+            
+            if total_expansion > 0:
+                results.append({
+                    "CO₂ Reduction (%)": int(co2_pct),
+                    "Top Regions (MW)": top_expansion,
+                    "Middle Regions (MW)": middle_expansion,
+                    "Bottom Regions (MW)": bottom_expansion,
+                    "Top Regions (%)": top_expansion / total_expansion * 100,
+                    "Middle Regions (%)": middle_expansion / total_expansion * 100,
+                    "Bottom Regions (%)": bottom_expansion / total_expansion * 100
+                })
+            
+            print(f"  ✓ Calculated expansion for {co2_pct}% reduction: Top={top_expansion:.0f}MW, Middle={middle_expansion:.0f}MW, Bottom={bottom_expansion:.0f}MW")
+        except Exception as e:
+            print(f"⚠️ Skipping {co2_pct}% due to error: {e}")
+
+    if not results:
+        print("No valid results - cannot create plot")
+        return
+        
+    df = pd.DataFrame(results).sort_values("CO₂ Reduction (%)")
+
+    # Create subplot figure
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 6))
+    font = {'fontsize': 12, 'fontweight': 'bold'}
+    
+    # Plot 1: Absolute expansion
+    ax1.plot(df["CO₂ Reduction (%)"], df["Top Regions (MW)"], 
+            marker="o", label="Top 20% Regions", color="tab:red", linewidth=2, markersize=8)
+    ax1.plot(df["CO₂ Reduction (%)"], df["Middle Regions (MW)"], 
+            marker="s", label="Middle 60% Regions", color="tab:green", linewidth=2, markersize=8)
+    ax1.plot(df["CO₂ Reduction (%)"], df["Bottom Regions (MW)"], 
+            marker="^", label="Bottom 20% Regions", color="tab:blue", linewidth=2, markersize=8)
+    
+    ax1.set_ylabel("Renewable Capacity Expansion (MW)", **font)
+    ax1.set_xlabel("CO₂ Reduction (%)", **font)
+    ax1.set_title("Absolute Renewable Capacity Expansion", **font)
+    ax1.grid(True, alpha=0.3)
+    ax1.legend(loc="upper left")
+    
+    # Plot 2: Percentage share of expansion
+    ax2.plot(df["CO₂ Reduction (%)"], df["Top Regions (%)"], 
+            marker="o", label="Top 20% Regions", color="tab:red", linewidth=2, markersize=8)
+    ax2.plot(df["CO₂ Reduction (%)"], df["Middle Regions (%)"], 
+            marker="s", label="Middle 60% Regions", color="tab:green", linewidth=2, markersize=8)
+    ax2.plot(df["CO₂ Reduction (%)"], df["Bottom Regions (%)"], 
+            marker="^", label="Bottom 20% Regions", color="tab:blue", linewidth=2, markersize=8)
+    
+    ax2.set_ylabel("Share of Total Expansion (%)", **font)
+    ax2.set_xlabel("CO₂ Reduction (%)", **font)
+    ax2.set_title("Relative Share of Renewable Expansion", **font)
+    ax2.grid(True, alpha=0.3)
+    ax2.legend(loc="center right")
+    ax2.set_ylim(0, 100)
+    
+    plt.tight_layout()
+    
+    # Save in all requested formats
+    for fmt in output_formats:
+        output_file = output_path / f"capacity_expansion_evolution.{fmt}"
+        fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+        print(f"  ✓ Saved plot as {output_file}")
+    
+    plt.close(fig)
+    
+    print(f"  ✓ Analyzed expansion across {len(top_regions)} top, {len(middle_regions)} middle, {len(bottom_regions)} bottom regions")
+
+
 def plot_total_renewable_capacity(config, output_path, output_formats, dpi=300, has_baseline=True):
     """Plot total installed renewable capacity across CO₂ reduction scenarios."""
     print("Creating total renewable capacity plot...")
@@ -2395,6 +2708,9 @@ def main():
         "green_investment_inequality": lambda: plot_green_investment_inequality(config, output_path, output_formats, dpi, args.has_baseline),
         "green_investment_inequality_load_scaled": lambda: plot_green_investment_inequality_load_scaled(config, output_path, output_formats, dpi, args.has_baseline),
         "renewable_capacity_concentration": lambda: plot_renewable_capacity_concentration(config, output_path, output_formats, dpi, args.has_baseline),
+        "renewable_capacity_pentiles": lambda: plot_renewable_capacity_pentiles(config, output_path, output_formats, dpi, args.has_baseline),
+        "middle_pentile_characteristics": lambda: plot_middle_pentile_characteristics(config, output_path, output_formats, dpi, args.has_baseline),
+        "capacity_expansion_evolution": lambda: plot_capacity_expansion_evolution(config, output_path, output_formats, dpi, args.has_baseline),
         "total_renewable_capacity": lambda: plot_total_renewable_capacity(config, output_path, output_formats, dpi, args.has_baseline),
         "electricity_cost": lambda: plot_electricity_cost(config, output_path, output_formats, dpi, args.has_baseline),
         "generation_mix_actual": lambda: plot_generation_mix_actual(config, output_path, output_formats, dpi, args.has_baseline),

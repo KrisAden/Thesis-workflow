@@ -61,6 +61,9 @@ parameters:
       green_investment_inequality: true
       green_investment_inequality_load_scaled: true
       renewable_capacity_concentration: true
+      renewable_capacity_pentiles: true
+      middle_pentile_characteristics: true
+      capacity_expansion_evolution: true
       total_renewable_capacity: true
       electricity_cost: true
       generation_mix_actual: true
