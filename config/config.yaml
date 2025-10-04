@@ -59,6 +59,7 @@ parameters:
     plot_types:
       renewable_capacity_inequality: true
       green_investment_inequality: true
+      green_investment_inequality_load_scaled: true
       renewable_capacity_concentration: true
       total_renewable_capacity: true
       electricity_cost: true

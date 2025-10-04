@@ -180,7 +180,58 @@ def extract_total_nodal_investment(network, baseline_network):
     return pd.Series(investment_by_country)
 
 
-def calculate_renewable_capacity_concentration(region_caps):
+def extract_total_nodal_investment_scaled_by_load(network, baseline_network):
+    """Extract total nodal investment into green energy transition by country, scaled by annual load.
+    
+    This includes expansion costs for:
+    - Storage (compared to baseline)
+    - Transmission (allocated by region, compared to baseline) 
+    - Generation capacity (compared to baseline)
+    
+    Investment is then scaled by the annual electricity load of each region.
+    
+    Args:
+        network: PyPSA network for the scenario
+        baseline_network: PyPSA baseline network (0% decarbonized)
+    
+    Returns:
+        pd.Series: Total investment per unit load by country (€/MWh)
+    """
+    # First get total investment by country
+    investment_by_country = extract_total_nodal_investment(network, baseline_network)
+    
+    # Get annual load by country
+    bus_to_country = network.buses["country"].to_dict()
+    load_by_country = {}
+    
+    # Initialize all countries with zero load
+    all_countries = set(network.buses["country"].unique())
+    for country in all_countries:
+        load_by_country[country] = 0.0
+    
+    # Sum up loads for each country
+    loads = network.loads_t.p_set
+    for load_idx in loads.columns:
+        if load_idx in network.loads.index:
+            load_bus = network.loads.loc[load_idx, 'bus']
+            country = bus_to_country.get(load_bus)
+            if country:
+                # Sum annual load (assuming hourly data)
+                annual_load = loads[load_idx].sum()  # MWh
+                load_by_country[country] += annual_load
+    
+    # Calculate investment per unit load (€/MWh)
+    investment_per_load = {}
+    for country in all_countries:
+        total_investment = investment_by_country.get(country, 0)
+        annual_load = load_by_country.get(country, 0)
+        
+        if annual_load > 0:
+            investment_per_load[country] = total_investment / annual_load
+        else:
+            investment_per_load[country] = 0.0
+    
+    return pd.Series(investment_per_load)
     """Calculate the fraction of total renewable capacity in top N regions.
     
     Args:
@@ -452,6 +503,86 @@ def plot_renewable_capacity_concentration(config, output_path, output_formats, d
     # Save in all requested formats
     for fmt in output_formats:
         output_file = output_path / f"renewable_capacity_concentration.{fmt}"
+        fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+        print(f"  ✓ Saved plot as {output_file}")
+
+    plt.close(fig)
+
+
+def plot_green_investment_inequality_load_scaled(config, output_path, output_formats, dpi=300, has_baseline=True):
+    """Plot Gini coefficient of green investment scaled by annual load across scenarios."""
+    print("Creating load-scaled green investment inequality plot...")
+    
+    if not pypsa:
+        print("PyPSA not available - skipping load-scaled green investment inequality plot")
+        return
+    
+    # Load networks
+    networks_by_percent = load_networks_from_results(config, has_baseline)
+    
+    if not networks_by_percent:
+        print("No networks found - cannot create plot")
+        return
+    
+    # Need baseline network for comparison
+    if 0 not in networks_by_percent:
+        print("Baseline network (0% reduction) not found - cannot calculate investment relative to baseline")
+        return
+    
+    baseline_network = networks_by_percent[0]
+    
+    # Calculate Gini coefficients for load-scaled investment
+    results = []
+    for co2_pct, net in networks_by_percent.items():
+        if co2_pct == 0:  # Skip baseline for investment calculation
+            continue
+            
+        try:
+            investment_per_load = extract_total_nodal_investment_scaled_by_load(net, baseline_network)
+            gini = gini_coefficient(investment_per_load.values)
+            hhi = hhi_index(investment_per_load.values)
+            mean_investment_per_load = investment_per_load.mean()
+            
+            results.append({
+                "CO₂ Reduction (%)": int(co2_pct), 
+                "Gini": gini, 
+                "HHI": hhi,
+                "Mean Investment per Load (€/MWh)": mean_investment_per_load
+            })
+            print(f"  ✓ Calculated Load-scaled Gini={gini:.3f}, Mean Investment/Load={mean_investment_per_load:.2f}€/MWh for {co2_pct}% reduction")
+        except Exception as e:
+            print(f"⚠️ Skipping {co2_pct}% due to error: {e}")
+
+    if not results:
+        print("No valid results - cannot create plot")
+        return
+        
+    df = pd.DataFrame(results).sort_values("CO₂ Reduction (%)")
+
+    # Create the plot
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+
+    # Set font properties
+    font = {'fontsize': 12, 'fontweight': 'bold'}
+
+    # Plot Gini coefficient
+    ax1.plot(df["CO₂ Reduction (%)"], df["Gini"], marker="o", label="Gini Coefficient", 
+             color="tab:purple", linewidth=2, markersize=8)
+
+    ax1.set_ylabel("Gini Coefficient", **font)
+    ax1.set_xlabel("CO₂ Reduction (%)", **font)
+    ax1.set_title("Inequality of Green Investment per Unit Load", **font)
+
+    # Style the plot
+    ax1.grid(True, alpha=0.3)
+    lines_1, labels_1 = ax1.get_legend_handles_labels()
+    ax1.legend(lines_1, labels_1, loc="upper left")
+
+    plt.tight_layout()
+
+    # Save in all requested formats
+    for fmt in output_formats:
+        output_file = output_path / f"green_investment_inequality_load_scaled.{fmt}"
         fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
         print(f"  ✓ Saved plot as {output_file}")
 
@@ -2262,6 +2393,7 @@ def main():
     plot_functions = {
         "renewable_capacity_inequality": lambda: plot_renewable_capacity_inequality(config, output_path, output_formats, dpi, args.has_baseline),
         "green_investment_inequality": lambda: plot_green_investment_inequality(config, output_path, output_formats, dpi, args.has_baseline),
+        "green_investment_inequality_load_scaled": lambda: plot_green_investment_inequality_load_scaled(config, output_path, output_formats, dpi, args.has_baseline),
         "renewable_capacity_concentration": lambda: plot_renewable_capacity_concentration(config, output_path, output_formats, dpi, args.has_baseline),
         "total_renewable_capacity": lambda: plot_total_renewable_capacity(config, output_path, output_formats, dpi, args.has_baseline),
         "electricity_cost": lambda: plot_electricity_cost(config, output_path, output_formats, dpi, args.has_baseline),
