@@ -232,6 +232,9 @@ def extract_total_nodal_investment_scaled_by_load(network, baseline_network):
             investment_per_load[country] = 0.0
     
     return pd.Series(investment_per_load)
+
+
+def calculate_renewable_capacity_concentration(region_caps):
     """Calculate the fraction of total renewable capacity in top N regions.
     
     Args:
@@ -257,6 +260,131 @@ def extract_total_nodal_investment_scaled_by_load(network, baseline_network):
         "top_3": top_3_fraction,
         "top_5": top_5_fraction
     }
+
+
+def analyze_capacity_by_pentiles(region_caps):
+    """Analyze renewable capacity distribution by pentiles.
+    
+    Args:
+        region_caps: pd.Series with renewable capacity by region
+    
+    Returns:
+        dict: Analysis of capacity distribution by pentiles
+    """
+    if len(region_caps) == 0 or region_caps.sum() == 0:
+        return {}
+    
+    # Sort regions by capacity (descending)
+    sorted_caps = region_caps.sort_values(ascending=False)
+    total_capacity = sorted_caps.sum()
+    n_regions = len(sorted_caps)
+    
+    # Calculate pentiles (5 groups of ~20% each)
+    pentile_size = max(1, n_regions // 5)
+    
+    pentiles = {}
+    for i in range(5):
+        start_idx = i * pentile_size
+        if i == 4:  # Last pentile gets all remaining regions
+            end_idx = n_regions
+        else:
+            end_idx = min((i + 1) * pentile_size, n_regions)
+        
+        if start_idx < n_regions:
+            pentile_caps = sorted_caps.iloc[start_idx:end_idx]
+            pentiles[f"pentile_{i+1}"] = {
+                "capacity": pentile_caps.sum(),
+                "fraction": pentile_caps.sum() / total_capacity,
+                "regions": list(pentile_caps.index),
+                "avg_capacity": pentile_caps.mean(),
+                "count": len(pentile_caps)
+            }
+    
+    return pentiles
+
+
+def extract_regional_characteristics(network):
+    """Extract various characteristics that might drive renewable investment.
+    
+    Args:
+        network: PyPSA network
+    
+    Returns:
+        dict: Regional characteristics by country
+    """
+    bus_to_country = network.buses["country"].to_dict()
+    characteristics = {}
+    
+    # Initialize for all countries
+    all_countries = set(network.buses["country"].unique())
+    for country in all_countries:
+        characteristics[country] = {
+            "total_load": 0.0,
+            "wind_capacity": 0.0,
+            "solar_capacity": 0.0,
+            "existing_renewable_capacity": 0.0,
+            "transmission_connections": 0,
+            "storage_capacity": 0.0
+        }
+    
+    # 1. Annual load by country
+    if hasattr(network, 'loads_t') and hasattr(network.loads_t, 'p_set'):
+        loads = network.loads_t.p_set
+        for load_idx in loads.columns:
+            if load_idx in network.loads.index:
+                load_bus = network.loads.loc[load_idx, 'bus']
+                country = bus_to_country.get(load_bus)
+                if country:
+                    annual_load = loads[load_idx].sum()
+                    characteristics[country]["total_load"] += annual_load
+    
+    # 2. Renewable capacity by technology
+    gen = network.generators
+    for idx, row in gen.iterrows():
+        country = bus_to_country.get(row['bus'])
+        if country:
+            capacity = row.get('p_nom_opt', 0)
+            carrier = str(row.get('carrier', '')).lower()
+            
+            if 'wind' in carrier:
+                characteristics[country]["wind_capacity"] += capacity
+            elif 'solar' in carrier:
+                characteristics[country]["solar_capacity"] += capacity
+            
+            if is_renewable(carrier):
+                characteristics[country]["existing_renewable_capacity"] += capacity
+    
+    # 3. Storage capacity
+    if hasattr(network, 'storage_units') and len(network.storage_units) > 0:
+        storage = network.storage_units
+        for idx, row in storage.iterrows():
+            country = bus_to_country.get(row['bus'])
+            if country:
+                capacity = row.get('p_nom_opt', 0)
+                characteristics[country]["storage_capacity"] += capacity
+    
+    # 4. Transmission connections (count of lines/links)
+    if hasattr(network, 'lines') and len(network.lines) > 0:
+        lines = network.lines
+        for idx, row in lines.iterrows():
+            country0 = bus_to_country.get(row['bus0'])
+            country1 = bus_to_country.get(row['bus1'])
+            if country0:
+                characteristics[country0]["transmission_connections"] += 1
+            if country1:
+                characteristics[country1]["transmission_connections"] += 1
+    
+    if hasattr(network, 'links') and len(network.links) > 0:
+        links = network.links
+        for idx, row in links.iterrows():
+            country0 = bus_to_country.get(row['bus0'])
+            country1 = bus_to_country.get(row['bus1'])
+            if country0:
+                characteristics[country0]["transmission_connections"] += 1
+            if country1:
+                characteristics[country1]["transmission_connections"] += 1
+    
+    return characteristics
 
 
 def load_networks_from_results(config, has_baseline=True):
