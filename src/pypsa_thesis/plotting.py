@@ -180,6 +180,34 @@ def extract_total_nodal_investment(network, baseline_network):
     return pd.Series(investment_by_country)
 
 
+def calculate_renewable_capacity_concentration(region_caps):
+    """Calculate the fraction of total renewable capacity in top N regions.
+    
+    Args:
+        region_caps: pd.Series with renewable capacity by region
+    
+    Returns:
+        dict: Fractions for top 1, 3, and 5 regions
+    """
+    if len(region_caps) == 0 or region_caps.sum() == 0:
+        return {"top_1": 0, "top_3": 0, "top_5": 0}
+    
+    # Sort regions by capacity (descending)
+    sorted_caps = region_caps.sort_values(ascending=False)
+    total_capacity = sorted_caps.sum()
+    
+    # Calculate cumulative fractions
+    top_1_fraction = sorted_caps.iloc[0] / total_capacity if len(sorted_caps) >= 1 else 0
+    top_3_fraction = sorted_caps.iloc[:3].sum() / total_capacity if len(sorted_caps) >= 3 else sorted_caps.sum() / total_capacity
+    top_5_fraction = sorted_caps.iloc[:5].sum() / total_capacity if len(sorted_caps) >= 5 else sorted_caps.sum() / total_capacity
+    
+    return {
+        "top_1": top_1_fraction,
+        "top_3": top_3_fraction,
+        "top_5": top_5_fraction
+    }
+
+
 def load_networks_from_results(config, has_baseline=True):
     """Load networks from results/networks directory with proper naming convention."""
     networks_by_percent = {}
@@ -349,6 +377,81 @@ def plot_green_investment_inequality(config, output_path, output_formats, dpi=30
     # Save in all requested formats
     for fmt in output_formats:
         output_file = output_path / f"green_investment_inequality.{fmt}"
+        fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+        print(f"  ✓ Saved plot as {output_file}")
+
+    plt.close(fig)
+
+
+def plot_renewable_capacity_concentration(config, output_path, output_formats, dpi=300, has_baseline=True):
+    """Plot the fraction of total renewable capacity in top N regions across CO₂ reduction scenarios."""
+    print("Creating renewable capacity concentration plot...")
+    
+    if not pypsa:
+        print("PyPSA not available - skipping renewable capacity concentration plot")
+        return
+    
+    # Load networks
+    networks_by_percent = load_networks_from_results(config, has_baseline)
+    
+    if not networks_by_percent:
+        print("No networks found - cannot create plot")
+        return
+    
+    # Calculate concentration metrics for each scenario
+    results = []
+    for co2_pct, net in networks_by_percent.items():
+        try:
+            region_caps = extract_installed_renewable_capacities(net)
+            concentration = calculate_renewable_capacity_concentration(region_caps)
+            
+            results.append({
+                "CO₂ Reduction (%)": int(co2_pct),
+                "Top 1 Region": concentration["top_1"],
+                "Top 3 Regions": concentration["top_3"],
+                "Top 5 Regions": concentration["top_5"]
+            })
+            print(f"  ✓ Calculated concentration for {co2_pct}% reduction: Top1={concentration['top_1']:.2f}, Top3={concentration['top_3']:.2f}, Top5={concentration['top_5']:.2f}")
+        except Exception as e:
+            print(f"⚠️ Skipping {co2_pct}% due to error: {e}")
+
+    if not results:
+        print("No valid results - cannot create plot")
+        return
+        
+    df = pd.DataFrame(results).sort_values("CO₂ Reduction (%)")
+
+    # Create the plot
+    fig, ax = plt.subplots(figsize=(12, 7))
+
+    # Set font properties
+    font = {'fontsize': 12, 'fontweight': 'bold'}
+
+    # Plot concentration lines
+    ax.plot(df["CO₂ Reduction (%)"], df["Top 1 Region"], 
+            marker="o", label="Top 1 Region", color="tab:red", linewidth=2, markersize=8)
+    ax.plot(df["CO₂ Reduction (%)"], df["Top 3 Regions"], 
+            marker="s", label="Top 3 Regions", color="tab:orange", linewidth=2, markersize=8)
+    ax.plot(df["CO₂ Reduction (%)"], df["Top 5 Regions"], 
+            marker="^", label="Top 5 Regions", color="tab:blue", linewidth=2, markersize=8)
+
+    # Format y-axis as percentage
+    ax.yaxis.set_major_formatter(plt.FuncFormatter(lambda y, _: '{:.0%}'.format(y)))
+    
+    ax.set_ylabel("Fraction of Total Renewable Capacity", **font)
+    ax.set_xlabel("CO₂ Reduction (%)", **font)
+    ax.set_title("Concentration of Renewable Capacity in Top Regions", **font)
+
+    # Style the plot
+    ax.grid(True, alpha=0.3)
+    ax.legend(loc="best", fontsize=11)
+    ax.set_ylim(0, 1.05)  # Set y-limit from 0 to just above 100%
+
+    plt.tight_layout()
+
+    # Save in all requested formats
+    for fmt in output_formats:
+        output_file = output_path / f"renewable_capacity_concentration.{fmt}"
         fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
         print(f"  ✓ Saved plot as {output_file}")
 
@@ -2159,6 +2262,7 @@ def main():
     plot_functions = {
         "renewable_capacity_inequality": lambda: plot_renewable_capacity_inequality(config, output_path, output_formats, dpi, args.has_baseline),
         "green_investment_inequality": lambda: plot_green_investment_inequality(config, output_path, output_formats, dpi, args.has_baseline),
+        "renewable_capacity_concentration": lambda: plot_renewable_capacity_concentration(config, output_path, output_formats, dpi, args.has_baseline),
         "total_renewable_capacity": lambda: plot_total_renewable_capacity(config, output_path, output_formats, dpi, args.has_baseline),
         "electricity_cost": lambda: plot_electricity_cost(config, output_path, output_formats, dpi, args.has_baseline),
         "generation_mix_actual": lambda: plot_generation_mix_actual(config, output_path, output_formats, dpi, args.has_baseline),

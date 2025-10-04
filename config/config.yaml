@@ -49,8 +49,8 @@ parameters:
       BarOrder: -1
       MemLimit: 120000
       Presolve: 2
-      NumericFocus: 0
-      AggFill: -1
+      NumericFocus: 1
+      AggFill: 1
       Aggregate: 2
       ScaleFlag: 2
       LogFile: "gurobi_solver.log"
@@ -59,6 +59,7 @@ parameters:
     plot_types:
       renewable_capacity_inequality: true
       green_investment_inequality: true
+      renewable_capacity_concentration: true
       total_renewable_capacity: true
       electricity_cost: true
       generation_mix_actual: true
