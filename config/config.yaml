@@ -64,16 +64,16 @@ parameters:
       renewable_capacity_pentiles: true
       middle_pentile_characteristics: true
       capacity_expansion_evolution: true
-      total_renewable_capacity: true
-      electricity_cost: true
-      generation_mix_actual: true
-      renewable_penetration_boxplots: true
-      interregional_transmission_expansion: true
-      storage_expansion_boxplots: true
-      total_system_cost: true
-      mean_price_bellcurve: true
-      mean_price_boxplots: true
-      network_maps: true
+      total_renewable_capacity: false
+      electricity_cost: false
+      generation_mix_actual: false
+      renewable_penetration_boxplots: false
+      interregional_transmission_expansion: false
+      storage_expansion_boxplots: false
+      total_system_cost: false
+      mean_price_bellcurve: false
+      mean_price_boxplots: false
+      network_maps: false
     output_formats: ["png", "pdf"]
     dpi: 300
 
