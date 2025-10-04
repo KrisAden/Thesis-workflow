@@ -77,6 +77,109 @@ def extract_installed_renewable_capacities(network):
     return renewables.groupby("country")["p_nom_opt"].sum()
 
 
+def extract_total_nodal_investment(network, baseline_network):
+    """Extract total nodal investment into green energy transition by country.
+    
+    This includes expansion costs for:
+    - Storage (compared to baseline)
+    - Transmission (allocated by region, compared to baseline) 
+    - Generation capacity (compared to baseline)
+    
+    Args:
+        network: PyPSA network for the scenario
+        baseline_network: PyPSA baseline network (0% decarbonized)
+    
+    Returns:
+        pd.Series: Total investment by country
+    """
+    bus_to_country = network.buses["country"].to_dict()
+    investment_by_country = {}
+    
+    # Initialize all countries with zero investment
+    all_countries = set(network.buses["country"].unique())
+    for country in all_countries:
+        investment_by_country[country] = 0.0
+    
+    # 1. Generation expansion investment
+    gen = network.generators.copy()
+    baseline_gen = baseline_network.generators.copy()
+    
+    # Calculate generation expansion (p_nom_opt - baseline p_nom_opt)
+    for idx, row in gen.iterrows():
+        if idx in baseline_gen.index:
+            expansion = max(0, row['p_nom_opt'] - baseline_gen.loc[idx, 'p_nom_opt'])
+        else:
+            expansion = row['p_nom_opt']  # New generator
+        
+        if expansion > 0 and 'capital_cost' in row:
+            country = bus_to_country.get(row['bus'])
+            if country:
+                investment_by_country[country] += expansion * row.get('capital_cost', 0)
+    
+    # 2. Storage expansion investment
+    if hasattr(network, 'storage_units') and len(network.storage_units) > 0:
+        storage = network.storage_units.copy()
+        baseline_storage = baseline_network.storage_units.copy() if hasattr(baseline_network, 'storage_units') else pd.DataFrame()
+        
+        for idx, row in storage.iterrows():
+            if len(baseline_storage) > 0 and idx in baseline_storage.index:
+                expansion = max(0, row['p_nom_opt'] - baseline_storage.loc[idx, 'p_nom_opt'])
+            else:
+                expansion = row['p_nom_opt']  # New storage
+            
+            if expansion > 0 and 'capital_cost' in row:
+                country = bus_to_country.get(row['bus'])
+                if country:
+                    investment_by_country[country] += expansion * row.get('capital_cost', 0)
+    
+    # 3. Transmission expansion investment (allocated 50/50 to connected regions)
+    # Lines
+    if hasattr(network, 'lines') and len(network.lines) > 0:
+        lines = network.lines.copy()
+        baseline_lines = baseline_network.lines.copy() if hasattr(baseline_network, 'lines') else pd.DataFrame()
+        
+        for idx, row in lines.iterrows():
+            if len(baseline_lines) > 0 and idx in baseline_lines.index:
+                expansion = max(0, row['s_nom_opt'] - baseline_lines.loc[idx, 's_nom_opt'])
+            else:
+                expansion = row['s_nom_opt']  # New line
+            
+            if expansion > 0 and 'capital_cost' in row:
+                bus0_country = bus_to_country.get(row['bus0'])
+                bus1_country = bus_to_country.get(row['bus1'])
+                investment = expansion * row.get('capital_cost', 0)
+                
+                # Allocate 50% to each connected region
+                if bus0_country:
+                    investment_by_country[bus0_country] += investment * 0.5
+                if bus1_country:
+                    investment_by_country[bus1_country] += investment * 0.5
+    
+    # Links
+    if hasattr(network, 'links') and len(network.links) > 0:
+        links = network.links.copy()
+        baseline_links = baseline_network.links.copy() if hasattr(baseline_network, 'links') else pd.DataFrame()
+        
+        for idx, row in links.iterrows():
+            if len(baseline_links) > 0 and idx in baseline_links.index:
+                expansion = max(0, row['p_nom_opt'] - baseline_links.loc[idx, 'p_nom_opt'])
+            else:
+                expansion = row['p_nom_opt']  # New link
+            
+            if expansion > 0 and 'capital_cost' in row:
+                bus0_country = bus_to_country.get(row['bus0'])
+                bus1_country = bus_to_country.get(row['bus1'])
+                investment = expansion * row.get('capital_cost', 0)
+                
+                # Allocate 50% to each connected region
+                if bus0_country:
+                    investment_by_country[bus0_country] += investment * 0.5
+                if bus1_country:
+                    investment_by_country[bus1_country] += investment * 0.5
+    
+    return pd.Series(investment_by_country)
+
+
 def load_networks_from_results(config, has_baseline=True):
     """Load networks from results/networks directory with proper naming convention."""
     networks_by_percent = {}
@@ -167,6 +270,85 @@ def plot_renewable_capacity_inequality(config, output_path, output_formats, dpi=
     # Save in all requested formats
     for fmt in output_formats:
         output_file = output_path / f"renewable_capacity_inequality.{fmt}"
+        fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+        print(f"  ✓ Saved plot as {output_file}")
+
+    plt.close(fig)
+
+
+def plot_green_investment_inequality(config, output_path, output_formats, dpi=300, has_baseline=True):
+    """Plot Gini coefficient of total nodal investment into green energy transition across scenarios."""
+    print("Creating green investment inequality plot...")
+    
+    if not pypsa:
+        print("PyPSA not available - skipping green investment inequality plot")
+        return
+    
+    # Load networks
+    networks_by_percent = load_networks_from_results(config, has_baseline)
+    
+    if not networks_by_percent:
+        print("No networks found - cannot create plot")
+        return
+    
+    # Need baseline network for comparison
+    if 0 not in networks_by_percent:
+        print("Baseline network (0% reduction) not found - cannot calculate investment relative to baseline")
+        return
+    
+    baseline_network = networks_by_percent[0]
+    
+    # Calculate Gini coefficients for investment
+    results = []
+    for co2_pct, net in networks_by_percent.items():
+        if co2_pct == 0:  # Skip baseline for investment calculation
+            continue
+            
+        try:
+            investment_by_country = extract_total_nodal_investment(net, baseline_network)
+            gini = gini_coefficient(investment_by_country.values)
+            hhi = hhi_index(investment_by_country.values)
+            total_investment = investment_by_country.sum()
+            results.append({
+                "CO₂ Reduction (%)": int(co2_pct), 
+                "Gini": gini, 
+                "HHI": hhi,
+                "Total Investment (M€)": total_investment / 1e6  # Convert to millions
+            })
+            print(f"  ✓ Calculated Gini={gini:.3f}, Total Investment={total_investment/1e6:.1f}M€ for {co2_pct}% reduction")
+        except Exception as e:
+            print(f"⚠️ Skipping {co2_pct}% due to error: {e}")
+
+    if not results:
+        print("No valid results - cannot create plot")
+        return
+        
+    df = pd.DataFrame(results).sort_values("CO₂ Reduction (%)")
+
+    # Create the plot
+    fig, ax1 = plt.subplots(figsize=(10, 6))
+
+    # Set font properties
+    font = {'fontsize': 12, 'fontweight': 'bold'}
+
+    # Plot Gini coefficient
+    ax1.plot(df["CO₂ Reduction (%)"], df["Gini"], marker="o", label="Gini Coefficient", 
+             color="tab:green", linewidth=2, markersize=8)
+
+    ax1.set_ylabel("Gini Coefficient", **font)
+    ax1.set_xlabel("CO₂ Reduction (%)", **font)
+    ax1.set_title("Inequality of Green Energy Transition Investment", **font)
+
+    # Style the plot
+    ax1.grid(True, alpha=0.3)
+    lines_1, labels_1 = ax1.get_legend_handles_labels()
+    ax1.legend(lines_1, labels_1, loc="upper left")
+
+    plt.tight_layout()
+
+    # Save in all requested formats
+    for fmt in output_formats:
+        output_file = output_path / f"green_investment_inequality.{fmt}"
         fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
         print(f"  ✓ Saved plot as {output_file}")
 
@@ -1976,6 +2158,7 @@ def main():
     # Generate requested plots
     plot_functions = {
         "renewable_capacity_inequality": lambda: plot_renewable_capacity_inequality(config, output_path, output_formats, dpi, args.has_baseline),
+        "green_investment_inequality": lambda: plot_green_investment_inequality(config, output_path, output_formats, dpi, args.has_baseline),
         "total_renewable_capacity": lambda: plot_total_renewable_capacity(config, output_path, output_formats, dpi, args.has_baseline),
         "electricity_cost": lambda: plot_electricity_cost(config, output_path, output_formats, dpi, args.has_baseline),
         "generation_mix_actual": lambda: plot_generation_mix_actual(config, output_path, output_formats, dpi, args.has_baseline),
