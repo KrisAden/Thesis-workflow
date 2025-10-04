@@ -387,6 +387,117 @@ def extract_regional_characteristics(network):
     return characteristics
 
 
+def analyze_transmission_bottlenecks(network):
+    """Analyze transmission capacity constraints and bottlenecks.
+    
+    Args:
+        network: PyPSA network
+    
+    Returns:
+        dict: Analysis of transmission constraints by region and connection
+    """
+    bus_to_country = network.buses["country"].to_dict()
+    bottleneck_analysis = {
+        "lines": [],
+        "links": [],
+        "regional_constraints": {}
+    }
+    
+    # Initialize regional constraints
+    all_countries = set(network.buses["country"].unique())
+    for country in all_countries:
+        bottleneck_analysis["regional_constraints"][country] = {
+            "total_capacity_opt": 0.0,
+            "total_capacity_max": 0.0,
+            "constrained_connections": 0,
+            "total_connections": 0,
+            "utilization_ratio": 0.0
+        }
+    
+    # Analyze lines (AC transmission)
+    if hasattr(network, 'lines') and len(network.lines) > 0:
+        lines = network.lines
+        for idx, row in lines.iterrows():
+            s_nom_opt = row.get('s_nom_opt', 0)
+            s_nom_max = row.get('s_nom_max', float('inf'))
+            
+            # Check if at capacity limit
+            at_limit = s_nom_max < float('inf') and s_nom_opt >= 0.95 * s_nom_max
+            utilization = s_nom_opt / s_nom_max if s_nom_max > 0 and s_nom_max < float('inf') else 0
+            
+            country0 = bus_to_country.get(row['bus0'])
+            country1 = bus_to_country.get(row['bus1'])
+            
+            line_data = {
+                "name": idx,
+                "bus0": row['bus0'],
+                "bus1": row['bus1'],
+                "country0": country0,
+                "country1": country1,
+                "s_nom_opt": s_nom_opt,
+                "s_nom_max": s_nom_max,
+                "utilization": utilization,
+                "at_limit": at_limit,
+                "type": "line"
+            }
+            bottleneck_analysis["lines"].append(line_data)
+            
+            # Update regional statistics
+            for country in [country0, country1]:
+                if country:
+                    bottleneck_analysis["regional_constraints"][country]["total_capacity_opt"] += s_nom_opt / 2
+                    if s_nom_max < float('inf'):
+                        bottleneck_analysis["regional_constraints"][country]["total_capacity_max"] += s_nom_max / 2
+                    bottleneck_analysis["regional_constraints"][country]["total_connections"] += 1
+                    if at_limit:
+                        bottleneck_analysis["regional_constraints"][country]["constrained_connections"] += 1
+    
+    # Analyze links (DC transmission, interconnectors)
+    if hasattr(network, 'links') and len(network.links) > 0:
+        links = network.links
+        for idx, row in links.iterrows():
+            p_nom_opt = row.get('p_nom_opt', 0)
+            p_nom_max = row.get('p_nom_max', float('inf'))
+            
+            # Check if at capacity limit
+            at_limit = p_nom_max < float('inf') and p_nom_opt >= 0.95 * p_nom_max
+            utilization = p_nom_opt / p_nom_max if p_nom_max > 0 and p_nom_max < float('inf') else 0
+            
+            country0 = bus_to_country.get(row['bus0'])
+            country1 = bus_to_country.get(row['bus1'])
+            
+            link_data = {
+                "name": idx,
+                "bus0": row['bus0'],
+                "bus1": row['bus1'],
+                "country0": country0,
+                "country1": country1,
+                "p_nom_opt": p_nom_opt,
+                "p_nom_max": p_nom_max,
+                "utilization": utilization,
+                "at_limit": at_limit,
+                "type": "link"
+            }
+            bottleneck_analysis["links"].append(link_data)
+            
+            # Update regional statistics
+            for country in [country0, country1]:
+                if country:
+                    bottleneck_analysis["regional_constraints"][country]["total_capacity_opt"] += p_nom_opt / 2
+                    if p_nom_max < float('inf'):
+                        bottleneck_analysis["regional_constraints"][country]["total_capacity_max"] += p_nom_max / 2
+                    bottleneck_analysis["regional_constraints"][country]["total_connections"] += 1
+                    if at_limit:
+                        bottleneck_analysis["regional_constraints"][country]["constrained_connections"] += 1
+    
+    # Calculate utilization ratios
+    for country, data in bottleneck_analysis["regional_constraints"].items():
+        if data["total_capacity_max"] > 0:
+            data["utilization_ratio"] = data["total_capacity_opt"] / data["total_capacity_max"]
+    
+    return bottleneck_analysis
+
+
 def load_networks_from_results(config, has_baseline=True):
     """Load networks from results/networks directory with proper naming convention."""
     networks_by_percent = {}
@@ -1028,6 +1139,145 @@ def plot_capacity_expansion_evolution(config, output_path, output_formats, dpi=3
     plt.close(fig)
     
     print(f"  ✓ Analyzed expansion across {len(top_regions)} top, {len(middle_regions)} middle, {len(bottom_regions)} bottom regions")
+
+
+def plot_transmission_bottlenecks(config, output_path, output_formats, dpi=300, has_baseline=True):
+    """Plot transmission capacity utilization and bottlenecks across scenarios."""
+    print("Creating transmission bottlenecks analysis plot...")
+    
+    if not pypsa:
+        print("PyPSA not available - skipping transmission bottlenecks plot")
+        return
+    
+    # Load networks
+    networks_by_percent = load_networks_from_results(config, has_baseline)
+    
+    if not networks_by_percent:
+        print("No networks found - cannot create plot")
+        return
+    
+    # Analyze bottlenecks for each scenario
+    scenario_results = []
+    regional_utilization = {}
+    
+    for co2_pct, net in networks_by_percent.items():
+        try:
+            bottlenecks = analyze_transmission_bottlenecks(net)
+            
+            # Count constrained connections
+            constrained_lines = sum(1 for line in bottlenecks["lines"] if line["at_limit"])
+            constrained_links = sum(1 for link in bottlenecks["links"] if link["at_limit"])
+            total_constrained = constrained_lines + constrained_links
+            total_connections = len(bottlenecks["lines"]) + len(bottlenecks["links"])
+            
+            # Calculate average utilization
+            all_utilizations = [line["utilization"] for line in bottlenecks["lines"] if line["utilization"] > 0]
+            all_utilizations.extend([link["utilization"] for link in bottlenecks["links"] if link["utilization"] > 0])
+            avg_utilization = np.mean(all_utilizations) if all_utilizations else 0
+            
+            scenario_results.append({
+                "CO₂ Reduction (%)": int(co2_pct),
+                "Constrained Connections": total_constrained,
+                "Total Connections": total_connections,
+                "Constraint Rate (%)": (total_constrained / total_connections * 100) if total_connections > 0 else 0,
+                "Average Utilization": avg_utilization
+            })
+            
+            # Store regional data for detailed analysis
+            regional_utilization[co2_pct] = bottlenecks["regional_constraints"]
+            
+            print(f"  ✓ Analyzed {total_constrained}/{total_connections} constrained connections for {co2_pct}% reduction")
+        except Exception as e:
+            print(f"⚠️ Skipping {co2_pct}% due to error: {e}")
+
+    if not scenario_results:
+        print("No valid results - cannot create plot")
+        return
+        
+    df = pd.DataFrame(scenario_results).sort_values("CO₂ Reduction (%)")
+
+    # Create subplot figure
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(16, 12))
+    font = {'fontsize': 11, 'fontweight': 'bold'}
+    
+    # Plot 1: Number of constrained connections
+    ax1.plot(df["CO₂ Reduction (%)"], df["Constrained Connections"], 
+            marker="o", color="tab:red", linewidth=2, markersize=8)
+    ax1.set_ylabel("Number of Constrained Connections", **font)
+    ax1.set_xlabel("CO₂ Reduction (%)", **font)
+    ax1.set_title("Transmission Connections at Capacity Limit", **font)
+    ax1.grid(True, alpha=0.3)
+    
+    # Plot 2: Constraint rate percentage
+    ax2.plot(df["CO₂ Reduction (%)"], df["Constraint Rate (%)"], 
+            marker="s", color="tab:orange", linewidth=2, markersize=8)
+    ax2.set_ylabel("Constraint Rate (%)", **font)
+    ax2.set_xlabel("CO₂ Reduction (%)", **font)
+    ax2.set_title("Percentage of Connections Constrained", **font)
+    ax2.grid(True, alpha=0.3)
+    ax2.set_ylim(0, 100)
+    
+    # Plot 3: Average utilization
+    ax3.plot(df["CO₂ Reduction (%)"], df["Average Utilization"], 
+            marker="^", color="tab:green", linewidth=2, markersize=8)
+    ax3.set_ylabel("Average Utilization Ratio", **font)
+    ax3.set_xlabel("CO₂ Reduction (%)", **font)
+    ax3.set_title("Average Transmission Capacity Utilization", **font)
+    ax3.grid(True, alpha=0.3)
+    ax3.set_ylim(0, 1)
+    
+    # Plot 4: Regional utilization for a specific scenario (50% reduction)
+    target_scenario = 50
+    if target_scenario in regional_utilization:
+        regional_data = regional_utilization[target_scenario]
+        countries = list(regional_data.keys())
+        utilizations = [regional_data[country]["utilization_ratio"] for country in countries]
+        
+        # Filter out countries with zero utilization
+        filtered_data = [(country, util) for country, util in zip(countries, utilizations) if util > 0]
+        if filtered_data:
+            filtered_countries, filtered_utils = zip(*filtered_data)
+            
+            bars = ax4.bar(range(len(filtered_countries)), filtered_utils, color="tab:blue", alpha=0.7)
+            ax4.set_ylabel("Regional Utilization Ratio", **font)
+            ax4.set_xlabel("Regions", **font)
+            ax4.set_title(f"Regional Transmission Utilization ({target_scenario}% CO₂ Reduction)", **font)
+            ax4.set_xticks(range(len(filtered_countries)))
+            ax4.set_xticklabels(filtered_countries, rotation=45, ha='right')
+            ax4.grid(True, alpha=0.3, axis='y')
+            ax4.set_ylim(0, 1)
+            
+            # Highlight highly utilized regions (>80%)
+            for i, util in enumerate(filtered_utils):
+                if util > 0.8:
+                    bars[i].set_color('tab:red')
+                elif util > 0.6:
+                    bars[i].set_color('tab:orange')
+    else:
+        ax4.text(0.5, 0.5, f"No data for {target_scenario}% scenario", 
+                ha='center', va='center', transform=ax4.transAxes)
+        ax4.set_title("Regional Transmission Utilization", **font)
+    
+    plt.tight_layout()
+    
+    # Save in all requested formats
+    for fmt in output_formats:
+        output_file = output_path / f"transmission_bottlenecks.{fmt}"
+        fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+        print(f"  ✓ Saved plot as {output_file}")
+    
+    plt.close(fig)
+    
+    # Print summary of most constrained regions
+    if target_scenario in regional_utilization:
+        print(f"\n📊 Most transmission-constrained regions at {target_scenario}% reduction:")
+        regional_data = regional_utilization[target_scenario]
+        sorted_regions = sorted(regional_data.items(), 
+                              key=lambda x: x[1]["utilization_ratio"], reverse=True)
+        for i, (country, data) in enumerate(sorted_regions[:5]):
+            if data["utilization_ratio"] > 0:
+                print(f"  {i+1}. {country}: {data['utilization_ratio']:.1%} utilization, "
+                      f"{data['constrained_connections']}/{data['total_connections']} constrained")
 
 
 def plot_total_renewable_capacity(config, output_path, output_formats, dpi=300, has_baseline=True):
@@ -2839,6 +3089,7 @@ def main():
         "renewable_capacity_pentiles": lambda: plot_renewable_capacity_pentiles(config, output_path, output_formats, dpi, args.has_baseline),
         "middle_pentile_characteristics": lambda: plot_middle_pentile_characteristics(config, output_path, output_formats, dpi, args.has_baseline),
         "capacity_expansion_evolution": lambda: plot_capacity_expansion_evolution(config, output_path, output_formats, dpi, args.has_baseline),
+        "transmission_bottlenecks": lambda: plot_transmission_bottlenecks(config, output_path, output_formats, dpi, args.has_baseline),
         "total_renewable_capacity": lambda: plot_total_renewable_capacity(config, output_path, output_formats, dpi, args.has_baseline),
         "electricity_cost": lambda: plot_electricity_cost(config, output_path, output_formats, dpi, args.has_baseline),
         "generation_mix_actual": lambda: plot_generation_mix_actual(config, output_path, output_formats, dpi, args.has_baseline),
