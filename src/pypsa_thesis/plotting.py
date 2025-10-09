@@ -77,6 +77,45 @@ def extract_installed_renewable_capacities(network):
     return renewables.groupby("country")["p_nom_opt"].sum()
 
 
+def extract_renewable_generation_output(network):
+    """Extract annual renewable generation output by country from a PyPSA network."""
+    gen = network.generators
+    renewables = gen[gen['carrier'].apply(is_renewable)]
+
+    if "p_nom_opt" not in renewables.columns:
+        raise ValueError("Missing 'p_nom_opt' in generators!")
+    
+    if not hasattr(network, 'generators_t') or not hasattr(network.generators_t, 'p'):
+        raise ValueError("Missing generation time series data!")
+
+    # Get snapshot weights for proper annual calculation
+    weights = getattr(network, 'snapshot_weightings', None)
+    if weights is None:
+        weights = pd.Series(1.0, index=network.snapshots)
+    elif hasattr(weights, 'generators'):
+        weights = weights['generators']
+    elif hasattr(weights, 'objective'):
+        weights = weights['objective']
+    else:
+        weights = weights
+
+    # Calculate annual generation for renewable generators
+    renewable_gens = renewables.index
+    gen_timeseries = network.generators_t.p[renewable_gens]  # MW
+    
+    # Multiply by weights and sum over time to get annual generation (MWh)
+    annual_gen_by_generator = (gen_timeseries.T * weights).T.sum()
+
+    # Map generators to countries
+    bus_to_country = network.buses["country"].to_dict()
+    renewables = renewables.copy()
+    renewables["country"] = renewables["bus"].map(bus_to_country)
+    renewables["annual_generation_mwh"] = annual_gen_by_generator
+
+    # Group by country and sum annual generation
+    return renewables.groupby("country")["annual_generation_mwh"].sum()
+
+
 def extract_total_nodal_investment(network, baseline_network):
     """Extract total nodal investment into green energy transition by country.
     
@@ -532,11 +571,11 @@ def load_networks_from_results(config, has_baseline=True):
 
 
 def plot_renewable_capacity_inequality(config, output_path, output_formats, dpi=300, has_baseline=True):
-    """Plot Gini coefficient of installed renewable capacity inequality across scenarios."""
-    print("Creating renewable capacity inequality plot...")
+    """Plot Gini coefficient of renewable generation output inequality across scenarios."""
+    print("Creating renewable generation inequality plot...")
     
     if not pypsa:
-        print("PyPSA not available - skipping renewable capacity inequality plot")
+        print("PyPSA not available - skipping renewable generation inequality plot")
         return
     
     # Load networks
@@ -550,9 +589,9 @@ def plot_renewable_capacity_inequality(config, output_path, output_formats, dpi=
     results = []
     for co2_pct, net in networks_by_percent.items():
         try:
-            region_caps = extract_installed_renewable_capacities(net)
-            gini = gini_coefficient(region_caps.values)
-            hhi = hhi_index(region_caps.values)
+            region_generation = extract_renewable_generation_output(net)
+            gini = gini_coefficient(region_generation.values)
+            hhi = hhi_index(region_generation.values)
             results.append({"CO₂ Reduction (%)": int(co2_pct), "Gini": gini, "HHI": hhi})
             print(f"  ✓ Calculated Gini={gini:.3f} for {co2_pct}% reduction")
         except Exception as e:
@@ -576,7 +615,7 @@ def plot_renewable_capacity_inequality(config, output_path, output_formats, dpi=
 
     ax1.set_ylabel("Gini Coefficient", **font)
     ax1.set_xlabel("CO₂ Reduction (%)", **font)
-    ax1.set_title("Inequality of Installed Renewable Capacity", **font)
+    ax1.set_title("Inequality of Renewable Generation Output", **font)
 
     # Style the plot
     ax1.grid(True, alpha=0.3)
@@ -587,7 +626,7 @@ def plot_renewable_capacity_inequality(config, output_path, output_formats, dpi=
 
     # Save in all requested formats
     for fmt in output_formats:
-        output_file = output_path / f"renewable_capacity_inequality.{fmt}"
+        output_file = output_path / f"renewable_generation_inequality.{fmt}"
         fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
         print(f"  ✓ Saved plot as {output_file}")
 
@@ -826,6 +865,227 @@ def plot_green_investment_inequality_load_scaled(config, output_path, output_for
         print(f"  ✓ Saved plot as {output_file}")
 
     plt.close(fig)
+
+
+def extract_renewable_penetration_by_country(network):
+    """Extract renewable penetration (%) by country from a PyPSA network."""
+    try:
+        # Get total generation by country
+        bus_to_country = network.buses["country"].to_dict()
+        
+        # Check if we have the required data
+        if not hasattr(network, 'generators_t') or not hasattr(network.generators_t, 'p'):
+            raise ValueError("Missing generation time series data (generators_t.p)")
+        
+        # Get snapshot weights for proper annual calculation
+        weights = getattr(network, 'snapshot_weightings', None)
+        if weights is None:
+            weights = pd.Series(1.0, index=network.snapshots)
+        elif hasattr(weights, 'generators'):
+            weights = weights['generators']
+        elif hasattr(weights, 'objective'):
+            weights = weights['objective']
+        else:
+            weights = weights
+
+        # Calculate total generation by generator
+        all_gens = network.generators.index
+        gen_timeseries = network.generators_t.p[all_gens]  # MW
+        annual_gen_by_generator = (gen_timeseries.T * weights).T.sum()  # MWh
+
+        # Map generators to countries and calculate total generation by country
+        gen_with_country = network.generators.copy()
+        gen_with_country["country"] = gen_with_country["bus"].map(bus_to_country)
+        gen_with_country["annual_generation_mwh"] = annual_gen_by_generator
+        
+        total_gen_by_country = gen_with_country.groupby("country")["annual_generation_mwh"].sum()
+        
+        # Calculate renewable generation by country
+        renewables = gen_with_country[gen_with_country['carrier'].apply(is_renewable)]
+        renewable_gen_by_country = renewables.groupby("country")["annual_generation_mwh"].sum()
+        
+        # Calculate penetration percentage
+        penetration_by_country = (renewable_gen_by_country / total_gen_by_country * 100).fillna(0)
+        
+        # Ensure we have reasonable values
+        penetration_by_country = penetration_by_country.clip(0, 100)
+        
+        if penetration_by_country.empty:
+            raise ValueError("No renewable penetration data calculated")
+        
+        return penetration_by_country
+        
+    except Exception as e:
+        print(f"Error in extract_renewable_penetration_by_country: {e}")
+        raise
+
+
+def plot_renewable_penetration_gini_by_decarbonization(config, output_path, output_formats, dpi=300, has_baseline=True):
+    """Plot Gini coefficient of renewable penetration with separate subplot for each decarbonization level."""
+    print("Creating renewable penetration Gini by decarbonization plot...")
+    
+    if not pypsa:
+        print("PyPSA not available - skipping renewable penetration Gini plot")
+        # Create empty files to satisfy Snakemake
+        for fmt in output_formats:
+            output_file = output_path / f"renewable_penetration_gini_by_decarbonization.{fmt}"
+            fig, ax = plt.subplots(figsize=(10, 6))
+            ax.text(0.5, 0.5, "PyPSA not available", ha='center', va='center', transform=ax.transAxes)
+            ax.set_title("Renewable Penetration Gini by Decarbonization")
+            fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+            plt.close(fig)
+            print(f"  ✓ Created placeholder plot as {output_file}")
+        return
+    
+    try:
+        # Load networks
+        networks_by_percent = load_networks_from_results(config, has_baseline)
+        
+        if not networks_by_percent:
+            print("No networks found - creating placeholder plot")
+            # Create placeholder files
+            for fmt in output_formats:
+                output_file = output_path / f"renewable_penetration_gini_by_decarbonization.{fmt}"
+                fig, ax = plt.subplots(figsize=(10, 6))
+                ax.text(0.5, 0.5, "No networks found", ha='center', va='center', transform=ax.transAxes)
+                ax.set_title("Renewable Penetration Gini by Decarbonization")
+                fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+                plt.close(fig)
+                print(f"  ✓ Created placeholder plot as {output_file}")
+            return
+
+        # Calculate Gini coefficients for each scenario
+        results = []
+        penetration_data = {}
+        
+        for co2_pct, net in networks_by_percent.items():
+            try:
+                penetration = extract_renewable_penetration_by_country(net)
+                gini = gini_coefficient(penetration.values)
+                results.append({"CO₂ Reduction (%)": int(co2_pct), "Gini": gini})
+                penetration_data[co2_pct] = penetration
+                print(f"  ✓ Calculated Gini={gini:.3f} for {co2_pct}% reduction")
+            except Exception as e:
+                print(f"⚠️ Skipping {co2_pct}% due to error: {e}")
+
+        if not results:
+            print("No valid results - creating placeholder plot")
+            # Create placeholder files
+            for fmt in output_formats:
+                output_file = output_path / f"renewable_penetration_gini_by_decarbonization.{fmt}"
+                fig, ax = plt.subplots(figsize=(10, 6))
+                ax.text(0.5, 0.5, "No valid calculation results", ha='center', va='center', transform=ax.transAxes)
+                ax.set_title("Renewable Penetration Gini by Decarbonization")
+                fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+                plt.close(fig)
+                print(f"  ✓ Created placeholder plot as {output_file}")
+            return
+            
+        df = pd.DataFrame(results).sort_values("CO₂ Reduction (%)")
+        
+        # Determine subplot layout
+        n_scenarios = len(df)
+        if n_scenarios <= 2:
+            rows, cols = 1, n_scenarios
+            figsize = (6 * cols, 5)
+        elif n_scenarios <= 4:
+            rows, cols = 2, 2
+            figsize = (12, 10)
+        elif n_scenarios <= 6:
+            rows, cols = 2, 3
+            figsize = (18, 10)
+        else:
+            rows, cols = 3, 3
+            figsize = (18, 15)
+
+        # Create the plot
+        fig, axes = plt.subplots(rows, cols, figsize=figsize)
+        if n_scenarios == 1:
+            axes = [axes]
+        elif rows == 1 or cols == 1:
+            axes = axes.flatten()
+        else:
+            axes = axes.flatten()
+
+        # Set font properties
+        font = {'fontsize': 12, 'fontweight': 'bold'}
+        title_font = {'fontsize': 14, 'fontweight': 'bold'}
+        
+        # Color palette for countries
+        colors = plt.cm.Set3(np.linspace(0, 1, 20))  # Up to 20 countries
+        
+        # Plot each scenario
+        for i, (_, row) in enumerate(df.iterrows()):
+            if i >= len(axes):
+                break
+                
+            ax = axes[i]
+            co2_pct = f"{int(row['CO₂ Reduction (%)'])}"
+            
+            # Get penetration data for this scenario
+            penetration = penetration_data[co2_pct]
+            countries = penetration.index
+            
+            # Create bar plot
+            bars = ax.bar(range(len(countries)), penetration.values, 
+                         color=colors[:len(countries)], alpha=0.7, edgecolor='black', linewidth=0.5)
+            
+            # Customize the subplot
+            ax.set_title(f'{co2_pct}% CO₂ Reduction\nGini: {row["Gini"]:.3f}', **title_font)
+            ax.set_ylabel('Renewable Penetration (%)', **font)
+            ax.set_xlabel('Countries', **font)
+            
+            # Set x-axis labels
+            ax.set_xticks(range(len(countries)))
+            ax.set_xticklabels(countries, rotation=45, ha='right')
+            
+            # Add grid
+            ax.grid(True, alpha=0.3, axis='y')
+            ax.set_axisbelow(True)
+            
+            # Set y-axis limits to 0-100%
+            ax.set_ylim(0, 100)
+            
+            # Add value labels on bars
+            for j, (bar, value) in enumerate(zip(bars, penetration.values)):
+                height = bar.get_height()
+                ax.text(bar.get_x() + bar.get_width()/2., height + 1,
+                       f'{value:.1f}%', ha='center', va='bottom', fontsize=9)
+
+        # Hide unused subplots
+        for i in range(len(df), len(axes)):
+            axes[i].set_visible(False)
+
+        # Add overall title
+        fig.suptitle('Renewable Penetration Inequality Across Decarbonization Scenarios', 
+                    fontsize=16, fontweight='bold', y=0.98)
+
+        plt.tight_layout()
+        plt.subplots_adjust(top=0.93)
+
+        # Save in all requested formats
+        for fmt in output_formats:
+            output_file = output_path / f"renewable_penetration_gini_by_decarbonization.{fmt}"
+            fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+            print(f"  ✓ Saved plot as {output_file}")
+
+        plt.close(fig)
+        print(f"  ✓ Successfully created plot with {len(df)} scenarios")
+        
+    except Exception as e:
+        print(f"⚠️ Error in plot_renewable_penetration_gini_by_decarbonization: {e}")
+        import traceback
+        traceback.print_exc()
+        
+        # Create placeholder files to satisfy Snakemake
+        for fmt in output_formats:
+            output_file = output_path / f"renewable_penetration_gini_by_decarbonization.{fmt}"
+            fig, ax = plt.subplots(figsize=(10, 6))
+            ax.text(0.5, 0.5, f"Error: {str(e)}", ha='center', va='center', transform=ax.transAxes)
+            ax.set_title("Renewable Penetration Gini by Decarbonization")
+            fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+            plt.close(fig)
+            print(f"  ✓ Created error placeholder as {output_file}")
 
 
 def plot_renewable_capacity_pentiles(config, output_path, output_formats, dpi=300, has_baseline=True):
@@ -1656,6 +1916,141 @@ def plot_renewable_penetration_boxplots(config, output_path, output_formats, dpi
     # Save in all requested formats
     for fmt in output_formats:
         output_file = output_path / f"renewable_penetration_boxplots.{fmt}"
+        fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+        print(f"  ✓ Saved plot as {output_file}")
+
+    plt.close(fig)
+
+
+def plot_renewable_penetration_stacked_bars(config, output_path, output_formats, dpi=300, has_baseline=True):
+    """Plot stacked bar chart showing cumulative renewable penetration by region across CO₂ reduction levels."""
+    print("Creating renewable penetration stacked bars plot...")
+    
+    # Load networks
+    networks_by_percent = load_networks_from_results(config, has_baseline)
+    
+    if not networks_by_percent:
+        print("No networks found - cannot create plot")
+        return
+    
+    # This will store results for each CO2 reduction level
+    renewable_penetration_by_region = {}
+
+    # Loop through each network and CO2 reduction level
+    for co2_pct, net in networks_by_percent.items():
+        try:
+            # Get snapshot weights
+            weights = getattr(net, 'snapshot_weightings', None)
+            if weights is None:
+                weights = pd.Series(1.0, index=net.snapshots)
+            elif hasattr(weights, 'objective'):
+                weights = weights["objective"]
+            elif hasattr(weights, 'generators'):
+                weights = weights["generators"]
+            else:
+                weights = weights
+
+            # Identify renewable generators
+            renewable_carriers = ["solar", "onwind", "offwind-ac", "offwind-dc", "nuclear", "biomass", "geothermal", "ror", "hydro"]
+            renewable_gens = net.generators.index[net.generators.carrier.isin(renewable_carriers)]
+
+            # Group buses by region (country)
+            if "country" in net.buses.columns:
+                region_map = net.buses["country"]
+            else:
+                # Extract country from bus names if no country column
+                region_map = net.buses.index.to_series().apply(lambda x: x.split("_")[-1])
+                net.buses["country"] = region_map
+
+            # Calculate renewable generation with weights
+            generation = net.generators_t.p.multiply(weights, axis=0)
+            renewable_gen = generation[renewable_gens]
+
+            # Map each generator to its region and sum renewable generation
+            gen_regions = net.generators.loc[renewable_gens, "bus"].map(region_map)
+            renewable_by_region = renewable_gen.groupby(gen_regions, axis=1).sum().sum()
+
+            # Get load by region
+            load = net.loads_t.p_set.multiply(weights, axis=0)
+            load_regions = net.loads.bus.map(region_map)
+            load_by_region = load.groupby(load_regions, axis=1).sum().sum()
+
+            # Compute penetration (as a fraction of load)
+            penetration = (renewable_by_region / load_by_region).fillna(0)
+            renewable_penetration_by_region[co2_pct] = penetration
+
+            print(f"  ✓ Calculated penetration for {co2_pct}% reduction ({len(penetration)} regions)")
+
+        except Exception as e:
+            print(f"⚠️ Skipping {co2_pct}% due to error: {e}")
+
+    if not renewable_penetration_by_region:
+        print("No valid results - cannot create plot")
+        return
+
+    # Create the cumulative DataFrame.
+    # Rows: decarbonization levels, Columns: regions.
+    df_penetration = pd.DataFrame(renewable_penetration_by_region).T.sort_index()
+    #df_penetration = df_penetration.clip(upper=1)  # Limit values to 1 (100%) if needed
+
+    # Get sorted decarbonization levels and regions.
+    levels = df_penetration.index
+    regions = df_penetration.columns
+    n_regions = len(regions)
+    num_levels = len(levels)
+
+    print(f"  ✓ Creating stacked bars for {num_levels} CO₂ levels and {n_regions} regions")
+
+    # Prepare figure with one subplot per decarbonization level.
+    fig, axs = plt.subplots(nrows=num_levels, ncols=1, figsize=(16, 4 * num_levels))
+    if num_levels == 1:
+        axs = [axs]  # Ensure axs is iterable
+
+    # Set font properties
+    font = {'fontsize': 12, 'fontweight': 'bold'}
+
+    # Loop through each decarbonization level to build the stacked bars.
+    for i, co2_pct in enumerate(levels):
+        ax = axs[i]
+        # Retrieve the cumulative penetration for the current level.
+        current = df_penetration.loc[co2_pct]
+        # For the first level, there is no previous cumulative (use zeros).
+        if i == 0:
+            prev = pd.Series(0, index=regions)
+        else:
+            prev = df_penetration.loc[levels[i - 1]]
+        # Compute the incremental change.
+        increment = current - prev
+
+        # Set x positions for the regions.
+        x = np.arange(n_regions)
+
+        # Plot the previous cumulative as the base (in light gray).
+        ax.bar(x, prev, color="lightgray", label="Previous cumulative")
+        
+        # Determine colors for the incremental part: green for positive, red for negative.
+        increment_colors = ["green" if val >= 0 else "red" for val in increment]
+        
+        # Plot the incremental change on top (or below in case of negative values).
+        ax.bar(x, increment, bottom=prev, color=increment_colors, label=f"Increment ({co2_pct}%)")
+        
+        # Set x-axis ticks and labels.
+        ax.set_xticks(x)
+        ax.set_xticklabels(regions, rotation=45)
+        ax.set_title(f"Stacked Renewable Penetration at {co2_pct}% CO₂ Reduction", **font)
+        ax.set_ylabel("Penetration (Fraction of Load)", **font)
+        ax.grid(True, alpha=0.3)
+        
+        # Optionally, add a legend to the first subplot to reduce clutter.
+        if i == 0:
+            ax.legend()
+
+    plt.xlabel("Region", **font)
+    plt.tight_layout()
+
+    # Save in all requested formats
+    for fmt in output_formats:
+        output_file = output_path / f"renewable_penetration_stacked_bars.{fmt}"
         fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
         print(f"  ✓ Saved plot as {output_file}")
 
@@ -3082,7 +3477,7 @@ def main():
     
     # Generate requested plots
     plot_functions = {
-        "renewable_capacity_inequality": lambda: plot_renewable_capacity_inequality(config, output_path, output_formats, dpi, args.has_baseline),
+        "renewable_generation_inequality": lambda: plot_renewable_capacity_inequality(config, output_path, output_formats, dpi, args.has_baseline),
         "green_investment_inequality": lambda: plot_green_investment_inequality(config, output_path, output_formats, dpi, args.has_baseline),
         "green_investment_inequality_load_scaled": lambda: plot_green_investment_inequality_load_scaled(config, output_path, output_formats, dpi, args.has_baseline),
         "renewable_capacity_concentration": lambda: plot_renewable_capacity_concentration(config, output_path, output_formats, dpi, args.has_baseline),
@@ -3094,6 +3489,8 @@ def main():
         "electricity_cost": lambda: plot_electricity_cost(config, output_path, output_formats, dpi, args.has_baseline),
         "generation_mix_actual": lambda: plot_generation_mix_actual(config, output_path, output_formats, dpi, args.has_baseline),
         "renewable_penetration_boxplots": lambda: plot_renewable_penetration_boxplots(config, output_path, output_formats, dpi, args.has_baseline),
+        "renewable_penetration_stacked_bars": lambda: plot_renewable_penetration_stacked_bars(config, output_path, output_formats, dpi, args.has_baseline),
+        "renewable_penetration_gini_by_decarbonization": lambda: plot_renewable_penetration_gini_by_decarbonization(config, output_path, output_formats, dpi, args.has_baseline),
         "interregional_transmission_expansion": lambda: plot_interregional_transmission_expansion(config, output_path, output_formats, dpi, args.has_baseline),
         "storage_expansion_boxplots": lambda: plot_storage_expansion_boxplots(config, output_path, output_formats, dpi, args.has_baseline),
         "total_system_cost": lambda: plot_total_system_cost(config, output_path, output_formats, dpi, args.has_baseline),

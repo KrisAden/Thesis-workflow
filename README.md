@@ -1,14 +1,6 @@
 # Thesis-workflow
 This repository contains all scripts, dependencies, enviroments and networks necessary to generate the results for my Master's thesis
 
- ## Current status
- Loads precompiled 37-node network, reads country level electricity deman, and rescales to projected loads.
- enables expansion of non-fossil generators.
- adds battery and h2 storage to all nodes
- limits hydro based storage expansion
- enables transmission expansion
- applies cost modelling to all generators and storage units.
-
 How to excecute:
  -Prerequisites, Git, conda (Anaconda or Miniconda)
 Start by cloning the repo and then from repo root:
@@ -36,10 +28,11 @@ HPC Setup is:
 git clone https://github.com/KrisAden/Thesis-workflow
 cd Thesis-workflow
 bash scripts/install_env.sh           # auto-installs conda-lock if needed
+conda init
 conda activate pypsa-thesis
 pip install gurobipy
 export GRB_LICENSE_FILE="$PWD/licenses/grb.lic"
-snakemake -s workflow/Snakefile --cores 1 -p
+snakemake -s workflow/Snakefile --cores 4 -p
 
 # Make sure you’re on the main branch
 git checkout main

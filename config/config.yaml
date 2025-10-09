@@ -8,6 +8,7 @@ paths:
   costs_csv: "data/raw/generator_costs.csv"   
   storage_costs_csv: "data/raw/storage_costs.csv"  
   tables_dir: "results/tables"
+  europe_borders: "data/raw/naturalearth_countries.geojson"
 
 parameters:
   preprocess:
@@ -21,17 +22,17 @@ parameters:
   expansion:
     lines:
       enable: true
-      absolute_max: 200000
+      absolute_max: 20000000
       min_equals_current: true
     links:
       enable: true
-      absolute_max: 20000
+      absolute_max: 20000000
       min_equals_current: true
     generators:
       relative_multiplier_by_carrier:
-        geothermal: 10.0
-        nuclear: 10.0
-        biomass: 10.0
+        geothermal: 100.0
+        nuclear: 100.0
+        biomass: 100.0
       only_extendable: true
       min_equals_current: true
       floor: 1.0
@@ -57,7 +58,8 @@ parameters:
   plotting:
     enable: true
     plot_types:
-      renewable_capacity_inequality: true
+      renewable_generation_inequality: true
+      renewable_penetration_gini_by_decarbonization: true
       green_investment_inequality: true
       green_investment_inequality_load_scaled: true
       renewable_capacity_concentration: true
@@ -65,17 +67,18 @@ parameters:
       middle_pentile_characteristics: true
       capacity_expansion_evolution: true
       transmission_bottlenecks: true
-      total_renewable_capacity: false
-      electricity_cost: false
-      generation_mix_actual: false
-      renewable_penetration_boxplots: false
-      interregional_transmission_expansion: false
-      storage_expansion_boxplots: false
-      total_system_cost: false
-      mean_price_bellcurve: false
-      mean_price_boxplots: false
-      network_maps: false
-    output_formats: ["png", "pdf"]
+      total_renewable_capacity: true
+      electricity_cost: true
+      generation_mix_actual: true
+      renewable_penetration_boxplots: true
+      interregional_transmission_expansion: true
+      storage_expansion_boxplots: true
+      total_system_cost: true
+      mean_price_bellcurve: true
+      mean_price_boxplots: true
+      network_maps: true
+      renewable_penetration_stacked_bars: true
+    output_formats: ["png"]
     dpi: 300
 
 
