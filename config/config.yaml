@@ -22,17 +22,21 @@ parameters:
   expansion:
     lines:
       enable: true
-      absolute_max: 20000000
+      absolute_max: 1000000000
       min_equals_current: true
     links:
       enable: true
-      absolute_max: 20000000
+      absolute_max: 1000000000
       min_equals_current: true
     generators:
       relative_multiplier_by_carrier:
-        geothermal: 100.0
-        nuclear: 100.0
-        biomass: 100.0
+        geothermal: 100
+        nuclear: 100
+        biomass: 100
+        solar: 1000000.0
+        onwind: 1000000.0
+        offwind-ac: 1000000.0
+        offwind-dc: 1000000.0
       only_extendable: true
       min_equals_current: true
       floor: 1.0
