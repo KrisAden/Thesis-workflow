@@ -571,11 +571,11 @@ def load_networks_from_results(config, has_baseline=True):
 
 
 def plot_renewable_capacity_inequality(config, output_path, output_formats, dpi=300, has_baseline=True):
-    """Plot Gini coefficient of renewable generation output inequality across scenarios."""
-    print("Creating renewable generation inequality plot...")
+    """Plot Gini coefficient of renewable capacity inequality across scenarios."""
+    print("Creating renewable capacity inequality plot...")
     
     if not pypsa:
-        print("PyPSA not available - skipping renewable generation inequality plot")
+        print("PyPSA not available - skipping renewable capacity inequality plot")
         return
     
     # Load networks
@@ -589,9 +589,9 @@ def plot_renewable_capacity_inequality(config, output_path, output_formats, dpi=
     results = []
     for co2_pct, net in networks_by_percent.items():
         try:
-            region_generation = extract_renewable_generation_output(net)
-            gini = gini_coefficient(region_generation.values)
-            hhi = hhi_index(region_generation.values)
+            region_capacities = extract_installed_renewable_capacities(net)
+            gini = gini_coefficient(region_capacities.values)
+            hhi = hhi_index(region_capacities.values)
             results.append({"CO₂ Reduction (%)": int(co2_pct), "Gini": gini, "HHI": hhi})
             print(f"  ✓ Calculated Gini={gini:.3f} for {co2_pct}% reduction")
         except Exception as e:
@@ -615,7 +615,7 @@ def plot_renewable_capacity_inequality(config, output_path, output_formats, dpi=
 
     ax1.set_ylabel("Gini Coefficient", **font)
     ax1.set_xlabel("CO₂ Reduction (%)", **font)
-    ax1.set_title("Inequality of Renewable Generation Output", **font)
+    ax1.set_title("Inequality of Renewable Capacity Installation", **font)
 
     # Style the plot
     ax1.grid(True, alpha=0.3)
@@ -1989,7 +1989,7 @@ def plot_renewable_penetration_stacked_bars(config, output_path, output_formats,
         return
 
     # Create the cumulative DataFrame.
-    # Rows: decarbonization levels, Columns: regions.
+    # Rows: decarbonization levels, Columns: regions
     df_penetration = pd.DataFrame(renewable_penetration_by_region).T.sort_index()
     #df_penetration = df_penetration.clip(upper=1)  # Limit values to 1 (100%) if needed
 
@@ -2008,7 +2008,7 @@ def plot_renewable_penetration_stacked_bars(config, output_path, output_formats,
 
     # Set font properties
     font = {'fontsize': 12, 'fontweight': 'bold'}
-
+    
     # Loop through each decarbonization level to build the stacked bars.
     for i, co2_pct in enumerate(levels):
         ax = axs[i]
@@ -2180,24 +2180,26 @@ def plot_interregional_transmission_expansion(config, output_path, output_format
         regions = region_lists[i]
         values = boxplot_data[i]
         
-        if len(values) > 0:
-            q1 = np.percentile(values, 25)
-            q3 = np.percentile(values, 75)
-            iqr = q3 - q1
-            lower_bound = q1 - 1.5 * iqr
-            upper_bound = q3 + 1.5 * iqr
-            outlier_indices = [j for j, v in enumerate(values) if v < lower_bound or v > upper_bound]
-            
-            for x, y, idx in zip(x_outliers, y_outliers, outlier_indices):
-                if idx < len(regions):
-                    ax.annotate(str(regions[idx]), (x, y), textcoords="offset points", 
-                               xytext=(5,5), ha='left', fontsize=10, color='purple', 
-                               fontweight='bold')
+        # Compute IQR for this box
+        q1 = np.percentile(values, 25)
+        q3 = np.percentile(values, 75)
+        iqr = q3 - q1
+        lower_bound = q1 - 1.5 * iqr
+        upper_bound = q3 + 1.5 * iqr
+        
+        # Find outlier indices
+        outlier_indices = [j for j, v in enumerate(values) if v < lower_bound or v > upper_bound]
+        
+        for x, y, idx in zip(x_outliers, y_outliers, outlier_indices):
+            if idx < len(regions):  # Safety check
+                ax.annotate(regions[idx], (x, y), textcoords="offset points", 
+                           xytext=(5, 5), ha='left', fontsize=10, color='purple', 
+                           fontweight='bold')
 
     ax.set_ylabel("Mean Interregional Transmission Expansion (MW)", **font)
     ax.set_xlabel("CO₂ Reduction Level", **font)
     ax.set_title("Interregional Transmission Expansion by Region", **font)
-    ax.legend(loc="lower right")
+    ax.legend(loc="upper right")
     ax.grid(axis='y', alpha=0.5)
 
     plt.tight_layout()
@@ -2302,14 +2304,14 @@ def plot_storage_expansion_boxplots(config, output_path, output_formats, dpi=300
         flierprops=dict(marker='o', color='orange', alpha=0.8)
     )
 
-    # Overlay the mean as a red line and the median as a green line for each box
+    # Overlay the mean as a red line and the median as a blue line for each box
     for i, data in enumerate(boxplot_data):
         if len(data) > 0:
             mean_val = np.mean(data)
             median_val = np.median(data)
             ax.plot([i+1-0.2, i+1+0.2], [mean_val, mean_val], color='red', linewidth=2, 
                     label='Mean' if i == 0 else "")
-            ax.plot([i+1-0.2, i+1+0.2], [median_val, median_val], color='darkgreen', linewidth=2, 
+            ax.plot([i+1-0.2, i+1+0.2], [median_val, median_val], color='blue', linewidth=2, 
                     label='Median' if i == 0 else "")
 
     # Annotate outliers with region names in orange
@@ -2345,8 +2347,7 @@ def plot_storage_expansion_boxplots(config, output_path, output_formats, dpi=300
     for fmt in output_formats:
         output_file = output_path / f"storage_expansion_boxplots.{fmt}"
         fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
-        print(f"  ✓ Saved plot as {output_file}")
-
+    
     plt.close(fig)
 
 
@@ -2417,8 +2418,7 @@ def plot_total_system_cost(config, output_path, output_formats, dpi=300, has_bas
     for fmt in output_formats:
         output_file = output_path / f"total_system_cost.{fmt}"
         fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
-        print(f"  ✓ Saved plot as {output_file}")
-
+    
     plt.close(fig)
 
 
@@ -2560,7 +2560,7 @@ def plot_mean_price_bellcurve(config, output_path, output_formats, dpi=300, has_
     # These will be empty placeholder files since the real plots are the individual level files
     for fmt in output_formats:
         summary_file = output_path / f"mean_price_bellcurve.{fmt}"
-        # Create a simple summary plot or copy the first level's plot
+        # Create a simple text-based summary plot or copy the first level's plot
         if levels_to_plot:
             first_level_file = output_path / f"mean_price_bellcurve_{levels_to_plot[0]}pct.{fmt}"
             if first_level_file.exists():
@@ -2650,14 +2650,14 @@ def plot_mean_price_boxplots(config, output_path, output_formats, dpi=300, has_b
         flierprops=dict(marker='o', color='purple', alpha=0.8)  # Outliers in purple
     )
 
-    # Overlay the mean as a red line and the median as a blue line
+    # Overlay the mean as a red line and the median as a blue line for each box
     for i, (mean, median) in enumerate(zip(means, medians)):
         ax.plot([i+1-0.2, i+1+0.2], [mean, mean], color='red', linewidth=2, 
                 label='Mean' if i == 0 else "")
         ax.plot([i+1-0.2, i+1+0.2], [median, median], color='blue', linewidth=2, 
                 label='Median' if i == 0 else "")
 
-    # Annotate outliers with region names
+    # Annotate outliers with region names in purple
     for i, flier in enumerate(box['fliers']):
         y_outliers = flier.get_ydata()
         x_outliers = flier.get_xdata()
@@ -2874,7 +2874,7 @@ def plot_generation_map(network, level, output_path, output_formats, dpi=300):
     legend_patches = [Patch(color=carrier_color_map.get(c, 'gray'), label=c) for c in present_carriers]
     ax.legend(handles=legend_patches, title="Generation Technologies", 
               loc="upper right", fontsize=11, title_fontsize=13, 
-              bbox_to_anchor=(1.22, 1))
+              bbox_to_anchor=(1.25, 1))
     
     # Set map extent to cover the network area with some padding
     ax.set_xlim(bus_df['x'].min() - 2, bus_df['x'].max() + 2)
@@ -3157,10 +3157,6 @@ def plot_network_topology(networks, output_path, output_formats, dpi=300):
     """Plot network topology showing buses and transmission lines."""
     print("Creating network topology plot...")
     
-    if not pypsa:
-        print("PyPSA not available - skipping network topology plot")
-        return
-    
     # Create plot using the baseline or first reduction network
     if networks:
         network = networks[0]
@@ -3213,7 +3209,7 @@ def plot_generation_mix(networks, tables, output_path, output_formats, dpi=300):
     ax.set_title("Generation Mix by Scenario")
     ax.set_xlabel("CO₂ Reduction Scenario")
     ax.set_ylabel("Generation Share (%)")
-    ax.legend(bbox_to_anchor=(1.05, 1), loc='upper left')
+    ax.legend()
     
     # Save in all requested formats
     for fmt in output_formats:
