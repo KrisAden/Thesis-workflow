@@ -46,11 +46,12 @@ rule all:
         "data/interim/network_costed.nc",
         "data/interim/network_costed_tx.nc",
         "data/interim/network_costed_tx_gen.nc",
-        "data/interim/network_costed_tx_gen_sto.nc",   # add this
+        "data/interim/network_costed_tx_gen_sto.nc",
         "results/tables/load_scaling.csv",
         "results/tables/tx_expansion_bounds.csv",
         "results/tables/gen_expansion_bounds.csv",
         "results/tables/generator_capital_costs.csv",
+        "results/tables/capacity_limits_diagnostic.csv",  # Add diagnostic output
         *(["results/networks/solved_baseline_costed_expansion.nc",
            "results/tables/solve_baseline_costed_expansion.csv",
            "results/tables/baseline_emissions.csv"] if HAS_BASELINE else []),
@@ -193,3 +194,12 @@ rule make_plots:
             '--output-dir results/plots '
             '--output-formats {params.output_formats} '
             '--has-baseline {params.has_baseline}')
+
+
+rule diagnose_capacity_limits:
+    input:
+        "data/interim/network_costed_tx_gen_sto.nc"
+    output:
+        "results/tables/capacity_limits_diagnostic.csv"
+    shell:
+        RUN("pypsa_thesis.diagnose_limits --network-in {input} --report-out {output}")

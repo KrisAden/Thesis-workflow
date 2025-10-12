@@ -33,10 +33,10 @@ parameters:
         geothermal: 100
         nuclear: 100
         biomass: 100
-        solar: 1000000.0
-        onwind: 1000000.0
-        offwind-ac: 1000000.0
-        offwind-dc: 1000000.0
+        solar: 1000000000000.0    # Effectively unlimited (1e12)
+        onwind: 1000000000000.0   # Effectively unlimited (1e12)
+        offwind-ac: 1000000000000.0  # Effectively unlimited (1e12)
+        offwind-dc: 1000000000000.0  # Effectively unlimited (1e12)
       only_extendable: true
       min_equals_current: true
       floor: 1.0
