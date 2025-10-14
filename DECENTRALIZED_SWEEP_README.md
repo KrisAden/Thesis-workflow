@@ -97,6 +97,32 @@ snakemake --cores 4
 
 # Run only decentralized sweep
 snakemake --cores 4 results/networks/decentralized_reduction_50_k_2.0.nc
+
+# Test with less restrictive constraint first
+snakemake --cores 4 results/networks/decentralized_reduction_50_k_5.0.nc
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **KeyError 'Load-p'**: Fixed in the implementation - the constraint formulation now uses the correct variable access pattern
+2. **Logging format errors**: Fixed - removed comma formatting from log messages  
+3. **k=1.0 may be infeasible**: For 100% decarbonization, k=1.0 (perfect self-sufficiency) might be impossible. Try larger k values first.
+
+### Testing Strategy
+
+Start with less restrictive constraints:
+
+```bash
+# Test with high decentralization flexibility first
+snakemake --cores 4 results/networks/decentralized_reduction_50_k_5.0.nc
+
+# Then try more restrictive
+snakemake --cores 4 results/networks/decentralized_reduction_50_k_2.0.nc
+
+# Finally test very restrictive (may be infeasible)
+snakemake --cores 4 results/networks/decentralized_reduction_100_k_1.0.nc
 ```
 
 ### Expected Behavior

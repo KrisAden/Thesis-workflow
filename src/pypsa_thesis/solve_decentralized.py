@@ -58,14 +58,8 @@ def add_nodal_renewable_constraints(
         # Get loads at this bus
         loads_at_bus = n.loads[n.loads.bus == bus].index
         
-        # Total load energy at this bus (MWh)
-        load_energy = sum(
-            n.model.variables["Load-p"].at[t, load] * weights[t]
-            for t in snapshots for load in loads_at_bus
-        )
-        
         # Skip if no load
-        if not loads_at_bus.any():
+        if not len(loads_at_bus):
             continue
             
         # Get renewable generators at this bus
@@ -75,14 +69,27 @@ def add_nodal_renewable_constraints(
         ].index
         
         if not len(gens_at_bus):
-            # No renewable generators at this bus - add constraint that load must be near zero for gamma bounds to be satisfied
+            # No renewable generators at this bus - skip constraint
+            logging.info(f"  Skipping {bus}: no renewable generators")
             continue
             
-        # Total renewable generation energy at this bus (MWh)
-        renewable_energy = sum(
-            n.model.variables["Generator-p"].at[t, gen] * weights[t]
-            for t in snapshots for gen in gens_at_bus
+        # Total load energy at this bus (MWh) - use fixed load values
+        load_energy = sum(
+            (n.loads_t.p_set[load] * weights).sum()
+            for load in loads_at_bus
         )
+        
+        # Skip buses with zero load
+        if load_energy <= 0:
+            logging.info(f"  Skipping {bus}: zero load energy")
+            continue
+            
+        # Total renewable generation energy variables at this bus (MWh)
+        # Use the proper variable access pattern for PyPSA optimization model
+        renewable_energy = 0
+        for gen in gens_at_bus:
+            for t in snapshots:
+                renewable_energy += n.model.variables["Generator-p"][gen, t] * weights[t]
         
         # Add constraints: 1/k <= renewable_energy/load_energy <= k
         # Rearranged: renewable_energy >= load_energy/k AND renewable_energy <= k*load_energy
@@ -98,6 +105,8 @@ def add_nodal_renewable_constraints(
             renewable_energy <= k * load_energy,
             name=f"renewable_max_{bus}"
         )
+        
+        logging.info(f"  Added constraints for {bus}: {len(gens_at_bus)} gens, {load_energy:.0f} MWh load")
 
 
 def main() -> None:
@@ -146,7 +155,7 @@ def main() -> None:
 
     baseline = float(bl["baseline_emissions"].iloc[0])
     cap = baseline * (1.0 - red_frac)
-    logging.info("Applied CO₂ cap %,.6f (baseline %,.6f, reduction %.2f%%)", 
+    logging.info("Applied CO₂ cap %.6f (baseline %.6f, reduction %.2f%%)", 
                 cap, baseline, 100.0 * red_frac)
 
     # Add CO2 constraint
