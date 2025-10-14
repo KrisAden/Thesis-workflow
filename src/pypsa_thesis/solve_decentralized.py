@@ -83,27 +83,37 @@ def add_nodal_renewable_constraints(
         if load_energy <= 0:
             logging.info(f"  Skipping {bus}: zero load energy")
             continue
-            
-        # Total renewable generation energy variables at this bus (MWh)
-        # Use the proper variable access pattern for PyPSA optimization model
-        renewable_energy = 0
+        
+        # Build constraint expressions using linopy
+        # Sum generator power variables for renewable generators at this bus
+        renewable_energy_expr = 0
+        
         for gen in gens_at_bus:
-            for t in snapshots:
-                renewable_energy += n.model.variables["Generator-p"][gen, t] * weights[t]
+            # Access generator variable and multiply by weights, then sum over time
+            gen_power = n.model.variables["Generator-p"].sel(Generator=gen)
+            renewable_energy_expr += (gen_power * weights).sum()
+        
+        # If no renewable generators, skip
+        if len(gens_at_bus) == 0:
+            logging.info(f"  Skipping {bus}: no renewable generators")
+            continue
         
         # Add constraints: 1/k <= renewable_energy/load_energy <= k
         # Rearranged: renewable_energy >= load_energy/k AND renewable_energy <= k*load_energy
         
+        # Clean bus name for constraint naming
+        bus_clean = bus.replace(' ', '_').replace('+', 'plus')
+        
         # Lower bound: renewable_energy >= load_energy/k
         n.model.add_constraints(
-            renewable_energy >= load_energy / k,
-            name=f"renewable_min_{bus}"
+            renewable_energy_expr >= load_energy / k,
+            name=f"renewable_min_{bus_clean}"
         )
         
         # Upper bound: renewable_energy <= k*load_energy  
         n.model.add_constraints(
-            renewable_energy <= k * load_energy,
-            name=f"renewable_max_{bus}"
+            renewable_energy_expr <= k * load_energy,
+            name=f"renewable_max_{bus_clean}"
         )
         
         logging.info(f"  Added constraints for {bus}: {len(gens_at_bus)} gens, {load_energy:.0f} MWh load")
