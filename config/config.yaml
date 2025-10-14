@@ -41,6 +41,9 @@ parameters:
       min_equals_current: true
       floor: 1.0
   co2_reductions: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 93, 96, 99, 100]
+  decentralization:
+    k_values: [1.0, 1.5, 2.0, 3.0, 5.0, 10.0]  # k values for 1/k < gamma < k constraint
+    renewable_carriers: ["solar", "onwind", "offwind-ac", "offwind-dc", "ror"]  # carriers considered renewable
   solve:
     solver: "gurobi"
     solver_options:

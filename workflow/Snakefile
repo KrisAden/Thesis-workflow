@@ -23,6 +23,9 @@ with open("config/config.yaml") as _f:
     _cfg = yaml.safe_load(_f)
 REDUCTIONS = _cfg.get("parameters", {}).get("co2_reductions", [0])
 
+# Decentralization parameters
+K_VALUES = _cfg.get("parameters", {}).get("decentralization", {}).get("k_values", [1.0])
+
 BYPASS_RESCALE = _cfg.get("parameters", {}).get("preprocess", {}).get("bypass", False)
 
 SOLVER_THREADS = int(
@@ -57,6 +60,9 @@ rule all:
            "results/tables/baseline_emissions.csv"] if HAS_BASELINE else []),
         expand("results/networks/solved_reduction_{r}.nc", r=REDUC_GT0),
         expand("results/tables/solve_reduction_{r}.csv", r=REDUC_GT0),
+        # Decentralized sweep outputs
+        expand("results/networks/decentralized_reduction_{r}_k_{k}.nc", r=REDUC_GT0, k=K_VALUES),
+        expand("results/tables/decentralized_reduction_{r}_k_{k}.csv", r=REDUC_GT0, k=K_VALUES),
         *([expand("results/plots/{plot_type}.{fmt}", 
                   plot_type=list(PLOT_TYPES.keys()), 
                   fmt=OUTPUT_FORMATS)] if PLOTTING_ENABLED else [])
@@ -165,6 +171,27 @@ rule solve_with_cap:
             '--network-out {output.net} '
             '--report-out {output.report} '
             '--reduction {params.reduction} '
+            '--baseline-file {input.baseline}')
+
+
+rule solve_decentralized:
+    threads: SOLVER_THREADS
+    input:
+        base="data/interim/network_costed_tx_gen_sto.nc",
+        baseline="results/tables/baseline_emissions.csv"
+    output:
+        net="results/networks/decentralized_reduction_{r}_k_{k}.nc",
+        report="results/tables/decentralized_reduction_{r}_k_{k}.csv"
+    params:
+        reduction="{r}",
+        k_value="{k}"
+    shell:
+        RUN('pypsa_thesis.solve_decentralized '
+            '--network-in {input.base} '
+            '--network-out {output.net} '
+            '--report-out {output.report} '
+            '--reduction {params.reduction} '
+            '--k-value {params.k_value} '
             '--baseline-file {input.baseline}')
 
 
