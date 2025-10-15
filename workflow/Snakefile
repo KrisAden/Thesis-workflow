@@ -2,13 +2,12 @@
 import os, sys, yaml
 from pathlib import Path
 from snakemake.shell import shell
-
 ROOT = Path.cwd()
 SRC  = ROOT / "src"
 PYTHON = sys.executable
 CFG = ROOT / "config/config.yaml"
 
-# OS-aware runner; pass module name per rule
+# OS-aware runner:
 if os.name == "nt":
     shell.executable("powershell")
     RUN = lambda module: f'& "{PYTHON}" -m {module} --config "{CFG}"'
@@ -34,12 +33,12 @@ SOLVER_THREADS = int(
       .get("solver_options", {}).get("Threads", 1)
 )
 
-# Plotting configuration
+# Plotting
 PLOTTING_ENABLED = _cfg.get("parameters", {}).get("plotting", {}).get("enable", False)
 PLOT_TYPES = {k: v for k, v in _cfg.get("parameters", {}).get("plotting", {}).get("plot_types", {}).items() if v}
 OUTPUT_FORMATS = _cfg.get("parameters", {}).get("plotting", {}).get("output_formats", ["png"])
 
-# Convenience: split baseline (0) vs constrained (>0)
+# Convenience: Baseline handling
 REDUC_GT0 = [r for r in REDUCTIONS if float(r) > 0]
 HAS_BASELINE = any(float(r) == 0 for r in REDUCTIONS)
 
@@ -54,7 +53,6 @@ rule all:
         "results/tables/tx_expansion_bounds.csv",
         "results/tables/gen_expansion_bounds.csv",
         "results/tables/generator_capital_costs.csv",
-        "results/tables/capacity_limits_diagnostic.csv",  # Add diagnostic output
         *(["results/networks/solved_baseline_costed_expansion.nc",
            "results/tables/solve_baseline_costed_expansion.csv",
            "results/tables/baseline_emissions.csv"] if HAS_BASELINE else []),
@@ -221,12 +219,3 @@ rule make_plots:
             '--output-dir results/plots '
             '--output-formats {params.output_formats} '
             '--has-baseline {params.has_baseline}')
-
-
-rule diagnose_capacity_limits:
-    input:
-        "data/interim/network_costed_tx_gen_sto.nc"
-    output:
-        "results/tables/capacity_limits_diagnostic.csv"
-    shell:
-        RUN("pypsa_thesis.diagnose_limits --network-in {input} --report-out {output}")
