@@ -91,11 +91,16 @@ def calculate_renewable_fraction_needed(
     max_conventional_emissions = total_load_energy * weighted_emission_factor
     
     if max_conventional_emissions <= co2_cap:
-        # No renewables needed to meet constraint
-        alpha = 0.0
+        # CO2 constraint is not binding - skip K-constraints entirely
+        logging.info("CO2 constraint not binding - K-constraints would be meaningless, skipping them")
+        return 0.0  # Signal to skip K-constraints
     else:
         alpha = 1.0 - (co2_cap / max_conventional_emissions)
-        alpha = max(0.0, min(1.0, alpha))  # Clamp to [0, 1]
+        # Only apply minimal bound for very small values
+        if alpha < 0.05:  # Less than 5%
+            logging.warning(f"Very small α={alpha:.3f} - using α=0.05 for numerical stability")
+            alpha = 0.05
+        alpha = max(0.05, min(1.0, alpha))  # Bound between 5% and 100%
     
     logging.info(f"CO2-adjusted α = {alpha:.3f} (total_load={total_load_energy:.1f} MWh, "
                f"cap={co2_cap:.3f} tCO2, avg_emission_factor={weighted_emission_factor:.6f})")
@@ -191,6 +196,12 @@ def add_nodal_renewable_constraints(
         # Scale load energy by CO2-required renewable fraction
         effective_load_energy = alpha * load_energy
         
+        # Skip constraints if effective load is too small (causes numerical issues)
+        MIN_EFFECTIVE_LOAD = 1000.0  # 1 GWh minimum threshold
+        if effective_load_energy < MIN_EFFECTIVE_LOAD:
+            logging.info(f"  Skipping {bus}: effective load {effective_load_energy:.0f} MWh below threshold")
+            continue
+        
         # Build constraint expressions using linopy
         # Sum generator power variables for renewable generators at this bus
         renewable_energy_expr = 0
@@ -211,24 +222,33 @@ def add_nodal_renewable_constraints(
         # Add constraints: 1/k <= renewable_energy/effective_load_energy <= k
         # Rearranged: renewable_energy >= effective_load_energy/k AND renewable_energy <= k*effective_load_energy
         
-        # Only add constraints if effective_load_energy > 0
-        if effective_load_energy > 0:
+        # Calculate bounds with numerical safeguards
+        lower_bound = effective_load_energy / k
+        upper_bound = k * effective_load_energy
+        
+        # Apply reasonable bounds to avoid extreme values
+        MAX_BOUND = 1e8  # 100 TWh maximum
+        lower_bound = min(lower_bound, MAX_BOUND)
+        upper_bound = min(upper_bound, MAX_BOUND)
+        
+        # Only add constraints if bounds are reasonable
+        if lower_bound > 0 and upper_bound > lower_bound:
             # Lower bound: renewable_energy >= effective_load_energy/k
             n.model.add_constraints(
-                renewable_energy_expr >= effective_load_energy / k,
+                renewable_energy_expr >= lower_bound,
                 name=f"renewable_min_{bus_clean}"
             )
             
             # Upper bound: renewable_energy <= k*effective_load_energy  
             n.model.add_constraints(
-                renewable_energy_expr <= k * effective_load_energy,
+                renewable_energy_expr <= upper_bound,
                 name=f"renewable_max_{bus_clean}"
             )
             
             logging.info(f"  Added CO2-adjusted constraints for {bus}: {len(gens_at_bus)} gens, "
                         f"{load_energy:.0f} MWh load, {effective_load_energy:.0f} MWh effective (α={alpha:.3f})")
         else:
-            logging.info(f"  Skipping {bus}: zero effective load energy (α={alpha:.3f})")
+            logging.info(f"  Skipping {bus}: invalid bounds (lower={lower_bound:.0f}, upper={upper_bound:.0f})")
 
 
 def add_nodal_renewable_constraints_with_cap(
@@ -258,6 +278,11 @@ def add_nodal_renewable_constraints_with_cap(
     
     # Calculate the renewable fraction needed
     alpha = calculate_renewable_fraction_needed(n, co2_cap, renewable_carriers)
+    
+    # Skip K-constraints if alpha is 0 (CO2 constraint not binding)
+    if alpha <= 0:
+        logging.info("Skipping K-constraints - CO2 constraint not binding")
+        return
     
     # Get snapshot weights
     if hasattr(n.snapshot_weightings, 'objective'):

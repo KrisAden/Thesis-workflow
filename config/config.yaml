@@ -40,10 +40,11 @@ parameters:
       only_extendable: true
       min_equals_current: true
       floor: 1.0
-  co2_reductions: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 93, 96, 99, 100]
+  co2_reductions: [10]
   decentralization:
-    k_values: [1.0, 1.5, 2.0, 3.0, 5.0, 10.0]  # k values for 1/k < gamma < k constraint
+    k_values: [1, 2, 3, 4, 5, 6, 7]  # k values for 1/k < gamma < k constraint
     renewable_carriers: ["solar", "onwind", "offwind-ac", "offwind-dc", "ror"]  # carriers considered renewable
+    numerical_safeguards: true  # Enable numerical safeguards for K-constraints
   solve:
     solver: "gurobi"
     solver_options:
@@ -63,7 +64,7 @@ parameters:
       ScaleFlag: 2
       LogFile: "gurobi_solver.log"
   plotting:
-    enable: true
+    enable: false
     plot_types:
       renewable_generation_inequality: true
       renewable_penetration_gini_by_decarbonization: true
