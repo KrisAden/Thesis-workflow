@@ -85,6 +85,7 @@ parameters:
       mean_price_boxplots: true
       network_maps: true
       renewable_penetration_stacked_bars: true
+    k_constrained_maps: true  
     output_formats: ["png"]
     dpi: 300
 

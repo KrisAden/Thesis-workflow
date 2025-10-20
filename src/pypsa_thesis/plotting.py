@@ -570,6 +570,31 @@ def load_networks_from_results(config, has_baseline=True):
     return dict(sorted(networks_by_percent.items()))
 
 
+def load_k_constrained_networks_from_results(config):
+    """Load K-constrained networks from results/networks directory."""
+    networks_by_reduction_k = {}
+    
+    # Get parameters from config
+    reductions = config.get("parameters", {}).get("co2_reductions", [])
+    k_values = config.get("parameters", {}).get("decentralization", {}).get("k_values", [])
+    
+    for reduction in reductions:
+        if float(reduction) > 0:  # Skip baseline
+            for k_value in k_values:
+                try:
+                    network_path = f"results/networks/decentralized_reduction_{reduction}_k_{k_value}.nc"
+                    if os.path.exists(network_path) and pypsa:
+                        print(f"📥 Loading K-constrained network for {reduction}% reduction, k={k_value} from {network_path}")
+                        key = (float(reduction), float(k_value))
+                        networks_by_reduction_k[key] = pypsa.Network(network_path)
+                    else:
+                        print(f"⚠️ K-constrained network not found at {network_path}")
+                except Exception as e:
+                    print(f"⚠️ Error loading {reduction}% reduction, k={k_value} network: {e}")
+    
+    return networks_by_reduction_k
+
+
 def plot_renewable_capacity_inequality(config, output_path, output_formats, dpi=300, has_baseline=True):
     """Plot Gini coefficient of renewable capacity inequality across scenarios."""
     print("Creating renewable capacity inequality plot...")
@@ -3130,6 +3155,322 @@ def plot_network_maps(config, output_path, output_formats, dpi=300, has_baseline
         fig.savefig(summary_file, dpi=dpi, bbox_inches='tight')
         plt.close(fig)
         print(f"  ✓ Created summary file {summary_file}")
+        
+    # Plot K-constrained networks if enabled
+    k_maps_enabled = config.get("parameters", {}).get("plotting", {}).get("k_constrained_maps", False)
+    if k_maps_enabled:
+        plot_k_constrained_network_maps(config, output_path, output_formats, dpi)
+
+
+def plot_k_constrained_network_maps(config, output_path, output_formats, dpi=300):
+    """Create generation, transmission, and storage maps for K-constrained networks."""
+    print("Creating K-constrained network maps...")
+    
+    if not gpd or not pypsa:
+        print("GeoPandas or PyPSA not available - skipping K-constrained network maps")
+        return
+    
+    # Create K-constrained maps subdirectory
+    k_maps_path = output_path / "maps" / "k_constrained"
+    k_maps_path.mkdir(exist_ok=True, parents=True)
+    print(f"  → Created K-constrained maps directory: {k_maps_path}")
+    
+    # Load K-constrained networks
+    networks_by_reduction_k = load_k_constrained_networks_from_results(config)
+    
+    if not networks_by_reduction_k:
+        print("No K-constrained networks found - cannot create K-constrained maps")
+        return
+    
+    # Get available reduction levels and k values
+    available_combos = sorted(networks_by_reduction_k.keys())
+    print(f"  ✓ Creating K-constrained maps for {len(available_combos)} reduction-k combinations")
+    
+    k_map_counts = {"generation": 0, "transmission": 0, "storage": 0}
+    
+    for (reduction, k_value), network in networks_by_reduction_k.items():
+        print(f"  → Processing {reduction}% CO₂ reduction, k={k_value}...")
+        
+        try:
+            # Create subdirectory for this k-value
+            k_subdir = k_maps_path / f"k_{k_value}"
+            k_subdir.mkdir(exist_ok=True)
+            
+            # Generation map
+            plot_generation_map_k_constrained(network, reduction, k_value, k_subdir, output_formats, dpi)
+            k_map_counts["generation"] += 1
+            print(f"    ✓ Created generation map")
+            
+            # Transmission map
+            plot_transmission_map_k_constrained(network, reduction, k_value, k_subdir, output_formats, dpi)
+            k_map_counts["transmission"] += 1
+            print(f"    ✓ Created transmission map")
+            
+            # Storage map
+            plot_storage_map_k_constrained(network, reduction, k_value, k_subdir, output_formats, dpi)
+            k_map_counts["storage"] += 1
+            print(f"    ✓ Created storage map")
+            
+        except Exception as e:
+            print(f"    ⚠️ Error creating K-constrained maps for {reduction}%, k={k_value}: {e}")
+    
+    print(f"  ✓ Created {k_map_counts['generation']} K-constrained generation maps, {k_map_counts['transmission']} transmission maps, {k_map_counts['storage']} storage maps")
+    print(f"  ✓ All K-constrained maps saved to {k_maps_path}")
+    
+    # Create summary file for K-constrained maps
+    for fmt in output_formats:
+        summary_file = k_maps_path / f"k_constrained_maps_summary.{fmt}"
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.text(0.5, 0.7, f"K-Constrained Network Maps Created", ha='center', va='center', 
+                fontsize=20, fontweight='bold', transform=ax.transAxes)
+        ax.text(0.5, 0.5, f"Generated maps for {len(available_combos)} reduction-k combinations:", 
+                ha='center', va='center', fontsize=14, transform=ax.transAxes)
+        ax.text(0.5, 0.4, f"• {k_map_counts['generation']} generation capacity maps", 
+                ha='center', va='center', fontsize=12, transform=ax.transAxes)
+        ax.text(0.5, 0.35, f"• {k_map_counts['transmission']} transmission network maps", 
+                ha='center', va='center', fontsize=12, transform=ax.transAxes)
+        ax.text(0.5, 0.3, f"• {k_map_counts['storage']} storage capacity maps", 
+                ha='center', va='center', fontsize=12, transform=ax.transAxes)
+        ax.text(0.5, 0.2, f"All detailed maps saved to: {k_maps_path}", 
+                ha='center', va='center', fontsize=10, style='italic', transform=ax.transAxes)
+        ax.set_xlim(0, 1)
+        ax.set_ylim(0, 1)
+        ax.axis('off')
+        
+        fig.savefig(summary_file, dpi=dpi, bbox_inches='tight')
+        plt.close(fig)
+        print(f"  ✓ Created K-constrained summary file {summary_file}")
+
+
+def plot_generation_map_k_constrained(network, reduction, k_value, output_path, output_formats, dpi=300):
+    """Create generation capacity map for a K-constrained network."""
+    if not gpd or not pypsa:
+        print(f"Skipping K-constrained generation map for {reduction}%, k={k_value} - missing dependencies")
+        return
+    
+    # Prepare data
+    bus_df, cap_by_node_carrier, _, _, _ = prepare_network_data_for_maps(network)
+    if bus_df is None:
+        return
+    
+    carrier_color_map = get_carrier_color_map()
+    
+    # Create figure
+    fig, ax = plt.subplots(figsize=(16, 12))
+    
+    # Load world map and focus on Europe
+    europe = get_europe_map()
+    if europe is not None:
+        europe.plot(ax=ax, color='lightgray', edgecolor='k', alpha=0.7, zorder=0)
+    
+    # Calculate maximum total capacity for scaling pie sizes
+    max_total_cap = cap_by_node_carrier.sum(axis=1).max()
+    
+    # Create pie charts at each bus location
+    buses_with_capacity = 0
+    for node, row in bus_df.iterrows():
+        caps = cap_by_node_carrier.loc[node] 
+        total_cap = caps.sum()
+        
+        if total_cap < 0.1:  # Skip nodes with very small capacity (< 100 MW)
+            continue
+            
+        buses_with_capacity += 1
+        
+        # Calculate pie size based on total capacity
+        size = 18000 * total_cap / max_total_cap
+        
+        # Prepare data for pie chart
+        fracs = []
+        colors = []
+        labels = []
+        
+        for carrier in cap_by_node_carrier.columns:
+            val = caps.get(carrier, 0)
+            if val > 0.05:  # Only show technologies with >50 MW
+                fracs.append(val)
+                colors.append(carrier_color_map.get(carrier, 'gray'))
+                labels.append(carrier)
+        
+        if fracs:  # Only create pie if there's data
+            x, y = row["x"], row["y"]
+            ax.pie(fracs, colors=colors, radius=np.sqrt(size)/100, center=(x, y), frame=True)
+            # Add small black dot at center
+            ax.plot(x, y, "o", color="k", markersize=2, zorder=3)
+    
+    # Create legend for technologies that are present
+    present_carriers = [c for c in cap_by_node_carrier.columns if cap_by_node_carrier[c].sum() > 0.1]
+    legend_patches = [Patch(color=carrier_color_map.get(c, 'gray'), label=c) for c in present_carriers]
+    ax.legend(handles=legend_patches, title="Generation Technologies", 
+              loc="upper right", fontsize=11, title_fontsize=13, 
+              bbox_to_anchor=(1.25, 1))
+    
+    # Set map extent to cover the network area with some padding
+    ax.set_xlim(bus_df['x'].min() - 2, bus_df['x'].max() + 2)
+    ax.set_ylim(bus_df['y'].min() - 2, bus_df['y'].max() + 2)
+    ax.set_title(f"Installed Generation Capacity by Technology (K-constrained)\nCO₂ Reduction: {reduction}%, k={k_value}\n(Pie size proportional to total capacity)", 
+                 fontsize=16, fontweight="bold", pad=20)
+    ax.axis("off")
+    
+    plt.tight_layout()
+    
+    # Save in all requested formats
+    for fmt in output_formats:
+        output_file = output_path / f"generation_map_{reduction}pct_k_{k_value}.{fmt}"
+        fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+    
+    plt.close(fig)
+
+
+def plot_transmission_map_k_constrained(network, reduction, k_value, output_path, output_formats, dpi=300):
+    """Create transmission network map for a K-constrained network."""
+    if not gpd or not pypsa:
+        print(f"Skipping K-constrained transmission map for {reduction}%, k={k_value} - missing dependencies")
+        return
+    
+    # Prepare data
+    bus_df, _, lines, links, _ = prepare_network_data_for_maps(network)
+    if bus_df is None:
+        return
+    
+    # Create figure
+    fig, ax = plt.subplots(figsize=(16, 12))
+    
+    # Load world map and focus on Europe
+    europe = get_europe_map()
+    if europe is not None:
+        europe.plot(ax=ax, color='lightgray', edgecolor='k', alpha=0.7, zorder=0)
+    
+    # Find maximum capacity for line width scaling
+    max_line_cap = max(lines["capacity"].max(), links["capacity"].max())
+    
+    # Plot AC lines (green)
+    line_count = 0
+    for _, row in lines.iterrows():
+        if row["capacity"] > 0.0001:  # Only show lines with >100 kW capacity
+            lw = 2 + 15 * row["capacity"] / max_line_cap  # Line width scaling
+            ax.plot([row["bus0_x"], row["bus1_x"]], [row["bus0_y"], row["bus1_y"]], 
+                    color="green", linewidth=lw, alpha=0.8, zorder=1)
+            line_count += 1
+    
+    # Plot DC links (purple, dashed)
+    link_count = 0
+    for _, row in links.iterrows():
+        if row["capacity"] > 0.0001:  # Only show links with >100 kW capacity
+            lw = 2 + 15 * row["capacity"] / max_line_cap  # Line width scaling
+            ax.plot([row["bus0_x"], row["bus1_x"]], [row["bus0_y"], row["bus1_y"]], 
+                    color="purple", linewidth=lw, alpha=0.8, zorder=1, linestyle="--")
+            link_count += 1
+    
+    # Add bus locations as small dots
+    for node, row in bus_df.iterrows():
+        ax.plot(row["x"], row["y"], "o", color="black", markersize=3, zorder=2, alpha=0.7)
+    
+    # Create legend for line types
+    from matplotlib.lines import Line2D
+    legend_elements = [
+        Line2D([0], [0], color='green', lw=3, label=f'AC Lines ({line_count})'),
+        Line2D([0], [0], color='purple', lw=3, linestyle='--', label=f'DC Links ({link_count})')
+    ]
+    ax.legend(handles=legend_elements, title="Transmission Infrastructure", 
+              loc="upper right", fontsize=11, title_fontsize=13,
+              bbox_to_anchor=(1.25, 1))
+    
+    # Set map extent to cover the network area with some padding  
+    ax.set_xlim(bus_df['x'].min() - 2, bus_df['x'].max() + 2)
+    ax.set_ylim(bus_df['y'].min() - 2, bus_df['y'].max() + 2)
+    ax.set_title(f"Transmission Network Infrastructure (K-constrained)\nCO₂ Reduction: {reduction}%, k={k_value}\n(Line width proportional to capacity)", 
+                 fontsize=16, fontweight="bold", pad=20)
+    ax.axis("off")
+    
+    plt.tight_layout()
+    
+    # Save in all requested formats
+    for fmt in output_formats:
+        output_file = output_path / f"transmission_map_{reduction}pct_k_{k_value}.{fmt}"
+        fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+    
+    plt.close(fig)
+
+
+def plot_storage_map_k_constrained(network, reduction, k_value, output_path, output_formats, dpi=300):
+    """Create storage capacity map for a K-constrained network."""
+    if not gpd or not pypsa:
+        print(f"Skipping K-constrained storage map for {reduction}%, k={k_value} - missing dependencies")
+        return
+    
+    # Prepare data
+    bus_df, _, _, _, storage_by_node_carrier = prepare_network_data_for_maps(network)
+    if bus_df is None or storage_by_node_carrier is None:
+        return
+    
+    storage_color_map = get_storage_color_map()
+    
+    # Create figure
+    fig, ax = plt.subplots(figsize=(16, 12))
+    
+    # Load world map and focus on Europe
+    europe = get_europe_map()
+    if europe is not None:
+        europe.plot(ax=ax, color='lightgray', edgecolor='k', alpha=0.7, zorder=0)
+    
+    # Calculate maximum total capacity for scaling pie sizes
+    max_total_cap = storage_by_node_carrier.sum(axis=1).max()
+    
+    # Create pie charts at each bus location
+    buses_with_storage = 0
+    for node, row in bus_df.iterrows():
+        caps = storage_by_node_carrier.loc[node]
+        total_cap = caps.sum()
+        
+        if total_cap < 0.1:  # Skip nodes with very small capacity (< 100 MW)
+            continue
+            
+        buses_with_storage += 1
+        
+        # Calculate pie size based on total capacity
+        size = 15000 * total_cap / max_total_cap
+        
+        # Prepare data for pie chart
+        fracs = []
+        colors = []
+        labels = []
+        
+        for carrier in storage_by_node_carrier.columns:
+            val = caps.get(carrier, 0)
+            if val > 0.05:  # Only show technologies with >50 MW
+                fracs.append(val)
+                colors.append(storage_color_map.get(carrier, 'gray'))
+                labels.append(carrier)
+        
+        if fracs:  # Only create pie if there's data
+            x, y = row["x"], row["y"]
+            ax.pie(fracs, colors=colors, radius=np.sqrt(size)/100, center=(x, y), frame=True)
+            # Add small black dot at center
+            ax.plot(x, y, "o", color="k", markersize=2, zorder=3)
+    
+    # Create legend for storage technologies that are present
+    present_carriers = [c for c in storage_by_node_carrier.columns if storage_by_node_carrier[c].sum() > 0.1]
+    legend_patches = [Patch(color=storage_color_map.get(c, 'gray'), label=c) for c in present_carriers]
+    ax.legend(handles=legend_patches, title="Storage Technologies", 
+              loc="upper right", fontsize=11, title_fontsize=13, 
+              bbox_to_anchor=(1.25, 1))
+    
+    # Set map extent to cover the network area with some padding
+    ax.set_xlim(bus_df['x'].min() - 2, bus_df['x'].max() + 2)
+    ax.set_ylim(bus_df['y'].min() - 2, bus_df['y'].max() + 2)
+    ax.set_title(f"Installed Storage Capacity by Technology (K-constrained)\nCO₂ Reduction: {reduction}%, k={k_value}\n(Pie size proportional to total capacity)", 
+                 fontsize=16, fontweight="bold", pad=20)
+    ax.axis("off")
+    
+    plt.tight_layout()
+    
+    # Save in all requested formats
+    for fmt in output_formats:
+        output_file = output_path / f"storage_map_{reduction}pct_k_{k_value}.{fmt}"
+        fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+    
+    plt.close(fig)
 
 
 def load_config(config_path):
