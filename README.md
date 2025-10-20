@@ -26,16 +26,10 @@ Outputs will appear in : data/interim/network_rescaled.nc, results/tables/load_s
 
 HPC Setup is:
 git clone https://github.com/KrisAden/Thesis-workflow
-cd Thesis-workflow
-bash scripts/install_env.sh           # auto-installs conda-lock if needed
-conda init
-conda activate pypsa-thesis
-pip install gurobipy
-export GRB_LICENSE_FILE="$PWD/licenses/grb.lic"
-snakemake -s workflow/Snakefile --cores 4 -p
 
-# Make sure you’re on the main branch
-git checkout main
 
-# Pull down the changes from GitHub
-git pull origin main
+cd "/work/KristofferHedegaardAden#2272/Thesis-workflow"
+source scripts/init_session.sh
+
+to push and pull git push/pull orginin main and when prompted paste token from sticky note
+
