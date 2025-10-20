@@ -90,17 +90,19 @@ def calculate_renewable_fraction_needed(
     
     max_conventional_emissions = total_load_energy * weighted_emission_factor
     
-    if max_conventional_emissions <= co2_cap:
-        # CO2 constraint is not binding - skip K-constraints entirely
+    alpha = 1.0 - (co2_cap / max_conventional_emissions)
+    
+    # Handle different cases
+    if alpha <= 0:
+        # CO2 constraint is not binding at all
         logging.info("CO2 constraint not binding - K-constraints would be meaningless, skipping them")
         return 0.0  # Signal to skip K-constraints
+    elif alpha < 0.20:  # Less than 20%
+        logging.warning(f"Small calculated α={alpha:.3f} - using α=0.20 for numerical stability")
+        alpha = 0.20  # Use 20% minimum for numerical stability
     else:
-        alpha = 1.0 - (co2_cap / max_conventional_emissions)
-        # Only apply minimal bound for very small values
-        if alpha < 0.05:  # Less than 5%
-            logging.warning(f"Very small α={alpha:.3f} - using α=0.05 for numerical stability")
-            alpha = 0.05
-        alpha = max(0.05, min(1.0, alpha))  # Bound between 5% and 100%
+        # Use calculated value, capped at 100%
+        alpha = min(1.0, alpha)
     
     logging.info(f"CO2-adjusted α = {alpha:.3f} (total_load={total_load_energy:.1f} MWh, "
                f"cap={co2_cap:.3f} tCO2, avg_emission_factor={weighted_emission_factor:.6f})")
