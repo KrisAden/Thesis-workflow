@@ -77,6 +77,7 @@ parameters:
       transmission_bottlenecks: true
       total_renewable_capacity: true
       electricity_cost: true
+      electricity_cost_comparison: true
       generation_mix_actual: true
       renewable_penetration_boxplots: true
       interregional_transmission_expansion: true

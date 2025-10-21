@@ -1636,8 +1636,18 @@ def plot_total_renewable_capacity(config, output_path, output_formats, dpi=300, 
 
 
 def plot_electricity_cost(config, output_path, output_formats, dpi=300, has_baseline=True):
-    """Plot electricity cost (€/MWh) across CO₂ reduction scenarios."""
-    print("Creating electricity cost plot...")
+    """Plot full system electricity cost (€/MWh) across CO₂ reduction scenarios.
+    
+    This calculates the economically correct electricity price using:
+    average_cost = total_system_objective / total_annual_demand
+    
+    This includes ALL costs: generation capital costs, storage capital costs, 
+    transmission capital costs, and variable generation costs (all annualized).
+    
+    This is the price that electricity would need to be sold at to recover all system costs.
+    """
+    print("Creating full system electricity cost plot...")
+    print("  ✅ Using total system cost approach (includes capital cost recovery)")
     
     if not pypsa:
         print("PyPSA not available - skipping electricity cost plot")
@@ -1655,12 +1665,28 @@ def plot_electricity_cost(config, output_path, output_formats, dpi=300, has_base
     
     for co2_pct, net in networks_by_percent.items():
         try:
-            # Extract total system cost and divide by total load to get cost per MWh
-            total_cost = net.objective  # Total system cost
-            total_load = net.loads_t.p.sum().sum()  # Total load in MWh
+            # Extract total system cost (includes all annualized capital costs)
+            total_cost = net.objective  # Total system cost (€/year)
+            
+            # Calculate total annual demand with proper snapshot weighting
+            if hasattr(net, 'snapshot_weightings'):
+                weights = net.snapshot_weightings
+                if hasattr(weights, 'generators'):
+                    weights = weights.generators
+                elif isinstance(weights, pd.DataFrame) and 'generators' in weights.columns:
+                    weights = weights['generators']
+                else:
+                    weights = pd.Series(1.0, index=net.snapshots)
+            else:
+                weights = pd.Series(1.0, index=net.snapshots)
+                
+            # Total annual demand (MWh/year) - properly weighted
+            total_load = (net.loads_t.p.sum(axis=1) * weights).sum()
+            
+            # Average system cost per MWh (includes capital cost recovery)
             electricity_cost = total_cost / total_load if total_load > 0 else np.nan
             electricity_costs[co2_pct] = electricity_cost
-            print(f"  ✓ Electricity cost for {co2_pct}% reduction: {electricity_cost:.2f} €/MWh")
+            print(f"  ✓ Full system electricity cost for {co2_pct}% reduction: {electricity_cost:.2f} €/MWh")
         except Exception as e:
             print(f"⚠️ Skipping {co2_pct}% due to error: {e}")
 
@@ -2448,7 +2474,11 @@ def plot_total_system_cost(config, output_path, output_formats, dpi=300, has_bas
 
 
 def collect_marginal_prices_by_level(networks_by_percent):
-    """Collect marginal prices from all networks and organize by CO2 reduction level."""
+    """Collect marginal prices from all networks and organize by CO2 reduction level.
+    
+    NOTE: These are short-run marginal costs and do NOT include capital cost recovery.
+    For full electricity pricing including capital costs, use collect_average_system_costs_by_level().
+    """
     dfs = []
     for co2_pct, net in networks_by_percent.items():
         try:
@@ -2471,8 +2501,61 @@ def collect_marginal_prices_by_level(networks_by_percent):
     return df_all
 
 
+def collect_average_system_costs_by_level(networks_by_percent):
+    """Calculate average system cost (including capital cost recovery) for each CO2 reduction level.
+    
+    This provides realistic electricity pricing that includes:
+    - Generator capital costs (annualized)
+    - Storage capital costs (annualized) 
+    - Transmission capital costs (annualized)
+    - Variable generation costs (fuel + O&M)
+    
+    This is the economically correct electricity price that covers all system costs.
+    """
+    system_costs = {}
+    
+    for co2_pct, net in networks_by_percent.items():
+        try:
+            # Calculate total annual system cost from objective function
+            total_system_cost = net.objective  # €/year (includes all annualized costs)
+            
+            # Calculate total annual demand
+            if hasattr(net, 'snapshot_weightings'):
+                weights = net.snapshot_weightings
+                if hasattr(weights, 'generators'):
+                    weights = weights.generators
+                elif isinstance(weights, pd.DataFrame) and 'generators' in weights.columns:
+                    weights = weights['generators']
+                else:
+                    weights = pd.Series(1.0, index=net.snapshots)
+            else:
+                weights = pd.Series(1.0, index=net.snapshots)
+                
+            # Total annual demand (MWh/year)
+            total_demand = (net.loads_t.p.sum(axis=1) * weights).sum()
+            
+            # Average system cost per MWh
+            avg_system_cost = total_system_cost / total_demand if total_demand > 0 else np.nan
+            
+            system_costs[co2_pct] = {
+                'avg_cost_per_mwh': avg_system_cost,
+                'total_system_cost': total_system_cost,
+                'total_demand': total_demand
+            }
+            
+            print(f"  ✓ Calculated average system cost for {co2_pct}% reduction: {avg_system_cost:.2f} €/MWh")
+            
+        except Exception as e:
+            print(f"⚠️ Skipping {co2_pct}% due to error: {e}")
+    
+    return system_costs
+
+
 def calculate_mean_prices_by_level(df_marginal_prices):
-    """Calculate mean marginal price per region for each decarbonization level."""
+    """Calculate mean marginal price per region for each decarbonization level.
+    
+    NOTE: These are marginal prices only - they do NOT include capital cost recovery.
+    """
     # Remove the 'CO2_Level' column if it's present in the columns (should only be in the index)
     if "CO2_Level" in df_marginal_prices.columns:
         df_marginal_prices = df_marginal_prices.drop(columns=["CO2_Level"])
@@ -2483,9 +2566,121 @@ def calculate_mean_prices_by_level(df_marginal_prices):
     return mean_prices_by_level
 
 
+def plot_electricity_cost_comparison(config, output_path, output_formats, dpi=300, has_baseline=True):
+    """Plot comparison between marginal prices and full system costs (including capital recovery)."""
+    print("Creating electricity cost comparison plot (marginal vs. full system cost)...")
+    
+    if not pypsa:
+        print("PyPSA not available - skipping electricity cost comparison plot")
+        return
+    
+    # Load networks
+    networks_by_percent = load_networks_from_results(config, has_baseline)
+    
+    if not networks_by_percent:
+        print("No networks found - cannot create plot")
+        return
+    
+    # Collect both marginal prices and average system costs
+    print("  → Collecting marginal prices...")
+    df_marginal_prices = collect_marginal_prices_by_level(networks_by_percent)
+    
+    print("  → Calculating average system costs...")
+    system_costs = collect_average_system_costs_by_level(networks_by_percent)
+    
+    if df_marginal_prices is None or not system_costs:
+        print("Insufficient data - cannot create comparison plot")
+        return
+    
+    # Calculate mean marginal prices by level
+    mean_marginal_prices = calculate_mean_prices_by_level(df_marginal_prices)
+    overall_marginal_by_level = mean_marginal_prices.mean(axis=1)  # Average across all regions
+    
+    # Prepare data for plotting
+    levels = []
+    marginal_prices = []
+    avg_system_costs = []
+    
+    for level in sorted(system_costs.keys()):
+        if level in overall_marginal_by_level.index:
+            levels.append(level)
+            marginal_prices.append(overall_marginal_by_level[level])
+            avg_system_costs.append(system_costs[level]['avg_cost_per_mwh'])
+    
+    if not levels:
+        print("No matching data for comparison - cannot create plot")
+        return
+    
+    # Create the comparison plot
+    fig, ax = plt.subplots(figsize=(12, 8))
+    
+    # Set font properties
+    font = {'fontsize': 12, 'fontweight': 'bold'}
+    
+    # Plot both price series
+    ax.plot(levels, marginal_prices, 'o-', label='Marginal Prices (Short-run)', 
+            color='tab:blue', linewidth=2, markersize=8)
+    ax.plot(levels, avg_system_costs, 's-', label='Average System Cost (Full cost incl. capital)', 
+            color='tab:red', linewidth=2, markersize=8)
+    
+    # Fill area between curves to show missing capital cost component
+    ax.fill_between(levels, marginal_prices, avg_system_costs, alpha=0.3, 
+                   color='orange', label='Missing Capital Cost Recovery')
+    
+    ax.set_xlabel("CO₂ Reduction (%)", **font)
+    ax.set_ylabel("Electricity Price (€/MWh)", **font)
+    ax.set_title("Electricity Pricing: Marginal Cost vs. Full System Cost\n(Demonstrates Missing Capital Cost Recovery)", **font)
+    ax.grid(True, alpha=0.3)
+    ax.legend(fontsize=10)
+    
+    # Add text annotation explaining the difference
+    if len(levels) > 0:
+        mid_idx = len(levels) // 2
+        mid_level = levels[mid_idx]
+        mid_marginal = marginal_prices[mid_idx]
+        mid_avg = avg_system_costs[mid_idx]
+        gap = mid_avg - mid_marginal
+        
+        ax.annotate(f'Capital cost gap:\n~{gap:.1f} €/MWh', 
+                   xy=(mid_level, (mid_marginal + mid_avg) / 2),
+                   xytext=(mid_level + 10, (mid_marginal + mid_avg) / 2),
+                   fontsize=10, ha='left', va='center',
+                   bbox=dict(boxstyle="round,pad=0.3", facecolor="yellow", alpha=0.7),
+                   arrowprops=dict(arrowstyle='->', color='black', lw=1))
+    
+    plt.tight_layout()
+    
+    # Save in all requested formats
+    for fmt in output_formats:
+        output_file = output_path / f"electricity_cost_comparison.{fmt}"
+        fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+        print(f"  ✓ Saved comparison plot as {output_file}")
+    
+    plt.close(fig)
+    
+    # Print summary statistics
+    print("\n=== ELECTRICITY PRICING ANALYSIS SUMMARY ===")
+    for i, level in enumerate(levels):
+        gap = avg_system_costs[i] - marginal_prices[i]
+        gap_pct = (gap / avg_system_costs[i]) * 100
+        print(f"{level:3.0f}% reduction: Marginal {marginal_prices[i]:5.1f} €/MWh | "
+              f"Full cost {avg_system_costs[i]:5.1f} €/MWh | Gap {gap:5.1f} €/MWh ({gap_pct:4.1f}%)")
+    
+    if levels:
+        avg_gap = np.mean([avg_system_costs[i] - marginal_prices[i] for i in range(len(levels))])
+        avg_gap_pct = np.mean([(avg_system_costs[i] - marginal_prices[i]) / avg_system_costs[i] * 100 for i in range(len(levels))])
+        print(f"\nAverage capital cost gap: {avg_gap:.1f} €/MWh ({avg_gap_pct:.1f}% of total cost)")
+        print("This gap represents annualized capital cost recovery not captured in marginal pricing.")
+
+
 def plot_mean_price_bellcurve(config, output_path, output_formats, dpi=300, has_baseline=True):
-    """Plot mean marginal prices by region in bell curve arrangement for each CO₂ reduction level."""
-    print("Creating mean price bell curve plots...")
+    """Plot mean marginal prices by region in bell curve arrangement for each CO₂ reduction level.
+    
+    NOTE: This plots MARGINAL PRICES (short-run costs) which do NOT include capital cost recovery.
+    For full electricity costs including capital recovery, see plot_electricity_cost().
+    """
+    print("Creating mean marginal price bell curve plots...")
+    print("  ⚠️  NOTE: These are marginal prices (short-run costs) - do NOT include capital cost recovery")
     
     if not pypsa:
         print("PyPSA not available - skipping mean price bell curve plots")
@@ -2600,8 +2795,12 @@ def plot_mean_price_boxplots(config, output_path, output_formats, dpi=300, has_b
     Plot boxplots of mean marginal prices by region for each CO₂ reduction level.
     Shows whiskers, outliers in purple, and overlays mean (red) and median (blue) lines.
     Outliers are annotated with their region names.
+    
+    NOTE: This plots MARGINAL PRICES (short-run costs) which do NOT include capital cost recovery.
+    For full electricity costs including capital recovery, see plot_electricity_cost().
     """
-    print("Creating mean price boxplots...")
+    print("Creating mean marginal price boxplots...")
+    print("  ⚠️  NOTE: These are marginal prices (short-run costs) - do NOT include capital cost recovery")
     
     if not pypsa:
         print("PyPSA not available - skipping mean price boxplots")
@@ -3824,6 +4023,7 @@ def main():
         "transmission_bottlenecks": lambda: plot_transmission_bottlenecks(config, output_path, output_formats, dpi, args.has_baseline),
         "total_renewable_capacity": lambda: plot_total_renewable_capacity(config, output_path, output_formats, dpi, args.has_baseline),
         "electricity_cost": lambda: plot_electricity_cost(config, output_path, output_formats, dpi, args.has_baseline),
+        "electricity_cost_comparison": lambda: plot_electricity_cost_comparison(config, output_path, output_formats, dpi, args.has_baseline),
         "generation_mix_actual": lambda: plot_generation_mix_actual(config, output_path, output_formats, dpi, args.has_baseline),
         "renewable_penetration_boxplots": lambda: plot_renewable_penetration_boxplots(config, output_path, output_formats, dpi, args.has_baseline),
         "renewable_penetration_stacked_bars": lambda: plot_renewable_penetration_stacked_bars(config, output_path, output_formats, dpi, args.has_baseline),
