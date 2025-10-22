@@ -18,7 +18,7 @@ conda env update -n YOUR_env -f environment.yml --prune
 Basis network and rescale values can be edited through config/config.yaml
 
 To run the workflow for constrained runs: Update Config to include the correct levels. Then
-snakemake -s workflow/Snakefile -p -c 4 results/networks/solved_reduction_XX.nc results/tables/solve_reduction_XX.csv
+snakemake -s workflow/Snakefile -p --cores 4 results/networks/solved_reduction_XX.nc results/tables/solve_reduction_XX.csv
 
 
 Outputs will appear in : data/interim/network_rescaled.nc, results/tables/load_scaling.csv

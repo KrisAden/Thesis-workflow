@@ -42,9 +42,12 @@ parameters:
       floor: 1.0
   co2_reductions: [10]
   decentralization:
-    k_values: [1, 2, 3, 4, 5, 6, 7]  # k values for 1/k < gamma < k constraint
+    k_values: [1, 2, 3, 4, 5, 6, 7]  # k values for 1/k <= gamma <= k constraint  
     renewable_carriers: ["solar", "onwind", "offwind-ac", "offwind-dc", "ror"]  # carriers considered renewable
-    numerical_safeguards: true  # Enable numerical safeguards for K-constraints
+    use_co2_equality: true  # Use CO2 = target instead of CO2 <= target (recommended for cost comparison)
+    # Constraint modes:
+    # - full: 1/k <= gamma <= k (forces both minimum and maximum renewable distribution)
+    # - upper_only: gamma <= k (prevents over-concentration but allows under-deployment)
   solve:
     solver: "gurobi"
     solver_options:

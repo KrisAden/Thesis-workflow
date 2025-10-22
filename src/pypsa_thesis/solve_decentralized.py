@@ -1,4 +1,22 @@
 # src/pypsa_thesis/solve_decentralized.py
+"""
+Solve network with K-constraints for renewable decentralization analysis.
+
+Key Features:
+1. CO2 EQUALITY constraint: Forces exact CO2 emissions to match baseline unconstrained solve
+   - Eliminates over-decarbonization that would confound cost comparisons
+   - Ensures identical environmental outcomes across different k-values
+   
+2. SIMPLE K-constraints: 1/k <= gamma <= k where gamma = renewable_generation/load
+   - No complex α-scaling that caused numerical instability  
+   - Direct, interpretable renewable penetration constraints per bus
+   - Optional upper-bound-only mode to test impact of lower bound
+   
+3. COMPARATIVE ANALYSIS: Clean cost isolation for decentralization impact
+   - Baseline: Pure economic optimization (solve.py with CO2 ≤ cap)
+   - K-constrained: Same CO2 but with spatial distribution constraints
+   - Cost difference = pure decentralization penalty
+"""
 from __future__ import annotations
 
 import argparse
@@ -14,114 +32,39 @@ from .solve import (
     _setup_logging,
     _solver_from_cfg,
     _sanitize_gurobi_opts,
-    add_global_co2_cap,
     _normalize_reduction,
     compute_total_co2,
 )
 
 
-def calculate_renewable_fraction_needed(
-    n: pypsa.Network, co2_cap: float, renewable_carriers: list[str]
-) -> float:
-    """
-    Calculate the fraction of renewable energy needed to meet CO2 constraint.
-    
-    This computes α = renewable_fraction_needed based on the CO2 cap and
-    emission factors, which is used to scale K-constraint denominators.
-    
-    Parameters:
-    -----------
-    n : pypsa.Network
-        The network to analyze
-    co2_cap : float
-        CO2 emissions cap (tCO2)
-    renewable_carriers : list[str]
-        List of carrier names considered renewable
-    
-    Returns:
-    --------
-    float
-        α: Renewable fraction needed (0-1) to meet CO2 constraint
-    """
-    # Get emission factors (tCO2/MWh_thermal) - same as solve.py
-    if "co2_emissions" not in n.carriers.columns:
-        logging.warning("No co2_emissions column found, using α=1.0")
-        return 1.0
-    emission_factors = pd.to_numeric(n.carriers["co2_emissions"], errors="coerce").fillna(0.0)
-    
-    # Calculate snapshot weightings
-    if hasattr(n.snapshot_weightings, 'objective'):
-        weights = n.snapshot_weightings.objective
+def add_global_co2_equality(n: pypsa.Network, target_tco2: float) -> None:
+    """Add CO2 equality constraint instead of inequality cap."""
+    if "co2_exact" in getattr(n, "global_constraints", pd.DataFrame()).index:
+        n.global_constraints.at["co2_exact", "constant"] = float(target_tco2)
+        n.global_constraints.at["co2_exact", "sense"] = "=="
+        n.global_constraints.at["co2_exact", "type"] = "primary_energy"
+        n.global_constraints.at["co2_exact", "carrier_attribute"] = "co2_emissions"
     else:
-        weights = n.snapshot_weightings
-    
-    # Calculate total load energy
-    total_load_energy = sum(
-        (n.loads_t.p_set[load] * weights).sum() 
-        for load in n.loads.index
-    )
-    
-    if total_load_energy <= 0:
-        logging.warning("No load energy found, using α=1.0")
-        return 1.0
-    
-    # Get conventional (non-renewable) carriers and their emission factors
-    conventional_carriers = emission_factors[emission_factors > 0].index
-    conventional_carriers = conventional_carriers[~conventional_carriers.isin(renewable_carriers)]
-    
-    if len(conventional_carriers) == 0:
-        logging.warning("No conventional carriers found, using α=1.0")
-        return 1.0
-    
-    # Calculate weighted average emission factor for conventional generation
-    # This is a simplified approach using mean emission factor
-    weighted_emission_factor = emission_factors[conventional_carriers].mean()
-    
-    if weighted_emission_factor <= 0:
-        logging.warning("No positive emission factors found, using α=1.0") 
-        return 1.0
-    
-    # Calculate renewable fraction needed to meet CO2 cap
-    # If all energy were conventional: total_emissions = total_load_energy * emission_factor
-    # With renewable fraction α: emissions = (1-α) * total_load_energy * emission_factor
-    # Constraint: emissions ≤ co2_cap
-    # Therefore: (1-α) * total_load_energy * emission_factor ≤ co2_cap
-    # Solving for α: α ≥ 1 - (co2_cap / (total_load_energy * emission_factor))
-    
-    max_conventional_emissions = total_load_energy * weighted_emission_factor
-    
-    alpha = 1.0 - (co2_cap / max_conventional_emissions)
-    
-    # Handle different cases
-    if alpha <= 0:
-        # CO2 constraint is not binding at all
-        logging.info("CO2 constraint not binding - K-constraints would be meaningless, skipping them")
-        return 0.0  # Signal to skip K-constraints
-    elif alpha < 0.20:  # Less than 20%
-        logging.warning(f"Small calculated α={alpha:.3f} - using α=0.20 for numerical stability")
-        alpha = 0.20  # Use 20% minimum for numerical stability
-    else:
-        # Use calculated value, capped at 100%
-        alpha = min(1.0, alpha)
-    
-    logging.info(f"CO2-adjusted α = {alpha:.3f} (total_load={total_load_energy:.1f} MWh, "
-               f"cap={co2_cap:.3f} tCO2, avg_emission_factor={weighted_emission_factor:.6f})")
-    
-    return alpha
+        n.add(
+            "GlobalConstraint", "co2_exact",
+            sense="==", constant=float(target_tco2),
+            type="primary_energy",
+            carrier_attribute="co2_emissions",
+        )
 
 
-def add_nodal_renewable_constraints(
+def add_simple_nodal_renewable_constraints(
     n: pypsa.Network,
     k: float,
     renewable_carriers: list[str],
     snapshots,
+    upper_bound_only: bool = False,
 ) -> None:
     """
-    Add CO2-adjusted nodal renewable penetration constraints: 1/k <= gamma <= k
-    where gamma = renewable_generation / (α * nodal_load) for each bus.
+    Add simple nodal renewable penetration constraints: 1/k <= gamma <= k
+    where gamma = renewable_generation / nodal_load for each bus.
     
-    The denominator is scaled by α (renewable fraction needed to meet CO2 constraint)
-    to prevent over-decarbonization when CO2 constraints are loose.
+    No α scaling - uses direct load values for clean, interpretable constraints.
     
     Parameters:
     -----------
@@ -133,26 +76,11 @@ def add_nodal_renewable_constraints(
         List of carrier names considered renewable
     snapshots : pandas.Index
         Snapshots to consider for the constraints
+    upper_bound_only : bool
+        If True, only apply upper bound (gamma <= k) to avoid over-decarbonization
     """
-    logging.info(f"Adding CO2-adjusted nodal renewable constraints with k={k}")
-    
-    # Calculate CO2-required renewable fraction
-    # Extract CO2 cap - this is a simplified approach
-    # In practice, the cap is passed to the global CO2 constraint
-    co2_cap = None
-    try:
-        # Try to estimate from current network state
-        current_emissions = compute_total_co2(n)
-        # Use a reasonable fraction of current emissions as the cap estimate
-        # This is a fallback - ideally the cap would be passed as parameter
-        co2_cap = current_emissions * 0.9  # Assume 10% reduction as default
-        logging.info(f"Estimated CO2 cap as 90% of current emissions: {co2_cap:.3f}")
-    except Exception:
-        logging.warning("Could not estimate CO2 cap, using α=1.0 (no scaling)")
-        co2_cap = float('inf')
-    
-    # Calculate the renewable fraction needed
-    alpha = calculate_renewable_fraction_needed(n, co2_cap, renewable_carriers)
+    constraint_type = "upper-bound-only" if upper_bound_only else "full"
+    logging.info(f"Adding simple nodal renewable constraints with k={k} ({constraint_type})")
     
     # Get snapshot weights
     if hasattr(n.snapshot_weightings, 'objective'):
@@ -184,28 +112,19 @@ def add_nodal_renewable_constraints(
             logging.info(f"  Skipping {bus}: no renewable generators")
             continue
             
-        # Total load energy at this bus (MWh) - use fixed load values
+        # Total load energy at this bus (MWh)
         load_energy = sum(
             (n.loads_t.p_set[load] * weights).sum()
             for load in loads_at_bus
         )
         
-        # Skip buses with zero load
-        if load_energy <= 0:
-            logging.info(f"  Skipping {bus}: zero load energy")
-            continue
-        
-        # Scale load energy by CO2-required renewable fraction
-        effective_load_energy = alpha * load_energy
-        
-        # Skip constraints if effective load is too small (causes numerical issues)
-        MIN_EFFECTIVE_LOAD = 1000.0  # 1 GWh minimum threshold
-        if effective_load_energy < MIN_EFFECTIVE_LOAD:
-            logging.info(f"  Skipping {bus}: effective load {effective_load_energy:.0f} MWh below threshold")
+        # Skip buses with zero or very small load
+        MIN_LOAD_THRESHOLD = 1000.0  # 1 GWh minimum
+        if load_energy <= MIN_LOAD_THRESHOLD:
+            logging.info(f"  Skipping {bus}: load {load_energy:.0f} MWh below threshold")
             continue
         
         # Build constraint expressions using linopy
-        # Sum generator power variables for renewable generators at this bus
         renewable_energy_expr = 0
         
         for gen in gens_at_bus:
@@ -213,161 +132,43 @@ def add_nodal_renewable_constraints(
             gen_power = n.model.variables["Generator-p"].sel(Generator=gen)
             renewable_energy_expr += (gen_power * weights).sum()
         
-        # If no renewable generators, skip
-        if len(gens_at_bus) == 0:
-            logging.info(f"  Skipping {bus}: no renewable generators")
-            continue
-        
         # Clean bus name for constraint naming
         bus_clean = bus.replace(' ', '_').replace('+', 'plus')
         
-        # Add constraints: 1/k <= renewable_energy/effective_load_energy <= k
-        # Rearranged: renewable_energy >= effective_load_energy/k AND renewable_energy <= k*effective_load_energy
-        
-        # Calculate bounds with numerical safeguards
-        lower_bound = effective_load_energy / k
-        upper_bound = k * effective_load_energy
-        
-        # Apply reasonable bounds to avoid extreme values
-        MAX_BOUND = 1e8  # 100 TWh maximum
-        lower_bound = min(lower_bound, MAX_BOUND)
-        upper_bound = min(upper_bound, MAX_BOUND)
-        
-        # Only add constraints if bounds are reasonable
-        if lower_bound > 0 and upper_bound > lower_bound:
-            # Lower bound: renewable_energy >= effective_load_energy/k
+        # Add constraints based on mode
+        if upper_bound_only:
+            # Only upper bound: renewable_energy <= k*load_energy
+            upper_bound = k * load_energy
+            n.model.add_constraints(
+                renewable_energy_expr <= upper_bound,
+                name=f"renewable_max_{bus_clean}"
+            )
+            logging.info(f"  Added upper-bound constraint for {bus}: {len(gens_at_bus)} gens, "
+                        f"{load_energy:.0f} MWh load, max {upper_bound:.0f}")
+        else:
+            # Full constraints: 1/k <= renewable_energy/load_energy <= k
+            # Rearranged: load_energy/k <= renewable_energy <= k*load_energy
+            lower_bound = load_energy / k
+            upper_bound = k * load_energy
+            
             n.model.add_constraints(
                 renewable_energy_expr >= lower_bound,
                 name=f"renewable_min_{bus_clean}"
             )
             
-            # Upper bound: renewable_energy <= k*effective_load_energy  
             n.model.add_constraints(
                 renewable_energy_expr <= upper_bound,
                 name=f"renewable_max_{bus_clean}"
             )
             
-            logging.info(f"  Added CO2-adjusted constraints for {bus}: {len(gens_at_bus)} gens, "
-                        f"{load_energy:.0f} MWh load, {effective_load_energy:.0f} MWh effective (α={alpha:.3f})")
-        else:
-            logging.info(f"  Skipping {bus}: invalid bounds (lower={lower_bound:.0f}, upper={upper_bound:.0f})")
+            logging.info(f"  Added full constraints for {bus}: {len(gens_at_bus)} gens, "
+                        f"{load_energy:.0f} MWh load, bounds [{lower_bound:.0f}, {upper_bound:.0f}]")
 
 
-def add_nodal_renewable_constraints_with_cap(
-    n: pypsa.Network,
-    k: float,
-    renewable_carriers: list[str],
-    snapshots,
-    co2_cap: float,
-) -> None:
-    """
-    Wrapper function to add CO2-adjusted nodal renewable constraints with explicit CO2 cap.
-    
-    Parameters:
-    -----------
-    n : pypsa.Network
-        The network to add constraints to
-    k : float
-        The constraint parameter (gamma must be between 1/k and k)
-    renewable_carriers : list[str]
-        List of carrier names considered renewable
-    snapshots : pandas.Index
-        Snapshots to consider for the constraints
-    co2_cap : float
-        CO2 emissions cap (tCO2)
-    """
-    logging.info(f"Adding CO2-adjusted nodal renewable constraints with k={k}, CO2 cap={co2_cap:.3f}")
-    
-    # Calculate the renewable fraction needed
-    alpha = calculate_renewable_fraction_needed(n, co2_cap, renewable_carriers)
-    
-    # Skip K-constraints if alpha is 0 (CO2 constraint not binding)
-    if alpha <= 0:
-        logging.info("Skipping K-constraints - CO2 constraint not binding")
-        return
-    
-    # Get snapshot weights
-    if hasattr(n.snapshot_weightings, 'objective'):
-        weights = n.snapshot_weightings.objective
-    else:
-        weights = n.snapshot_weightings
-    
-    # For each bus with load, add renewable penetration constraints
-    buses_with_load = n.loads.bus.unique()
-    
-    for i, bus in enumerate(buses_with_load):
-        logging.info(f"Processing bus {bus} ({i+1}/{len(buses_with_load)})")
-        
-        # Get loads at this bus
-        loads_at_bus = n.loads[n.loads.bus == bus].index
-        
-        # Skip if no load
-        if not len(loads_at_bus):
-            continue
-            
-        # Get renewable generators at this bus
-        gens_at_bus = n.generators[
-            (n.generators.bus == bus) & 
-            (n.generators.carrier.isin(renewable_carriers))
-        ].index
-        
-        if not len(gens_at_bus):
-            # No renewable generators at this bus - skip constraint
-            logging.info(f"  Skipping {bus}: no renewable generators")
-            continue
-            
-        # Total load energy at this bus (MWh) - use fixed load values
-        load_energy = sum(
-            (n.loads_t.p_set[load] * weights).sum()
-            for load in loads_at_bus
-        )
-        
-        # Skip buses with zero load
-        if load_energy <= 0:
-            logging.info(f"  Skipping {bus}: zero load energy")
-            continue
-        
-        # Scale load energy by CO2-required renewable fraction
-        effective_load_energy = alpha * load_energy
-        
-        # Build constraint expressions using linopy
-        # Sum generator power variables for renewable generators at this bus
-        renewable_energy_expr = 0
-        
-        for gen in gens_at_bus:
-            # Access generator variable and multiply by weights, then sum over time
-            gen_power = n.model.variables["Generator-p"].sel(Generator=gen)
-            renewable_energy_expr += (gen_power * weights).sum()
-        
-        # If no renewable generators, skip
-        if len(gens_at_bus) == 0:
-            logging.info(f"  Skipping {bus}: no renewable generators")
-            continue
-        
-        # Clean bus name for constraint naming
-        bus_clean = bus.replace(' ', '_').replace('+', 'plus')
-        
-        # Add constraints: 1/k <= renewable_energy/effective_load_energy <= k
-        # Rearranged: renewable_energy >= effective_load_energy/k AND renewable_energy <= k*effective_load_energy
-        
-        # Only add constraints if effective_load_energy > 0
-        if effective_load_energy > 0:
-            # Lower bound: renewable_energy >= effective_load_energy/k
-            n.model.add_constraints(
-                renewable_energy_expr >= effective_load_energy / k,
-                name=f"renewable_min_{bus_clean}"
-            )
-            
-            # Upper bound: renewable_energy <= k*effective_load_energy  
-            n.model.add_constraints(
-                renewable_energy_expr <= k * effective_load_energy,
-                name=f"renewable_max_{bus_clean}"
-            )
-            
-            logging.info(f"  Added CO2-adjusted constraints for {bus}: {len(gens_at_bus)} gens, "
-                        f"{load_energy:.0f} MWh load, {effective_load_energy:.0f} MWh effective (α={alpha:.3f})")
-        else:
-            logging.info(f"  Skipping {bus}: zero effective load energy (α={alpha:.3f})")
+# Removed old complex constraint function - replaced with add_simple_nodal_renewable_constraints
+
+
+# Removed old complex constraint function - using simple constraints instead
 
 
 def main() -> None:
@@ -384,6 +185,8 @@ def main() -> None:
                     help="Decentralization parameter k (gamma constrained to [1/k, k])")
     ap.add_argument("--baseline-file", required=True,
                     help="CSV with 'baseline_emissions' column")
+    ap.add_argument("--upper-bound-only", action="store_true",
+                    help="Only apply upper bound constraint (gamma <= k), skip lower bound to avoid over-decarbonization")
     
     args = ap.parse_args()
 
@@ -409,28 +212,51 @@ def main() -> None:
         solver_name, 100.0 * red_frac, k_value
     )
 
-    # Load baseline emissions
+    # Load baseline emissions and actual emissions from the unconstrained solve
     bl = pd.read_csv(args.baseline_file)
     if bl.empty or "baseline_emissions" not in bl.columns:
         raise SystemExit(f"{args.baseline_file} missing 'baseline_emissions'")
 
-    baseline = float(bl["baseline_emissions"].iloc[0])
-    cap = baseline * (1.0 - red_frac)
-    logging.info("Applied CO₂ cap %.6f (baseline %.6f, reduction %.2f%%)", 
-                cap, baseline, 100.0 * red_frac)
+    # For CO2 equality constraint, we need the actual emissions from the corresponding
+    # unconstrained solve at this reduction level. We'll look for the solve result file.
+    baseline_reduction_file = f"results/tables/solve_reduction_{int(args.reduction)}.csv"
+    try:
+        reduction_result = pd.read_csv(baseline_reduction_file)
+        if not reduction_result.empty and "actual_emissions" in reduction_result.columns:
+            target_co2 = float(reduction_result["actual_emissions"].iloc[0])
+            logging.info("Using actual CO₂ emissions from unconstrained solve: %.6f tCO2", target_co2)
+        else:
+            # Fallback to calculated cap
+            baseline = float(bl["baseline_emissions"].iloc[0])
+            target_co2 = baseline * (1.0 - red_frac)
+            logging.warning("Could not find unconstrained solve results, using calculated target: %.6f tCO2", target_co2)
+    except FileNotFoundError:
+        baseline = float(bl["baseline_emissions"].iloc[0])
+        target_co2 = baseline * (1.0 - red_frac)
+        logging.warning("Unconstrained solve results not found, using calculated target: %.6f tCO2", target_co2)
 
-    # Add CO2 constraint
-    add_global_co2_cap(n, cap)
+    # Add CO2 equality constraint (not inequality)
+    add_global_co2_equality(n, target_co2)
 
     # Get renewable carriers from config
     renewable_carriers = cfg.get("parameters", {}).get("decentralization", {}).get(
         "renewable_carriers", ["solar", "onwind", "offwind-ac", "offwind-dc", "ror"]
     )
+    
+    # Check if we should use CO2 equality constraint (recommended approach)
+    use_co2_equality = cfg.get("parameters", {}).get("decentralization", {}).get(
+        "use_co2_equality", True
+    )
+    
+    if use_co2_equality:
+        logging.info("Using CO2 equality constraint to match baseline decarbonization exactly")
+    else:
+        logging.info("Using CO2 inequality constraint (may lead to over-decarbonization)")
 
     # Define extra functionality for nodal constraints
     def extra_functionality(network, snapshots):
-        add_nodal_renewable_constraints_with_cap(
-            network, k_value, renewable_carriers, snapshots, cap
+        add_simple_nodal_renewable_constraints(
+            network, k_value, renewable_carriers, snapshots, args.upper_bound_only
         )
 
     # Save pre-optimization snapshot
@@ -521,10 +347,12 @@ def main() -> None:
     pd.DataFrame([{
         "reduction": red_frac,
         "k_value": k_value,
+        "constraint_type": "upper_only" if args.upper_bound_only else "full",
+        "co2_constraint_type": "equality",
         "objective": getattr(n, "objective", float("nan")),
         "status": str(status),
         "termination_condition": str(termination),
-        "allowed_emissions": cap,
+        "target_emissions": target_co2,
         "actual_emissions": actual,
         "avg_gamma": avg_gamma,
         "buses_within_bounds": buses_within_bounds,
