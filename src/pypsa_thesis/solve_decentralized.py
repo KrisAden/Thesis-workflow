@@ -203,30 +203,9 @@ def add_load_weighted_capacity_constraints(
     
     logging.info(f"Added {constraint_count} load-weighted capacity constraints")
     
-    # Add reasonable bounds on total renewable capacity to aid solver
-    # Use existing capacity as reference
-    existing_renewable_cap = sum(
-        n.generators.loc[gen, 'p_nom'] for gen in renewable_gens
-        if hasattr(n.generators, 'p_nom_min') and n.generators.loc[gen, 'p_nom_min'] > 0
-    ) if hasattr(n.generators, 'p_nom_min') else 0
-    
-    if existing_renewable_cap == 0:
-        existing_renewable_cap = sum(n.generators.loc[gen, 'p_nom'] for gen in renewable_gens) * 0.1
-    
-    # Set reasonable bounds (allow significant expansion but not unlimited)
-    min_total_capacity = max(existing_renewable_cap, total_system_load * 0.01)  # At least 1% of load
-    max_total_capacity = total_system_load * 3.0  # Up to 3x annual load (reasonable for renewables)
-    
-    n.model.add_constraints(
-        total_renewable_capacity - min_total_capacity >= 0,
-        name="total_renewable_capacity_min"
-    )
-    n.model.add_constraints(
-        total_renewable_capacity - max_total_capacity <= 0, 
-        name="total_renewable_capacity_max"
-    )
-    
-    logging.info(f"Total renewable capacity bounds: [{min_total_capacity:.0f}, {max_total_capacity:.0f}] MW")
+    # Note: Total renewable capacity bounds are handled by individual generator bounds
+    # The load-weighted constraints provide the spatial distribution control we need
+    logging.info("Load-weighted capacity constraints successfully added")
 
 
 # Removed old complex constraint function - replaced with add_simple_nodal_renewable_constraints
