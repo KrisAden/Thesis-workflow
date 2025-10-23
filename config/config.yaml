@@ -42,12 +42,22 @@ parameters:
       floor: 1.0
   co2_reductions: [10]
   decentralization:
-    k_values: [1, 2, 3, 4, 5, 6, 7]  # k values for 1/k <= gamma <= k constraint  
+    k_values: [1, 2, 3, 4, 5, 6, 7]  # k values for load-weighted capacity constraints
     renewable_carriers: ["solar", "onwind", "offwind-ac", "offwind-dc", "ror"]  # carriers considered renewable
-    use_co2_equality: true  # Use CO2 = target instead of CO2 <= target (recommended for cost comparison)
+    use_co2_equality: false  # Use CO2 <= target (recommended with new load-weighted approach)
+    # With load-weighted capacity constraints, inequality is preferred because:
+    # - No over-generation issues (system installs optimal renewable capacity)
+    # - Natural CO₂ target achievement without forced equality
+    # - Set to true only for legacy comparison with old gamma-based approach
+    # NEW LOAD-WEIGHTED APPROACH: (1/K) * ωₙ * R_total ≤ R_cap_n ≤ K * ωₙ * R_total
+    # where ωₙ = load_n / Σ(load_n) are normalized load weights
     # Constraint modes:
-    # - full: 1/k <= gamma <= k (forces both minimum and maximum renewable distribution)
-    # - upper_only: gamma <= k (prevents over-concentration but allows under-deployment)
+    # - full: Apply both lower and upper bounds (forces equitable capacity distribution)
+    # - upper_only: Only upper bound (prevents over-concentration but allows under-deployment)
+    # Benefits vs old gamma approach:
+    # - Eliminates over-generation paradox that required compensatory fossil burning
+    # - Better numerical stability (linear constraints, no ratios)
+    # - Clean cost-equity trade-offs (CO₂ constraint determines total capacity, K controls distribution)
   solve:
     solver: "gurobi"
     solver_options:
