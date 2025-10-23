@@ -178,21 +178,24 @@ def add_load_weighted_capacity_constraints(
         # Add constraints: (1/K) * ωₙ * R_total ≤ R_cap_n ≤ K * ωₙ * R_total
         if upper_bound_only:
             # Only upper bound: R_cap_n ≤ K * ωₙ * R_total
+            # Rearranged: bus_renewable_capacity - k * omega_n * total_renewable_capacity <= 0
             n.model.add_constraints(
-                bus_renewable_capacity <= k * omega_n * total_renewable_capacity,
+                bus_renewable_capacity - k * omega_n * total_renewable_capacity <= 0,
                 name=f"capacity_upper_{bus_clean}"
             )
             constraint_count += 1
             logging.info(f"  Added upper constraint for {bus}: ω={omega_n:.4f}, {len(gens_at_bus)} gens")
         else:
             # Lower bound: R_cap_n ≥ (1/K) * ωₙ * R_total
+            # Rearranged: bus_renewable_capacity - (1/k) * omega_n * total_renewable_capacity >= 0
             n.model.add_constraints(
-                bus_renewable_capacity >= (1.0/k) * omega_n * total_renewable_capacity,
+                bus_renewable_capacity - (1.0/k) * omega_n * total_renewable_capacity >= 0,
                 name=f"capacity_lower_{bus_clean}"
             )
             # Upper bound: R_cap_n ≤ K * ωₙ * R_total  
+            # Rearranged: bus_renewable_capacity - k * omega_n * total_renewable_capacity <= 0
             n.model.add_constraints(
-                bus_renewable_capacity <= k * omega_n * total_renewable_capacity,
+                bus_renewable_capacity - k * omega_n * total_renewable_capacity <= 0,
                 name=f"capacity_upper_{bus_clean}"
             )
             constraint_count += 2
@@ -215,11 +218,11 @@ def add_load_weighted_capacity_constraints(
     max_total_capacity = total_system_load * 3.0  # Up to 3x annual load (reasonable for renewables)
     
     n.model.add_constraints(
-        total_renewable_capacity >= min_total_capacity,
+        total_renewable_capacity - min_total_capacity >= 0,
         name="total_renewable_capacity_min"
     )
     n.model.add_constraints(
-        total_renewable_capacity <= max_total_capacity, 
+        total_renewable_capacity - max_total_capacity <= 0, 
         name="total_renewable_capacity_max"
     )
     
