@@ -2923,25 +2923,39 @@ def plot_mean_price_boxplots(config, output_path, output_formats, dpi=300, has_b
 
 def get_europe_map():
     """Get Europe map data, handling GeoPandas version differences."""
+    # Method 1: Try the old naturalearth_lowres dataset
     try:
-        # Try the old method first for backward compatibility
         world = gpd.read_file(gpd.datasets.get_path('naturalearth_lowres'))
         europe = world[world['continent'] == 'Europe']
-        return europe
+        if len(europe) > 0:
+            return europe
     except (AttributeError, Exception):
-        try:
-            # Create a simple Europe bounding box as fallback
-            print("  → Using simplified Europe bounding box for maps")
-            # Create a simple rectangular background for Europe
-            from shapely.geometry import Polygon
-            
-            # Europe bounding box coordinates
-            europe_bounds = Polygon([(-15, 35), (35, 35), (35, 72), (-15, 72), (-15, 35)])
-            europe_gdf = gpd.GeoDataFrame([1], geometry=[europe_bounds], crs="EPSG:4326")
-            return europe_gdf
-        except Exception as e:
-            print(f"  ⚠️ Could not load map data: {e}")
-            return None
+        pass
+    
+    # Method 2: Try downloading from Natural Earth directly
+    try:
+        print("  → Downloading map data from Natural Earth...")
+        url = "https://www.naturalearthdata.com/http//www.naturalearthdata.com/download/110m/cultural/ne_110m_admin_0_countries.zip"
+        world = gpd.read_file(url)
+        europe = world[world['CONTINENT'] == 'Europe']
+        if len(europe) > 0:
+            print("  ✓ Successfully downloaded Europe map")
+            return europe
+    except Exception as e:
+        print(f"  ⚠️ Could not download from Natural Earth: {e}")
+    
+    # Method 3: Create a simple Europe bounding box as fallback
+    try:
+        print("  → Using simplified Europe bounding box for maps")
+        from shapely.geometry import Polygon
+        
+        # Europe bounding box coordinates
+        europe_bounds = Polygon([(-15, 35), (35, 35), (35, 72), (-15, 72), (-15, 35)])
+        europe_gdf = gpd.GeoDataFrame([{'name': 'Europe Box'}], geometry=[europe_bounds], crs="EPSG:4326")
+        return europe_gdf
+    except Exception as e:
+        print(f"  ⚠️ Could not create bounding box: {e}")
+        return None
 
 
 def get_carrier_color_map():

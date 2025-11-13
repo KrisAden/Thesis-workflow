@@ -1,0 +1,73 @@
+This is BibTeX, Version 0.99d (TeX Live 2025)
+Capacity: max_strings=200000, hash_size=200000, hash_prime=170003
+The top-level auxiliary file: elsarticle-template-num.aux
+The style file: elsarticle-num.bst
+Database file #1: Sources.bib
+Warning--entry type for "ParisAgreementUNFCCC" isn't style-file defined
+--line 1 of file Sources.bib
+Warning--entry type for "ScaleRussianSabotage" isn't style-file defined
+--line 70 of file Sources.bib
+Warning--entry type for "GNUGeneralPublic" isn't style-file defined
+--line 79 of file Sources.bib
+Warning--entry type for "horschPyPSAEurOpenOptimisation2023" isn't style-file defined
+--line 110 of file Sources.bib
+Warning--entry type for "UCloudUserGuide" isn't style-file defined
+--line 122 of file Sources.bib
+Warning--entry type for "BarrierLoggingGurobi" isn't style-file defined
+--line 128 of file Sources.bib
+Warning--empty year in ParisAgreementUNFCCC
+Warning--empty journal in rodriguezCostoptimalDesignSimplified2015a
+Warning--empty year in rodriguezCostoptimalDesignSimplified2015a
+Warning--empty journal in pfenningerEnergySystemsModeling2014
+Warning--empty year in pfenningerEnergySystemsModeling2014
+Warning--empty journal in henkeComparingEnergySystem2024
+Warning--empty year in henkeComparingEnergySystem2024
+Warning--empty journal in eriksenOptimalHeterogeneitySimplified2017a
+Warning--empty year in eriksenOptimalHeterogeneitySimplified2017a
+Warning--empty year in ScaleRussianSabotage
+Warning--empty year in GNUGeneralPublic
+Warning--empty year in horschPyPSAEurOpenOptimisation2023
+Warning--empty year in UCloudUserGuide
+Warning--empty year in BarrierLoggingGurobi
+You've used 12 entries,
+            2952 wiz_defined-function locations,
+            747 strings with 8309 characters,
+and the built_in function-call counts, 3431 in all, are:
+= -- 287
+> -- 144
+< -- 0
++ -- 56
+- -- 44
+* -- 307
+:= -- 478
+add.period$ -- 19
+call.type$ -- 12
+change.case$ -- 12
+chr.to.int$ -- 0
+cite$ -- 26
+duplicate$ -- 105
+empty$ -- 381
+format.name$ -- 51
+if$ -- 855
+int.to.chr$ -- 0
+int.to.str$ -- 12
+missing$ -- 6
+newline$ -- 61
+num.names$ -- 7
+pop$ -- 87
+preamble$ -- 1
+purify$ -- 0
+quote$ -- 0
+skip$ -- 197
+stack$ -- 0
+substring$ -- 100
+swap$ -- 30
+text.length$ -- 0
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 0
+warning$ -- 14
+while$ -- 16
+width$ -- 14
+write$ -- 109
+(There were 20 warnings)

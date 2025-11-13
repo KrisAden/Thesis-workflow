@@ -1,0 +1,61 @@
+\begin{thebibliography}{10}
+\expandafter\ifx\csname url\endcsname\relax
+  \def\url#1{\texttt{#1}}\fi
+\expandafter\ifx\csname urlprefix\endcsname\relax\def\urlprefix{URL }\fi
+\expandafter\ifx\csname href\endcsname\relax
+  \def\href#1#2{#2} \def\path#1{#1}\fi
+
+\bibitem{ParisAgreementUNFCCC}
+\href{https://unfccc.int/process-and-meetings/the-paris-agreement}{The {{Paris Agreement}} | {{UNFCCC}}}.
+\newline\urlprefix\url{https://unfccc.int/process-and-meetings/the-paris-agreement}
+
+\bibitem{rodriguezCostoptimalDesignSimplified2015a}
+R.~A. Rodriguez, S.~Becker, M.~Greiner, \href{https://www.sciencedirect.com/science/article/pii/S0360544215002212}{Cost-optimal design of a simplified, highly renewable pan-{{European}} electricity system} 83  658--668.
+\newblock \href {https://doi.org/10.1016/j.energy.2015.02.066} {\path{doi:10.1016/j.energy.2015.02.066}}.
+\newline\urlprefix\url{https://www.sciencedirect.com/science/article/pii/S0360544215002212}
+
+\bibitem{pfenningerEnergySystemsModeling2014}
+S.~Pfenninger, A.~Hawkes, J.~Keirstead, \href{https://www.sciencedirect.com/science/article/pii/S1364032114000872}{Energy systems modeling for twenty-first century energy challenges} 33  74--86.
+\newblock \href {https://doi.org/10.1016/j.rser.2014.02.003} {\path{doi:10.1016/j.rser.2014.02.003}}.
+\newline\urlprefix\url{https://www.sciencedirect.com/science/article/pii/S1364032114000872}
+
+\bibitem{henkeComparingEnergySystem2024}
+H.~Henke, M.~Dekker, F.~Lombardi, R.~Pietzcker, P.~Fragkos, B.~Zakeri, R.~Rodrigues, J.~Sitarz, J.~Emmerling, A.~Fattahi, F.~Dalla~Longa, I.~Tatarewicz, T.~Fotiou, M.~Lewarski, D.~Huppmann, K.~Kavvadias, B.~Zwaan, W.~Usher, Comparing energy system optimization models and integrated assessment models: {{Relevance}} for energy policy advice 3  69.
+\newblock \href {https://doi.org/10.12688/openreseurope.15590.2} {\path{doi:10.12688/openreseurope.15590.2}}.
+
+\bibitem{eriksenOptimalHeterogeneitySimplified2017a}
+E.~H. Eriksen, L.~J. Schwenk-Nebbe, B.~Tranberg, T.~Brown, M.~Greiner, \href{https://www.sciencedirect.com/science/article/pii/S0360544217309593}{Optimal heterogeneity in a simplified highly renewable {{European}} electricity system} 133  913--928.
+\newblock \href {https://doi.org/10.1016/j.energy.2017.05.170} {\path{doi:10.1016/j.energy.2017.05.170}}.
+\newline\urlprefix\url{https://www.sciencedirect.com/science/article/pii/S0360544217309593}
+
+\bibitem{ScaleRussianSabotage}
+\href{https://www.iiss.org/research-paper/2025/08/the-scale-of-russian--sabotage-operations--against-europes-critical--infrastructure/}{The {{Scale}} of {{Russian Sabotage Operations Against Europe}}’s {{Critical Infrastructure}}}.
+\newline\urlprefix\url{https://www.iiss.org/research-paper/2025/08/the-scale-of-russian--sabotage-operations--against-europes-critical--infrastructure/}
+
+\bibitem{GNUGeneralPublic}
+\href{https://opensource.org/license/gpl-2-0/}{{{GNU General Public License}} version 2}.
+\newline\urlprefix\url{https://opensource.org/license/gpl-2-0/}
+
+\bibitem{PyPSA}
+T.~Brown, J.~H\"orsch, D.~Schlachtberger, \href{https://doi.org/10.5334/jors.188}{{PyPSA: Python for Power System Analysis}}, Journal of Open Research Software 6~(4) (2018).
+\newblock \href {http://arxiv.org/abs/1707.09913} {\path{arXiv:1707.09913}}, \href {https://doi.org/10.5334/jors.188} {\path{doi:10.5334/jors.188}}.
+\newline\urlprefix\url{https://doi.org/10.5334/jors.188}
+
+\bibitem{PyPSAEur}
+J.~Hoersch, F.~Hofmann, D.~Schlachtberger, T.~Brown, Pypsa-eur: An open optimisation model of the european transmission system, Energy Strategy Reviews 22 (2018) 207--215.
+\newblock \href {http://arxiv.org/abs/1806.01613} {\path{arXiv:1806.01613}}, \href {https://doi.org/10.1016/j.esr.2018.08.012} {\path{doi:10.1016/j.esr.2018.08.012}}.
+
+\bibitem{horschPyPSAEurOpenOptimisation2023}
+J.~Hörsch, F.~Neumann, F.~Hofmann, D.~Schlachtberger, M.~Frysztacki, J.~Hampp, P.~Glaum, T.~Brown, \href{https://zenodo.org/records/7646728}{{{PyPSA-Eur}}: {{An Open Optimisation Model}} of the {{European Transmission System}} ({{Dataset}})}.
+\newblock \href {https://doi.org/10.5281/zenodo.7646728} {\path{doi:10.5281/zenodo.7646728}}.
+\newline\urlprefix\url{https://zenodo.org/records/7646728}
+
+\bibitem{UCloudUserGuide}
+\href{https://docs.cloud.sdu.dk/index.html}{{{UCloud User Guide}} — {{UCloud}}}.
+\newline\urlprefix\url{https://docs.cloud.sdu.dk/index.html}
+
+\bibitem{BarrierLoggingGurobi}
+\href{https://docs.gurobi.com/projects/optimizer/en/current/concepts/logging/barrier.html}{Barrier {{Logging}} - {{Gurobi Optimizer Reference Manual}}}.
+\newline\urlprefix\url{https://docs.gurobi.com/projects/optimizer/en/current/concepts/logging/barrier.html}
+
+\end{thebibliography}
