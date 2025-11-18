@@ -2786,6 +2786,126 @@ def plot_electricity_cost_comparison(config, output_path, output_formats, dpi=30
         print("\nNote: Gap represents annualized capital cost recovery not captured in marginal pricing.")
 
 
+def plot_demand_weighted_marginal_prices(config, output_path, output_formats, dpi=300, has_baseline=True):
+    """Plot demand-weighted average marginal prices across decarbonization levels.
+    
+    This shows how the economically relevant electricity price (weighted by actual consumption)
+    evolves with decarbonization, capturing the merit order effect and scarcity pricing.
+    """
+    print("Creating demand-weighted marginal price plot...")
+    
+    if not pypsa:
+        print("PyPSA not available - skipping demand-weighted price plot")
+        return
+    
+    # Load networks
+    networks_by_percent = load_networks_from_results(config, has_baseline)
+    
+    if not networks_by_percent:
+        print("No networks found - cannot create plot")
+        return
+    
+    # Calculate demand-weighted marginal prices
+    print("  → Calculating demand-weighted marginal prices...")
+    demand_weighted_prices = calculate_demand_weighted_prices_by_level(networks_by_percent)
+    
+    if not demand_weighted_prices:
+        print("No demand-weighted price data - cannot create plot")
+        return
+    
+    # Prepare data for plotting
+    levels = sorted(demand_weighted_prices.keys())
+    prices = [demand_weighted_prices[level] for level in levels]
+    
+    # Create the plot
+    fig, ax = plt.subplots(figsize=(12, 8))
+    
+    # Set font properties
+    font = {'fontsize': 12, 'fontweight': 'bold'}
+    
+    # Plot the demand-weighted price curve
+    ax.plot(levels, prices, 'o-', label='Demand-weighted Marginal Price', 
+            color='tab:cyan', linewidth=2.5, markersize=10)
+    
+    # Add horizontal line at baseline if available
+    if 0 in levels:
+        baseline_price = demand_weighted_prices[0]
+        ax.axhline(baseline_price, color='gray', linewidth=1.5, linestyle='--', 
+                  label=f'Baseline: {baseline_price:.1f} €/MWh', alpha=0.7)
+    
+    # Find and annotate the minimum price point
+    min_idx = np.argmin(prices)
+    min_level = levels[min_idx]
+    min_price = prices[min_idx]
+    ax.plot(min_level, min_price, 'r*', markersize=20, label=f'Minimum: {min_price:.1f} €/MWh at {min_level}%')
+    
+    # Add annotation for the minimum
+    ax.annotate(f'Lowest price\n{min_price:.1f} €/MWh', 
+               xy=(min_level, min_price),
+               xytext=(min_level - 15, min_price - 5),
+               fontsize=10, ha='center', va='top',
+               bbox=dict(boxstyle="round,pad=0.5", facecolor="yellow", alpha=0.8),
+               arrowprops=dict(arrowstyle='->', color='red', lw=2))
+    
+    # Calculate and show price change from baseline to 100%
+    if 0 in levels and 100 in levels:
+        baseline = demand_weighted_prices[0]
+        final = demand_weighted_prices[100]
+        change = final - baseline
+        change_pct = (change / baseline) * 100
+        
+        ax.annotate(f'Total change:\n+{change:.1f} €/MWh\n(+{change_pct:.1f}%)', 
+                   xy=(100, final),
+                   xytext=(85, (baseline + final) / 2),
+                   fontsize=10, ha='center', va='center',
+                   bbox=dict(boxstyle="round,pad=0.5", facecolor="lightcoral", alpha=0.8),
+                   arrowprops=dict(arrowstyle='->', color='darkred', lw=1.5))
+    
+    ax.set_xlabel("CO₂ Reduction (%)", **font)
+    ax.set_ylabel("Demand-Weighted Marginal Price (€/MWh)", **font)
+    ax.set_title("Demand-Weighted Marginal Electricity Prices\nAcross Decarbonization Pathway", **font)
+    ax.grid(True, alpha=0.3)
+    ax.legend(fontsize=10, loc='best')
+    
+    plt.tight_layout()
+    
+    # Save in all requested formats
+    for fmt in output_formats:
+        output_file = output_path / f"demand_weighted_marginal_prices.{fmt}"
+        fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+        print(f"  ✓ Saved demand-weighted price plot as {output_file}")
+    
+    plt.close(fig)
+    
+    # Print summary statistics
+    print("\n=== DEMAND-WEIGHTED MARGINAL PRICE SUMMARY ===")
+    print(f"{'Level (%)':<12} {'Price (€/MWh)':<18} {'Change from Baseline':<25}")
+    print("-" * 60)
+    
+    baseline_val = demand_weighted_prices.get(0, None)
+    for level in levels:
+        price = demand_weighted_prices[level]
+        if baseline_val is not None and level > 0:
+            change = price - baseline_val
+            change_pct = (change / baseline_val) * 100
+            change_str = f"{change:+.2f} €/MWh ({change_pct:+.1f}%)"
+        else:
+            change_str = "Baseline" if level == 0 else "N/A"
+        print(f"{level:<12} {price:>16.2f}  {change_str:<25}")
+    
+    # Identify key transition points
+    print("\n=== KEY OBSERVATIONS ===")
+    if min_level > 0:
+        savings = baseline_val - min_price if baseline_val else 0
+        print(f"Merit order effect: Prices decrease by {savings:.2f} €/MWh from baseline to {min_level}%")
+        print(f"This represents early displacement of expensive fossil generation by cheap renewables")
+    
+    if 100 in levels and baseline_val:
+        high_decarb_increase = demand_weighted_prices[100] - min_price
+        print(f"\nHigh decarbonization challenge: Prices increase by {high_decarb_increase:.2f} €/MWh")
+        print(f"from minimum ({min_level}%) to 100% due to integration costs and scarcity events")
+
+
 def plot_mean_price_bellcurve(config, output_path, output_formats, dpi=300, has_baseline=True):
     """Plot mean marginal prices by region in bell curve arrangement for each CO₂ reduction level.
     
@@ -4151,6 +4271,7 @@ def main():
         "total_renewable_capacity": lambda: plot_total_renewable_capacity(config, output_path, output_formats, dpi, args.has_baseline),
         "electricity_cost": lambda: plot_electricity_cost(config, output_path, output_formats, dpi, args.has_baseline),
         "electricity_cost_comparison": lambda: plot_electricity_cost_comparison(config, output_path, output_formats, dpi, args.has_baseline),
+        "demand_weighted_marginal_prices": lambda: plot_demand_weighted_marginal_prices(config, output_path, output_formats, dpi, args.has_baseline),
         "generation_mix_actual": lambda: plot_generation_mix_actual(config, output_path, output_formats, dpi, args.has_baseline),
         "renewable_penetration_boxplots": lambda: plot_renewable_penetration_boxplots(config, output_path, output_formats, dpi, args.has_baseline),
         "renewable_penetration_stacked_bars": lambda: plot_renewable_penetration_stacked_bars(config, output_path, output_formats, dpi, args.has_baseline),
