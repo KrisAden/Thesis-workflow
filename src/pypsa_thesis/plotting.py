@@ -2566,6 +2566,87 @@ def calculate_mean_prices_by_level(df_marginal_prices):
     return mean_prices_by_level
 
 
+def calculate_demand_weighted_prices_by_level(networks_by_percent):
+    """Calculate demand-weighted average marginal prices for each decarbonization level.
+    
+    This function computes the average marginal price weighted by demand at each snapshot,
+    providing a more economically meaningful average price that reflects when energy is consumed.
+    
+    NOTE: These are marginal prices only - they do NOT include capital cost recovery.
+    """
+    demand_weighted_prices = {}
+    
+    for co2_pct, net in networks_by_percent.items():
+        try:
+            # Get marginal prices
+            prices = net.buses_t.marginal_price
+            
+            # Get loads (demand) for each bus
+            loads = net.loads_t.p
+            
+            # Get snapshot weights
+            if hasattr(net, 'snapshot_weightings'):
+                weights = net.snapshot_weightings
+                if hasattr(weights, 'generators'):
+                    weights = weights.generators
+                elif isinstance(weights, pd.DataFrame) and 'generators' in weights.columns:
+                    weights = weights['generators']
+                else:
+                    weights = pd.Series(1.0, index=net.snapshots)
+            else:
+                weights = pd.Series(1.0, index=net.snapshots)
+            
+            # Map loads to their bus prices and calculate weighted average
+            # For each snapshot, calculate the system-wide demand-weighted price
+            bus_to_load = {}
+            for load_name, load_info in net.loads.iterrows():
+                bus = load_info['bus']
+                if bus not in bus_to_load:
+                    bus_to_load[bus] = []
+                bus_to_load[bus].append(load_name)
+            
+            # Calculate demand-weighted price for each snapshot
+            snapshot_weighted_prices = []
+            snapshot_total_demands = []
+            
+            for snapshot in net.snapshots:
+                total_demand = 0
+                weighted_price_sum = 0
+                
+                for bus in prices.columns:
+                    if bus in bus_to_load:
+                        # Sum demand at this bus
+                        bus_demand = sum(loads.loc[snapshot, load] for load in bus_to_load[bus] if load in loads.columns)
+                        bus_price = prices.loc[snapshot, bus]
+                        
+                        total_demand += bus_demand
+                        weighted_price_sum += bus_demand * bus_price
+                
+                if total_demand > 0:
+                    snapshot_weighted_prices.append(weighted_price_sum / total_demand)
+                    snapshot_total_demands.append(total_demand)
+            
+            # Calculate overall demand-weighted average across all snapshots
+            if snapshot_total_demands:
+                total_weighted_price_sum = sum(
+                    price * demand * weights.iloc[i] 
+                    for i, (price, demand) in enumerate(zip(snapshot_weighted_prices, snapshot_total_demands))
+                )
+                total_demand = sum(demand * weights.iloc[i] for i, demand in enumerate(snapshot_total_demands))
+                
+                demand_weighted_price = total_weighted_price_sum / total_demand if total_demand > 0 else np.nan
+                demand_weighted_prices[co2_pct] = demand_weighted_price
+                
+                print(f"  ✓ Calculated demand-weighted marginal price for {co2_pct}% reduction: {demand_weighted_price:.2f} €/MWh")
+            else:
+                print(f"⚠️ No valid snapshots for {co2_pct}% reduction")
+                
+        except Exception as e:
+            print(f"⚠️ Error calculating demand-weighted price for {co2_pct}%: {e}")
+    
+    return demand_weighted_prices
+
+
 def plot_electricity_cost_comparison(config, output_path, output_formats, dpi=300, has_baseline=True):
     """Plot comparison between marginal prices and full system costs (including capital recovery)."""
     print("Creating electricity cost comparison plot (marginal vs. full system cost)...")
@@ -2588,6 +2669,9 @@ def plot_electricity_cost_comparison(config, output_path, output_formats, dpi=30
     print("  → Calculating average system costs...")
     system_costs = collect_average_system_costs_by_level(networks_by_percent)
     
+    print("  → Calculating demand-weighted marginal prices...")
+    demand_weighted_marginal_prices = calculate_demand_weighted_prices_by_level(networks_by_percent)
+    
     if df_marginal_prices is None or not system_costs:
         print("Insufficient data - cannot create comparison plot")
         return
@@ -2599,6 +2683,7 @@ def plot_electricity_cost_comparison(config, output_path, output_formats, dpi=30
     # Prepare data for plotting
     levels = []
     marginal_prices = []
+    demand_weighted_prices = []
     avg_system_costs = []
     
     for level in sorted(system_costs.keys()):
@@ -2606,6 +2691,10 @@ def plot_electricity_cost_comparison(config, output_path, output_formats, dpi=30
             levels.append(level)
             marginal_prices.append(overall_marginal_by_level[level])
             avg_system_costs.append(system_costs[level]['avg_cost_per_mwh'])
+            if level in demand_weighted_marginal_prices:
+                demand_weighted_prices.append(demand_weighted_marginal_prices[level])
+            else:
+                demand_weighted_prices.append(np.nan)
     
     if not levels:
         print("No matching data for comparison - cannot create plot")
@@ -2617,21 +2706,23 @@ def plot_electricity_cost_comparison(config, output_path, output_formats, dpi=30
     # Set font properties
     font = {'fontsize': 12, 'fontweight': 'bold'}
     
-    # Plot both price series
-    ax.plot(levels, marginal_prices, 'o-', label='Marginal Prices (Short-run)', 
+    # Plot all price series
+    ax.plot(levels, marginal_prices, 'o-', label='Marginal Prices (Spatial avg.)', 
             color='tab:blue', linewidth=2, markersize=8)
+    ax.plot(levels, demand_weighted_prices, '^-', label='Marginal Prices (Demand-weighted)', 
+            color='tab:cyan', linewidth=2, markersize=8)
     ax.plot(levels, avg_system_costs, 's-', label='Average System Cost (Full cost incl. capital)', 
             color='tab:red', linewidth=2, markersize=8)
     
-    # Fill area between curves to show missing capital cost component
-    ax.fill_between(levels, marginal_prices, avg_system_costs, alpha=0.3, 
+    # Fill area between demand-weighted marginal and full system cost
+    ax.fill_between(levels, demand_weighted_prices, avg_system_costs, alpha=0.3, 
                    color='orange', label='Missing Capital Cost Recovery')
     
     ax.set_xlabel("CO₂ Reduction (%)", **font)
     ax.set_ylabel("Electricity Price (€/MWh)", **font)
     ax.set_title("Electricity Pricing: Marginal Cost vs. Full System Cost\n(Demonstrates Missing Capital Cost Recovery)", **font)
     ax.grid(True, alpha=0.3)
-    ax.legend(fontsize=10)
+    ax.legend(fontsize=10, loc='best')
     
     # Add text annotation explaining the difference
     if len(levels) > 0:
@@ -2660,17 +2751,39 @@ def plot_electricity_cost_comparison(config, output_path, output_formats, dpi=30
     
     # Print summary statistics
     print("\n=== ELECTRICITY PRICING ANALYSIS SUMMARY ===")
+    print(f"{'Level':<8} {'Marginal (Spatial)':<20} {'Marginal (Demand-wtd)':<23} {'Full Cost':<15} {'Gap':<20}")
+    print(f"{'(%)':<8} {'(€/MWh)':<20} {'(€/MWh)':<23} {'(€/MWh)':<15} {'(€/MWh, %)':<20}")
+    print("-" * 100)
+    
     for i, level in enumerate(levels):
-        gap = avg_system_costs[i] - marginal_prices[i]
-        gap_pct = (gap / avg_system_costs[i]) * 100
-        print(f"{level:3.0f}% reduction: Marginal {marginal_prices[i]:5.1f} €/MWh | "
-              f"Full cost {avg_system_costs[i]:5.1f} €/MWh | Gap {gap:5.1f} €/MWh ({gap_pct:4.1f}%)")
+        gap_spatial = avg_system_costs[i] - marginal_prices[i]
+        gap_pct_spatial = (gap_spatial / avg_system_costs[i]) * 100
+        
+        if not np.isnan(demand_weighted_prices[i]):
+            gap_demand = avg_system_costs[i] - demand_weighted_prices[i]
+            gap_pct_demand = (gap_demand / avg_system_costs[i]) * 100
+            print(f"{level:<8.0f} {marginal_prices[i]:<20.2f} {demand_weighted_prices[i]:<23.2f} "
+                  f"{avg_system_costs[i]:<15.2f} {gap_demand:<8.2f} ({gap_pct_demand:<.1f}%)")
+        else:
+            print(f"{level:<8.0f} {marginal_prices[i]:<20.2f} {'N/A':<23} "
+                  f"{avg_system_costs[i]:<15.2f} {gap_spatial:<8.2f} ({gap_pct_spatial:<.1f}%)")
     
     if levels:
+        # Calculate averages for demand-weighted prices where available
+        valid_demand_weighted = [p for p in demand_weighted_prices if not np.isnan(p)]
+        if valid_demand_weighted:
+            avg_demand_weighted = np.mean(valid_demand_weighted)
+            avg_gap_demand = np.mean([avg_system_costs[i] - demand_weighted_prices[i] 
+                                     for i in range(len(levels)) if not np.isnan(demand_weighted_prices[i])])
+            avg_gap_pct_demand = np.mean([(avg_system_costs[i] - demand_weighted_prices[i]) / avg_system_costs[i] * 100 
+                                          for i in range(len(levels)) if not np.isnan(demand_weighted_prices[i])])
+            print(f"\nAverage demand-weighted marginal price: {avg_demand_weighted:.2f} €/MWh")
+            print(f"Average capital cost gap (demand-weighted): {avg_gap_demand:.1f} €/MWh ({avg_gap_pct_demand:.1f}% of total cost)")
+        
         avg_gap = np.mean([avg_system_costs[i] - marginal_prices[i] for i in range(len(levels))])
         avg_gap_pct = np.mean([(avg_system_costs[i] - marginal_prices[i]) / avg_system_costs[i] * 100 for i in range(len(levels))])
-        print(f"\nAverage capital cost gap: {avg_gap:.1f} €/MWh ({avg_gap_pct:.1f}% of total cost)")
-        print("This gap represents annualized capital cost recovery not captured in marginal pricing.")
+        print(f"Average capital cost gap (spatial avg.): {avg_gap:.1f} €/MWh ({avg_gap_pct:.1f}% of total cost)")
+        print("\nNote: Gap represents annualized capital cost recovery not captured in marginal pricing.")
 
 
 def plot_mean_price_bellcurve(config, output_path, output_formats, dpi=300, has_baseline=True):
