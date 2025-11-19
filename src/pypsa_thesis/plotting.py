@@ -2605,41 +2605,40 @@ def calculate_demand_weighted_prices_by_level(networks_by_percent):
                     bus_to_load[bus] = []
                 bus_to_load[bus].append(load_name)
             
-            # Calculate demand-weighted price for each snapshot
-            snapshot_weighted_prices = []
-            snapshot_total_demands = []
+            # Calculate demand-weighted price for each snapshot (VECTORIZED for speed)
+            # Create DataFrame with loads aggregated by bus
+            load_by_bus = pd.DataFrame(0.0, index=net.snapshots, columns=net.buses.index)
             
-            for snapshot in net.snapshots:
-                total_demand = 0
-                weighted_price_sum = 0
-                
-                for bus in prices.columns:
-                    if bus in bus_to_load:
-                        # Sum demand at this bus
-                        bus_demand = sum(loads.loc[snapshot, load] for load in bus_to_load[bus] if load in loads.columns)
-                        bus_price = prices.loc[snapshot, bus]
-                        
-                        total_demand += bus_demand
-                        weighted_price_sum += bus_demand * bus_price
-                
-                if total_demand > 0:
-                    snapshot_weighted_prices.append(weighted_price_sum / total_demand)
-                    snapshot_total_demands.append(total_demand)
+            for load_id in loads.columns:
+                if load_id in net.loads.index:
+                    bus = net.loads.loc[load_id, 'bus']
+                    load_by_bus[bus] += loads[load_id]
             
-            # Calculate overall demand-weighted average across all snapshots
-            if snapshot_total_demands:
-                total_weighted_price_sum = sum(
-                    price * demand * weights.iloc[i] 
-                    for i, (price, demand) in enumerate(zip(snapshot_weighted_prices, snapshot_total_demands))
-                )
-                total_demand = sum(demand * weights.iloc[i] for i, demand in enumerate(snapshot_total_demands))
-                
-                demand_weighted_price = total_weighted_price_sum / total_demand if total_demand > 0 else np.nan
-                demand_weighted_prices[co2_pct] = demand_weighted_price
-                
-                print(f"  ✓ Calculated demand-weighted marginal price for {co2_pct}% reduction: {demand_weighted_price:.2f} €/MWh")
-            else:
-                print(f"⚠️ No valid snapshots for {co2_pct}% reduction")
+            # Only keep buses that have loads and marginal prices
+            common_buses = load_by_bus.columns.intersection(prices.columns)
+            load_by_bus = load_by_bus[common_buses]
+            prices_by_bus = prices[common_buses]
+            
+            # Calculate load-weighted price for each snapshot (vectorized)
+            total_load_per_snapshot = load_by_bus.sum(axis=1)
+            weighted_price_per_snapshot = (prices_by_bus * load_by_bus).sum(axis=1)
+            
+            # Avoid division by zero
+            valid_snapshots = total_load_per_snapshot > 0
+            avg_price_per_snapshot = weighted_price_per_snapshot[valid_snapshots] / total_load_per_snapshot[valid_snapshots]
+            
+            # Time-weighted average across snapshots (using proper index alignment)
+            demand_weighted_price = (avg_price_per_snapshot * weights[valid_snapshots]).sum() / weights[valid_snapshots].sum()
+            demand_weighted_prices[co2_pct] = demand_weighted_price
+            
+            # Print diagnostic information
+            price_min = avg_price_per_snapshot.min()
+            price_max = avg_price_per_snapshot.max()
+            price_median = avg_price_per_snapshot.median()
+            negative_pct = (avg_price_per_snapshot < 0).sum() / len(avg_price_per_snapshot) * 100
+            
+            print(f"  ✓ {co2_pct}% reduction: {demand_weighted_price:.2f} €/MWh")
+            print(f"     Range: [{price_min:.2f}, {price_max:.2f}] | Median: {price_median:.2f} | Negative: {negative_pct:.1f}%")
                 
         except Exception as e:
             print(f"⚠️ Error calculating demand-weighted price for {co2_pct}%: {e}")
