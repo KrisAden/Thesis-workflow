@@ -2068,6 +2068,180 @@ and ECONOMICALLY EFFICIENT in electricity markets.
     print(f"   because they produce cheaply but sell at the marginal (gas) price.")
 
 
+def analyze_marginal_price_setters(config, output_path, output_formats, dpi=300, has_baseline=True):
+    """Analyze which generators/technologies are setting marginal prices at each timestep."""
+    print("Analyzing marginal price setters...")
+    
+    if not pypsa:
+        print("PyPSA not available - skipping marginal price setter analysis")
+        return
+    
+    # Load networks
+    networks_by_percent = load_networks_from_results(config, has_baseline)
+    if not networks_by_percent:
+        print("No networks loaded - cannot analyze price setters")
+        return
+    
+    # Get snapshot weights
+    first_network = next(iter(networks_by_percent.values()))
+    weights = first_network.snapshot_weightings['generators'].copy()
+    
+    # Initialize storage for results
+    results = {}
+    
+    for level, network in networks_by_percent.items():
+        print(f"  Analyzing {level}% CO₂ reduction...")
+        
+        # Get marginal prices at each bus/timestep
+        marginal_prices = network.buses_t.marginal_price.copy()
+        
+        # Get generation and map generators to buses
+        generation = network.generators_t.p.copy()
+        gen_buses = network.generators.bus
+        
+        # For each timestep, identify which generators are likely setting the price
+        # A generator sets the price if: (1) it's producing, (2) its bus price matches its marginal cost
+        gen_marginal_costs = network.generators.marginal_cost
+        
+        # Map each generator's marginal cost to each timestep
+        # Check which generators are producing AND have marginal cost close to their bus's marginal price
+        price_setters = {}
+        
+        for snapshot in network.snapshots:
+            # Get the weighted average marginal price for this timestep
+            bus_prices = marginal_prices.loc[snapshot]
+            avg_price = (bus_prices * weights.loc[snapshot]).sum() / weights.loc[snapshot].sum() if weights.loc[snapshot].sum() > 0 else 0
+            
+            # Find generators producing at this timestep
+            producing_gens = generation.loc[snapshot][generation.loc[snapshot] > 0.1]  # >0.1 MW threshold
+            
+            if len(producing_gens) == 0:
+                continue
+            
+            # For each producing generator, check if its marginal cost is close to bus price
+            for gen_name in producing_gens.index:
+                gen_mc = gen_marginal_costs.loc[gen_name]
+                gen_bus = gen_buses.loc[gen_name]
+                bus_price = marginal_prices.loc[snapshot, gen_bus]
+                
+                # If generator's marginal cost is within 5 €/MWh of bus price, it's likely setting the price
+                if abs(bus_price - gen_mc) < 5.0:
+                    gen_carrier = network.generators.loc[gen_name, 'carrier']
+                    if gen_carrier not in price_setters:
+                        price_setters[gen_carrier] = {
+                            'count': 0,
+                            'weighted_count': 0,
+                            'avg_price': []
+                        }
+                    price_setters[gen_carrier]['count'] += 1
+                    price_setters[gen_carrier]['weighted_count'] += weights.loc[snapshot]
+                    price_setters[gen_carrier]['avg_price'].append(bus_price)
+        
+        # Calculate percentages and averages
+        total_weighted = sum(ps['weighted_count'] for ps in price_setters.values())
+        
+        carrier_stats = {}
+        for carrier, stats in price_setters.items():
+            carrier_stats[carrier] = {
+                'hours': stats['count'],
+                'weighted_share': (stats['weighted_count'] / total_weighted * 100) if total_weighted > 0 else 0,
+                'avg_marginal_price': np.mean(stats['avg_price']) if stats['avg_price'] else 0
+            }
+        
+        results[level] = carrier_stats
+    
+    # Create visualization
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(14, 10))
+    
+    font = {'fontsize': 12, 'fontweight': 'bold'}
+    
+    # Prepare data for stacked bar chart
+    levels = sorted(results.keys())
+    all_carriers = sorted(set(carrier for level_data in results.values() for carrier in level_data.keys()))
+    
+    # Color map for different technologies
+    color_map = {
+        'OCGT': '#8B4513',
+        'CCGT': '#CD853F',
+        'coal': '#2F4F4F',
+        'lignite': '#696969',
+        'nuclear': '#FF1493',
+        'gas': '#FFA500',
+        'oil': '#000000',
+        'H2': '#9370DB',
+        'battery': '#FFD700',
+        'load': '#FF0000',  # Load shedding
+    }
+    
+    # ========================================================================
+    # TOP PLOT: Weighted share of price-setting by technology
+    # ========================================================================
+    bottom = np.zeros(len(levels))
+    
+    for carrier in all_carriers:
+        shares = [results[lvl].get(carrier, {}).get('weighted_share', 0) for lvl in levels]
+        color = color_map.get(carrier, '#808080')
+        ax1.bar(levels, shares, bottom=bottom, label=carrier, color=color, alpha=0.8, edgecolor='white', linewidth=0.5)
+        bottom += shares
+    
+    ax1.set_xlabel("CO₂ Reduction (%)", **font)
+    ax1.set_ylabel("Price-Setting Share (%)", **font)
+    ax1.set_title("Which Technologies Set Marginal Prices (Weighted by Demand)", **font)
+    ax1.grid(True, alpha=0.3, axis='y')
+    ax1.legend(fontsize=9, loc='upper left', ncol=2)
+    ax1.set_ylim([0, 100])
+    
+    # ========================================================================
+    # BOTTOM PLOT: Average marginal price when each technology sets price
+    # ========================================================================
+    carrier_colors = {}
+    for carrier in all_carriers:
+        avg_prices = []
+        for lvl in levels:
+            if carrier in results[lvl]:
+                avg_prices.append(results[lvl][carrier]['avg_marginal_price'])
+            else:
+                avg_prices.append(np.nan)
+        
+        color = color_map.get(carrier, '#808080')
+        carrier_colors[carrier] = color
+        ax2.plot(levels, avg_prices, 'o-', label=carrier, color=color, 
+                linewidth=2, markersize=8, alpha=0.8)
+    
+    ax2.set_xlabel("CO₂ Reduction (%)", **font)
+    ax2.set_ylabel("Marginal Price When Setting (€/MWh)", **font)
+    ax2.set_title("Marginal Price Level by Price-Setting Technology", **font)
+    ax2.grid(True, alpha=0.3)
+    ax2.legend(fontsize=9, loc='best', ncol=2)
+    
+    plt.tight_layout()
+    
+    # Save in all requested formats
+    for fmt in output_formats:
+        output_file = output_path / f"marginal_price_setters.{fmt}"
+        fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+        print(f"  ✓ Saved price setter analysis as {output_file}")
+    
+    plt.close(fig)
+    
+    # Print detailed summary
+    print("\n=== MARGINAL PRICE SETTER ANALYSIS ===")
+    for level in levels:
+        print(f"\n--- {level}% CO₂ Reduction ---")
+        level_data = results[level]
+        # Sort by weighted share
+        sorted_carriers = sorted(level_data.items(), 
+                                key=lambda x: x[1]['weighted_share'], 
+                                reverse=True)
+        
+        print(f"{'Technology':<15} {'Share (%)':<12} {'Hours':<10} {'Avg Price (€/MWh)':<20}")
+        print("-" * 60)
+        for carrier, stats in sorted_carriers:
+            print(f"{carrier:<15} {stats['weighted_share']:<12.1f} {stats['hours']:<10.0f} {stats['avg_marginal_price']:<20.2f}")
+    
+    return results
+
+
 def plot_generation_mix_actual(config, output_path, output_formats, dpi=300, has_baseline=True):
     """Plot actual electricity generation mix (MWh) as stacked bar chart across CO₂ reduction scenarios."""
     print("Creating actual generation mix plot...")
@@ -4605,6 +4779,7 @@ def main():
         "electricity_cost": lambda: plot_electricity_cost(config, output_path, output_formats, dpi, args.has_baseline),
         "true_lcoe_with_sunk_costs": lambda: plot_true_lcoe_with_sunk_costs(config, output_path, output_formats, dpi, args.has_baseline),
         "marginal_price_vs_lcoe_explanation": lambda: plot_marginal_price_vs_lcoe_explanation(config, output_path, output_formats, dpi, args.has_baseline),
+        "marginal_price_setters": lambda: analyze_marginal_price_setters(config, output_path, output_formats, dpi, args.has_baseline),
         "electricity_cost_comparison": lambda: plot_electricity_cost_comparison(config, output_path, output_formats, dpi, args.has_baseline),
         "demand_weighted_marginal_prices": lambda: plot_demand_weighted_marginal_prices(config, output_path, output_formats, dpi, args.has_baseline),
         "generation_mix_actual": lambda: plot_generation_mix_actual(config, output_path, output_formats, dpi, args.has_baseline),
