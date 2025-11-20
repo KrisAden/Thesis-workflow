@@ -1635,6 +1635,63 @@ def plot_total_renewable_capacity(config, output_path, output_formats, dpi=300, 
     plt.close(fig)
 
 
+def calculate_true_lcoe_with_sunk_costs(network):
+    """
+    Calculate full system LCOE including capital cost recovery for ALL capacity,
+    even non-extendable (existing) generators.
+    
+    Returns both transition LCOE (what optimizer minimizes) and true LCOE (full cost).
+    """
+    # Get snapshot weights
+    if hasattr(network, 'snapshot_weightings'):
+        weights = network.snapshot_weightings
+        if hasattr(weights, 'generators'):
+            weights = weights.generators
+        elif isinstance(weights, pd.DataFrame) and 'generators' in weights.columns:
+            weights = weights['generators']
+        else:
+            weights = pd.Series(1.0, index=network.snapshots)
+    else:
+        weights = pd.Series(1.0, index=network.snapshots)
+    
+    # Calculate actual generation by generator
+    weights_arr = weights.values[:, np.newaxis]
+    gen_energy = (network.generators_t.p.values * weights_arr).sum(axis=0)
+    gen_energy = pd.Series(gen_energy, index=network.generators_t.p.columns)
+    
+    # Calculate variable costs (fuel + O&M)
+    variable_costs = (gen_energy * network.generators['marginal_cost']).sum()
+    
+    # Calculate capital costs for extendable generators (what optimizer counts)
+    extendable_mask = network.generators['p_nom_extendable'].fillna(False)
+    capital_costs_counted = (
+        network.generators.loc[extendable_mask, 'p_nom_opt'] * 
+        network.generators.loc[extendable_mask, 'capital_cost']
+    ).sum()
+    
+    # Calculate sunk capital costs (non-extendable, NOT counted by optimizer)
+    non_extendable_mask = ~extendable_mask
+    sunk_capital_costs = (
+        network.generators.loc[non_extendable_mask, 'p_nom'] * 
+        network.generators.loc[non_extendable_mask, 'capital_cost']
+    ).sum()
+    
+    # Total demand
+    total_demand = (network.loads_t.p.sum(axis=1) * weights).sum()
+    
+    # Calculate both LCOEs
+    transition_lcoe = (variable_costs + capital_costs_counted) / total_demand
+    true_lcoe = (variable_costs + capital_costs_counted + sunk_capital_costs) / total_demand
+    
+    return {
+        'transition_lcoe': transition_lcoe,
+        'true_lcoe': true_lcoe,
+        'sunk_cost_per_mwh': sunk_capital_costs / total_demand,
+        'variable_cost_per_mwh': variable_costs / total_demand,
+        'new_capital_per_mwh': capital_costs_counted / total_demand,
+    }
+
+
 def plot_electricity_cost(config, output_path, output_formats, dpi=300, has_baseline=True):
     """Plot full system electricity cost (€/MWh) across CO₂ reduction scenarios.
     
@@ -1735,6 +1792,127 @@ def plot_electricity_cost(config, output_path, output_formats, dpi=300, has_base
         print(f"  ✓ Saved plot as {output_file}")
 
     plt.close(fig)
+
+
+def plot_true_lcoe_with_sunk_costs(config, output_path, output_formats, dpi=300, has_baseline=True):
+    """Plot comparison of transition LCOE vs true LCOE (including sunk costs) across decarbonization levels.
+    
+    Shows:
+    - Transition LCOE: What optimizer minimizes (excludes sunk costs of existing infrastructure)
+    - True LCOE: Full cost including capital recovery of pre-existing generators
+    - Difference: Sunk cost component that remains constant across scenarios
+    """
+    print("Creating True LCOE with Sunk Cost Recovery plot...")
+    
+    if not pypsa:
+        print("PyPSA not available - skipping true LCOE plot")
+        return
+    
+    # Load networks
+    networks_by_percent = load_networks_from_results(config, has_baseline)
+    
+    if not networks_by_percent:
+        print("No networks found - cannot create plot")
+        return
+    
+    # Calculate both LCOEs for each decarbonization level
+    results_by_level = {}
+    
+    for co2_pct, net in networks_by_percent.items():
+        try:
+            lcoe_results = calculate_true_lcoe_with_sunk_costs(net)
+            results_by_level[co2_pct] = lcoe_results
+            print(f"  ✓ {co2_pct}% reduction: Transition LCOE = {lcoe_results['transition_lcoe']:.2f} €/MWh, "
+                  f"True LCOE = {lcoe_results['true_lcoe']:.2f} €/MWh")
+        except Exception as e:
+            print(f"⚠️ Skipping {co2_pct}% due to error: {e}")
+    
+    if not results_by_level:
+        print("No valid results - cannot create plot")
+        return
+    
+    # Prepare data for plotting
+    levels = sorted(results_by_level.keys())
+    transition_lcoe = [results_by_level[lvl]['transition_lcoe'] for lvl in levels]
+    true_lcoe = [results_by_level[lvl]['true_lcoe'] for lvl in levels]
+    sunk_cost = [results_by_level[lvl]['sunk_cost_per_mwh'] for lvl in levels]
+    
+    # Create the plot
+    fig, ax = plt.subplots(figsize=(12, 8))
+    
+    # Set font properties
+    font = {'fontsize': 12, 'fontweight': 'bold'}
+    
+    # Plot both LCOE series
+    ax.plot(levels, transition_lcoe, 's-', label='Transition LCOE (Optimizer)', 
+            color='tab:blue', linewidth=2.5, markersize=10, alpha=0.8)
+    ax.plot(levels, true_lcoe, 'o-', label='True LCOE (Incl. Sunk Costs)', 
+            color='tab:red', linewidth=2.5, markersize=10, alpha=0.8)
+    
+    # Fill area showing sunk cost component
+    ax.fill_between(levels, transition_lcoe, true_lcoe, alpha=0.3, 
+                     color='orange', label=f'Sunk Cost Component (~{sunk_cost[0]:.1f} €/MWh)')
+    
+    # Add horizontal line showing constant sunk cost if it's relatively stable
+    if max(sunk_cost) - min(sunk_cost) < 2.0:  # If variation < 2 €/MWh
+        avg_sunk = np.mean(sunk_cost)
+        ax.axhline(y=transition_lcoe[0] + avg_sunk, color='orange', 
+                   linestyle='--', linewidth=1.5, alpha=0.5)
+    
+    # Add annotations
+    if len(levels) > 0:
+        # Annotate baseline
+        baseline_idx = 0
+        ax.annotate(f'Baseline:\nTransition: {transition_lcoe[baseline_idx]:.1f} €/MWh\nTrue: {true_lcoe[baseline_idx]:.1f} €/MWh',
+                    xy=(levels[baseline_idx], true_lcoe[baseline_idx]),
+                    xytext=(levels[baseline_idx] + 5, true_lcoe[baseline_idx] + 5),
+                    fontsize=9, ha='left',
+                    bbox=dict(boxstyle="round,pad=0.5", facecolor="lightblue", alpha=0.7),
+                    arrowprops=dict(arrowstyle='->', color='black', lw=1.5))
+        
+        # Annotate highest decarbonization
+        if len(levels) > 1:
+            final_idx = -1
+            increase_transition = transition_lcoe[final_idx] - transition_lcoe[0]
+            increase_true = true_lcoe[final_idx] - true_lcoe[0]
+            ax.annotate(f'{levels[final_idx]}% Reduction:\n'
+                        f'Transition: {transition_lcoe[final_idx]:.1f} €/MWh (+{increase_transition:.1f})\n'
+                        f'True: {true_lcoe[final_idx]:.1f} €/MWh (+{increase_true:.1f})',
+                        xy=(levels[final_idx], true_lcoe[final_idx]),
+                        xytext=(levels[final_idx] - 15, true_lcoe[final_idx] + 5),
+                        fontsize=9, ha='right',
+                        bbox=dict(boxstyle="round,pad=0.5", facecolor="lightcoral", alpha=0.7),
+                        arrowprops=dict(arrowstyle='->', color='black', lw=1.5))
+    
+    ax.set_xlabel("CO₂ Reduction (%)", **font)
+    ax.set_ylabel("Levelized Cost of Electricity (€/MWh)", **font)
+    ax.set_title("Transition LCOE vs True LCOE (Including Sunk Capital Recovery)", **font)
+    ax.grid(True, alpha=0.3)
+    ax.legend(fontsize=10, loc='best')
+    
+    plt.tight_layout()
+    
+    # Save in all requested formats
+    for fmt in output_formats:
+        output_file = output_path / f"true_lcoe_with_sunk_costs.{fmt}"
+        fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+        print(f"  ✓ Saved true LCOE plot as {output_file}")
+    
+    plt.close(fig)
+    
+    # Print summary table
+    print("\n=== TRUE LCOE SUMMARY ===")
+    print(f"{'Level (%)':<12} {'Transition LCOE':<18} {'True LCOE':<18} {'Sunk Cost':<18}")
+    print(f"{'':12} {'(€/MWh)':<18} {'(€/MWh)':<18} {'(€/MWh)':<18}")
+    print("-" * 70)
+    for level in levels:
+        res = results_by_level[level]
+        print(f"{level:<12.0f} {res['transition_lcoe']:<18.2f} {res['true_lcoe']:<18.2f} {res['sunk_cost_per_mwh']:<18.2f}")
+    
+    print("\n💡 Key Insight:")
+    print(f"   The sunk cost component (~{np.mean(sunk_cost):.1f} €/MWh) represents capital recovery")
+    print(f"   for existing fossil infrastructure, which is constant across all scenarios.")
+    print(f"   This accounts for {100*np.mean(sunk_cost)/np.mean(true_lcoe):.0f}% of the true LCOE.")
 
 
 def plot_generation_mix_actual(config, output_path, output_formats, dpi=300, has_baseline=True):
@@ -4272,6 +4450,7 @@ def main():
         "transmission_bottlenecks": lambda: plot_transmission_bottlenecks(config, output_path, output_formats, dpi, args.has_baseline),
         "total_renewable_capacity": lambda: plot_total_renewable_capacity(config, output_path, output_formats, dpi, args.has_baseline),
         "electricity_cost": lambda: plot_electricity_cost(config, output_path, output_formats, dpi, args.has_baseline),
+        "true_lcoe_with_sunk_costs": lambda: plot_true_lcoe_with_sunk_costs(config, output_path, output_formats, dpi, args.has_baseline),
         "electricity_cost_comparison": lambda: plot_electricity_cost_comparison(config, output_path, output_formats, dpi, args.has_baseline),
         "demand_weighted_marginal_prices": lambda: plot_demand_weighted_marginal_prices(config, output_path, output_formats, dpi, args.has_baseline),
         "generation_mix_actual": lambda: plot_generation_mix_actual(config, output_path, output_formats, dpi, args.has_baseline),

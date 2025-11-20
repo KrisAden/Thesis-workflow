@@ -90,6 +90,7 @@ parameters:
       transmission_bottlenecks: true
       total_renewable_capacity: true
       electricity_cost: true
+      true_lcoe_with_sunk_costs: true
       electricity_cost_comparison: true
       demand_weighted_marginal_prices: true
       generation_mix_actual: true
