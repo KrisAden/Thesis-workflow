@@ -91,6 +91,7 @@ parameters:
       total_renewable_capacity: true
       electricity_cost: true
       true_lcoe_with_sunk_costs: true
+      marginal_price_vs_lcoe_explanation: true
       electricity_cost_comparison: true
       demand_weighted_marginal_prices: true
       generation_mix_actual: true

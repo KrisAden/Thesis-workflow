@@ -1915,6 +1915,159 @@ def plot_true_lcoe_with_sunk_costs(config, output_path, output_formats, dpi=300,
     print(f"   This accounts for {100*np.mean(sunk_cost)/np.mean(true_lcoe):.0f}% of the true LCOE.")
 
 
+def plot_marginal_price_vs_lcoe_explanation(config, output_path, output_formats, dpi=300, has_baseline=True):
+    """Plot comparing demand-weighted marginal prices with true LCOE, explaining the merit order effect.
+    
+    Shows why marginal prices (set by expensive generators) can be higher than average system costs
+    (dominated by cheap baseload), and explains the infra-marginal rent concept.
+    """
+    print("Creating Marginal Price vs LCOE Explanation plot...")
+    
+    if not pypsa:
+        print("PyPSA not available - skipping marginal price vs LCOE plot")
+        return
+    
+    # Load networks
+    networks_by_percent = load_networks_from_results(config, has_baseline)
+    
+    if not networks_by_percent:
+        print("No networks found - cannot create plot")
+        return
+    
+    # Calculate demand-weighted marginal prices
+    demand_weighted_prices = calculate_demand_weighted_prices_by_level(networks_by_percent)
+    
+    # Calculate true LCOE for each level
+    true_lcoe_by_level = {}
+    for co2_pct, net in networks_by_percent.items():
+        try:
+            lcoe_results = calculate_true_lcoe_with_sunk_costs(net)
+            true_lcoe_by_level[co2_pct] = lcoe_results['true_lcoe']
+        except Exception as e:
+            print(f"⚠️ Skipping {co2_pct}% due to error: {e}")
+    
+    if not demand_weighted_prices or not true_lcoe_by_level:
+        print("Insufficient data - cannot create plot")
+        return
+    
+    # Prepare data
+    levels = sorted(set(demand_weighted_prices.keys()) & set(true_lcoe_by_level.keys()))
+    marginal_prices = [demand_weighted_prices[lvl] for lvl in levels]
+    true_lcoe = [true_lcoe_by_level[lvl] for lvl in levels]
+    infra_marginal_rent = [marginal_prices[i] - true_lcoe[i] for i in range(len(levels))]
+    
+    # Create figure with two subplots
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(16, 7))
+    
+    font = {'fontsize': 12, 'fontweight': 'bold'}
+    
+    # ========================================================================
+    # LEFT PLOT: Price Comparison
+    # ========================================================================
+    ax1.plot(levels, marginal_prices, 'o-', label='Marginal Price (Demand-weighted)', 
+             color='tab:purple', linewidth=2.5, markersize=10, alpha=0.8)
+    ax1.plot(levels, true_lcoe, 's-', label='True LCOE (Full Cost)', 
+             color='tab:green', linewidth=2.5, markersize=10, alpha=0.8)
+    
+    # Fill area showing infra-marginal rent
+    ax1.fill_between(levels, true_lcoe, marginal_prices, 
+                     where=[mp >= lc for mp, lc in zip(marginal_prices, true_lcoe)],
+                     alpha=0.3, color='gold', 
+                     label='Infra-marginal Rent\n(Profit to baseload)')
+    
+    # Add annotation explaining the gap
+    if len(levels) > 0:
+        mid_idx = len(levels) // 2
+        gap = marginal_prices[mid_idx] - true_lcoe[mid_idx]
+        if gap > 0:
+            ax1.annotate(f'Infra-marginal Rent:\n{gap:.1f} €/MWh\n\nProfit to cheap\nbaseload plants',
+                        xy=(levels[mid_idx], (marginal_prices[mid_idx] + true_lcoe[mid_idx]) / 2),
+                        xytext=(levels[mid_idx] + 10, (marginal_prices[mid_idx] + true_lcoe[mid_idx]) / 2),
+                        fontsize=9, ha='left', va='center',
+                        bbox=dict(boxstyle="round,pad=0.5", facecolor="gold", alpha=0.7),
+                        arrowprops=dict(arrowstyle='->', color='black', lw=1.5))
+    
+    ax1.set_xlabel("CO₂ Reduction (%)", **font)
+    ax1.set_ylabel("Electricity Price (€/MWh)", **font)
+    ax1.set_title("Marginal Price vs True LCOE", **font)
+    ax1.grid(True, alpha=0.3)
+    ax1.legend(fontsize=9, loc='best')
+    
+    # ========================================================================
+    # RIGHT PLOT: Merit Order Explanation
+    # ========================================================================
+    # Create a stylized merit order curve for baseline
+    ax2.text(0.5, 0.95, 'Merit Order Effect Explanation', 
+             ha='center', va='top', transform=ax2.transAxes, 
+             fontsize=14, fontweight='bold')
+    
+    # Text explanation
+    explanation_text = """
+Why Marginal Price > True LCOE?
+
+THE MERIT ORDER EFFECT:
+
+Power plants are dispatched by fuel cost (cheapest first):
+  1. Coal/Lignite:  13-24 €/MWh  [BASELOAD - runs most]
+  2. Nuclear:       17 €/MWh     [BASELOAD - runs most]
+  3. CCGT (Gas):    47 €/MWh     [MID-MERIT]
+  4. OCGT (Gas):    58 €/MWh     [PEAKER - sets price]
+
+• Marginal Price = Cost of LAST plant needed (peaker)
+  → Set by expensive gas plants (~47-58 €/MWh)
+  → This is what markets pay for electricity
+
+• True LCOE = AVERAGE cost of ALL plants
+  → Dominated by cheap baseload (13-24 €/MWh)
+  → This is what the system actually costs
+
+• Infra-marginal Rent = Marginal Price - LCOE
+  → PROFIT earned by cheap baseload plants
+  → They produce at 13-24 €/MWh but sell at 47-58 €/MWh
+  → This profit helps justify baseload capital investment
+
+WHY THIS MATTERS FOR RENEWABLES:
+✓ Renewables have ZERO marginal cost (no fuel)
+✓ When they run, they collect the FULL marginal price
+✓ This infra-marginal rent helps pay back their
+  high capital costs → finances decarbonization!
+
+BOTTOM LINE:
+Marginal prices being higher than LCOE is NORMAL
+and ECONOMICALLY EFFICIENT in electricity markets.
+"""
+    
+    ax2.text(0.05, 0.88, explanation_text, 
+             transform=ax2.transAxes, fontsize=9, 
+             verticalalignment='top', family='monospace',
+             bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.3))
+    
+    ax2.axis('off')
+    
+    plt.tight_layout()
+    
+    # Save in all requested formats
+    for fmt in output_formats:
+        output_file = output_path / f"marginal_price_vs_lcoe_explanation.{fmt}"
+        fig.savefig(output_file, dpi=dpi, bbox_inches='tight')
+        print(f"  ✓ Saved explanation plot as {output_file}")
+    
+    plt.close(fig)
+    
+    # Print summary
+    print("\n=== MARGINAL PRICE VS LCOE SUMMARY ===")
+    print(f"{'Level (%)':<12} {'Marginal Price':<18} {'True LCOE':<18} {'Rent/Profit':<18}")
+    print(f"{'':12} {'(€/MWh)':<18} {'(€/MWh)':<18} {'(€/MWh)':<18}")
+    print("-" * 70)
+    for i, level in enumerate(levels):
+        print(f"{level:<12.0f} {marginal_prices[i]:<18.2f} {true_lcoe[i]:<18.2f} {infra_marginal_rent[i]:<18.2f}")
+    
+    avg_rent = np.mean([r for r in infra_marginal_rent if r > 0])
+    print(f"\n💡 Average Infra-marginal Rent: {avg_rent:.2f} €/MWh")
+    print(f"   This represents profit earned by baseload plants (coal, nuclear, hydro)")
+    print(f"   because they produce cheaply but sell at the marginal (gas) price.")
+
+
 def plot_generation_mix_actual(config, output_path, output_formats, dpi=300, has_baseline=True):
     """Plot actual electricity generation mix (MWh) as stacked bar chart across CO₂ reduction scenarios."""
     print("Creating actual generation mix plot...")
@@ -4451,6 +4604,7 @@ def main():
         "total_renewable_capacity": lambda: plot_total_renewable_capacity(config, output_path, output_formats, dpi, args.has_baseline),
         "electricity_cost": lambda: plot_electricity_cost(config, output_path, output_formats, dpi, args.has_baseline),
         "true_lcoe_with_sunk_costs": lambda: plot_true_lcoe_with_sunk_costs(config, output_path, output_formats, dpi, args.has_baseline),
+        "marginal_price_vs_lcoe_explanation": lambda: plot_marginal_price_vs_lcoe_explanation(config, output_path, output_formats, dpi, args.has_baseline),
         "electricity_cost_comparison": lambda: plot_electricity_cost_comparison(config, output_path, output_formats, dpi, args.has_baseline),
         "demand_weighted_marginal_prices": lambda: plot_demand_weighted_marginal_prices(config, output_path, output_formats, dpi, args.has_baseline),
         "generation_mix_actual": lambda: plot_generation_mix_actual(config, output_path, output_formats, dpi, args.has_baseline),
