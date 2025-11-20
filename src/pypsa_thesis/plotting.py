@@ -2569,8 +2569,10 @@ def calculate_mean_prices_by_level(df_marginal_prices):
 def calculate_demand_weighted_prices_by_level(networks_by_percent):
     """Calculate demand-weighted average marginal prices for each decarbonization level.
     
-    This function computes the average marginal price weighted by demand at each snapshot,
-    providing a more economically meaningful average price that reflects when energy is consumed.
+    This function computes the average marginal price where each bus-time observation
+    is weighted by its load share of the total annual load across the entire network.
+    
+    Formula: mean_price = Σ_t Σ_bus (price_bus_t * load_bus_t * weight_t) / total_annual_load
     
     NOTE: These are marginal prices only - they do NOT include capital cost recovery.
     """
@@ -2596,16 +2598,6 @@ def calculate_demand_weighted_prices_by_level(networks_by_percent):
             else:
                 weights = pd.Series(1.0, index=net.snapshots)
             
-            # Map loads to their bus prices and calculate weighted average
-            # For each snapshot, calculate the system-wide demand-weighted price
-            bus_to_load = {}
-            for load_name, load_info in net.loads.iterrows():
-                bus = load_info['bus']
-                if bus not in bus_to_load:
-                    bus_to_load[bus] = []
-                bus_to_load[bus].append(load_name)
-            
-            # Calculate demand-weighted price for each snapshot (VECTORIZED for speed)
             # Create DataFrame with loads aggregated by bus
             load_by_bus = pd.DataFrame(0.0, index=net.snapshots, columns=net.buses.index)
             
@@ -2619,19 +2611,30 @@ def calculate_demand_weighted_prices_by_level(networks_by_percent):
             load_by_bus = load_by_bus[common_buses]
             prices_by_bus = prices[common_buses]
             
-            # Calculate load-weighted price for each snapshot (vectorized)
-            total_load_per_snapshot = load_by_bus.sum(axis=1)
-            weighted_price_per_snapshot = (prices_by_bus * load_by_bus).sum(axis=1)
+            # Calculate weighted loads (load * time weight) for each bus-time pair
+            weighted_loads = load_by_bus.mul(weights, axis=0)
             
-            # Avoid division by zero
-            valid_snapshots = total_load_per_snapshot > 0
-            avg_price_per_snapshot = weighted_price_per_snapshot[valid_snapshots] / total_load_per_snapshot[valid_snapshots]
+            # Calculate total annual load across all buses and snapshots
+            total_annual_load = weighted_loads.sum().sum()
             
-            # Time-weighted average across snapshots (using proper index alignment)
-            demand_weighted_price = (avg_price_per_snapshot * weights[valid_snapshots]).sum() / weights[valid_snapshots].sum()
+            if total_annual_load == 0:
+                print(f"⚠️ Warning: Zero total load for {co2_pct}%")
+                demand_weighted_prices[co2_pct] = 0.0
+                continue
+            
+            # Calculate demand-weighted price:
+            # Each price is weighted by (load_bus_t * weight_t) / total_annual_load
+            weighted_price_sum = (prices_by_bus * weighted_loads).sum().sum()
+            demand_weighted_price = weighted_price_sum / total_annual_load
+            
             demand_weighted_prices[co2_pct] = demand_weighted_price
             
             # Print diagnostic information
+            # Calculate per-snapshot average for diagnostics
+            total_load_per_snapshot = load_by_bus.sum(axis=1)
+            valid_snapshots = total_load_per_snapshot > 0
+            avg_price_per_snapshot = (prices_by_bus * load_by_bus).sum(axis=1)[valid_snapshots] / total_load_per_snapshot[valid_snapshots]
+            
             price_min = avg_price_per_snapshot.min()
             price_max = avg_price_per_snapshot.max()
             price_median = avg_price_per_snapshot.median()
