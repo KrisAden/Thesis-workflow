@@ -1,14 +1,14 @@
 # Fdb version 4
-["bibtex elsarticle-template-num"] 1763056437.95391 "elsarticle-template-num.aux" "elsarticle-template-num.bbl" "elsarticle-template-num" 1763056449.51743 0
-  "./Sources.bib" 1763031933 14411 5c68362bb2c6d8957ee0e8d23992b2fb ""
+["bibtex elsarticle-template-num"] 1764079952.80975 "elsarticle-template-num.aux" "elsarticle-template-num.bbl" "elsarticle-template-num" 1764080194.54341 0
+  "./Sources.bib" 1763980599 14704 cc79acf48ad4c0e55d54a1e228700f2b ""
   "./elsarticle-num.bst" 1763031933 29462 d2b5b1799e10c2334c188d78937e1ac9 ""
-  "elsarticle-template-num.aux" 1763056446 8120 23f890d5bf37f6fcc38d4e3c89abbf70 "pdflatex"
+  "elsarticle-template-num.aux" 1764080193 9344 f45be62ee4c224c5be57b1b4cab46416 "pdflatex"
   (generated)
   "elsarticle-template-num.bbl"
   "elsarticle-template-num.blg"
   (rewritten before read)
-["pdflatex"] 1763056438.91694 "c:/Users/krisa/Documents/GitHub/pypsa-eur/Thesis-workflow/reports/Thesis/elsarticle-template-num.tex" "elsarticle-template-num.pdf" "elsarticle-template-num" 1763056449.51906 0
-  "c:/Users/krisa/Documents/GitHub/pypsa-eur/Thesis-workflow/reports/Thesis/elsarticle-template-num.tex" 1763031933 19941 e7fb1509bd7c3787a9c55777678720a6 ""
+["pdflatex"] 1764080187.47184 "c:/Users/krisa/Documents/GitHub/pypsa-eur/Thesis-workflow/reports/Thesis/elsarticle-template-num.tex" "elsarticle-template-num.pdf" "elsarticle-template-num" 1764080194.54414 0
+  "c:/Users/krisa/Documents/GitHub/pypsa-eur/Thesis-workflow/reports/Thesis/elsarticle-template-num.tex" 1764080186 27350 2a12739ab74c20ada6449a1b41f4065e ""
   "c:/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1763038793 2971 def0b6c1f0b107b3b936def894055589 ""
   "c:/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1763038793 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "c:/texlive/2025/texmf-dist/fonts/map/fontname/texfonts.map" 1763042560 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -44,7 +44,9 @@
   "c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr12.pfb" 1763036200 32722 d7379af29a190c3f453aba36302ff5a9 ""
   "c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmr8.pfb" 1763036200 32726 39f0f9e62e84beb801509898a605dbd5 ""
   "c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb" 1763036200 32569 5e5ddc8df908dea60932f3c484a54c0d ""
+  "c:/texlive/2025/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy8.pfb" 1763036200 32626 5abc8bb2f28aa647d4c70f8ea38cc0d3 ""
   "c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfbx1200.pfb" 1763038795 140176 d0f50dba675c56d445f84a32c1f93a79 ""
+  "c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm0800.pfb" 1763038799 164227 41439fae96b3b30186924e9dd2fcff30 ""
   "c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm1000.pfb" 1763038799 138258 6525c253f16cededa14c7fd0da7f67b2 ""
   "c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm1200.pfb" 1763038799 136101 b18d10b3436f8cb0cd04046deb340fe7 ""
   "c:/texlive/2025/texmf-dist/fonts/type1/public/cm-super/sfrm1728.pfb" 1763038799 131438 c8884c67ccd7382f731c139fbb34a6cb ""
@@ -121,6 +123,8 @@
   "doc/GenerationCapacityStackedBar_C100_80_0_K0.png" 1763031933 52788 15400c164a8a655f180dddaf296808ca ""
   "doc/GenerationStackedBar_C100_80_0_K0.png" 1763031933 55298 e63afcbd2fa3b4b34b700227e13de294 ""
   "doc/GenerationStackedBar_K_infs.png" 1763031933 190804 a6ca4b8188c0980726d01d0c390a0429 ""
+  "doc/Margnal_vs_LCOE_temp.png" 1764076594 72419 743f8eee064e97fa3a1195233c8c9f85 ""
+  "doc/Margnal_vs_LCOE_transition.png" 1764076811 114033 fc1df55b25c9cff30892dd6b5c5e96cd ""
   "doc/RegionalElectricityPrice_C100_80_0_K_0.png" 1763031933 52429 84b5806219fe02b46fceea58c3c6c05a ""
   "doc/RenewableCapacity_K_infs.png" 1763031934 167489 dcc899408cca05ff02762a12fbcf143a ""
   "doc/StorageCapacityMap_C0_K0.png" 1763031933 206772 e22002a9027c6369869b43f72aec8078 ""
@@ -129,11 +133,12 @@
   "doc/StorageCapacityMap_K_infs.png" 1763031934 64776 04ddb9685e630217e19ef73bd7ad4c5a ""
   "doc/StorageCapacityStackedBar_C100_80_0_K0.png" 1763031933 47963 6a3c7f205c36da7fb3c6622906bef54b ""
   "doc/SystemCost_K_infs.png" 1763031934 148990 b0b790044a57971c32054b501a7e215c ""
-  "elsarticle-template-num.aux" 1763056446 8120 23f890d5bf37f6fcc38d4e3c89abbf70 "pdflatex"
-  "elsarticle-template-num.bbl" 1763056438 4675 cf06353f6a9c30641eab4dab4746bde6 "bibtex elsarticle-template-num"
-  "elsarticle-template-num.out" 1763056446 4901 2012e9b486a52024f91606477fd229b0 "pdflatex"
-  "elsarticle-template-num.spl" 1763056440 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "elsarticle-template-num.tex" 1763031933 19941 e7fb1509bd7c3787a9c55777678720a6 ""
+  "doc/scarcity_rent_evolution_contributions.png" 1764064678 212274 57c8247b8a87b0f60974d2fd414c5643 ""
+  "elsarticle-template-num.aux" 1764080193 9344 f45be62ee4c224c5be57b1b4cab46416 "pdflatex"
+  "elsarticle-template-num.bbl" 1764079953 4792 09df13fe81b65785f30051e472169e15 "bibtex elsarticle-template-num"
+  "elsarticle-template-num.out" 1764080193 5267 08a2c2ac7ab509a57aa745ba7a37907d "pdflatex"
+  "elsarticle-template-num.spl" 1764080188 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "elsarticle-template-num.tex" 1764080186 27350 2a12739ab74c20ada6449a1b41f4065e ""
   (generated)
   "elsarticle-template-num.aux"
   "elsarticle-template-num.log"

@@ -58,4 +58,7 @@ J.~Hörsch, F.~Neumann, F.~Hofmann, D.~Schlachtberger, M.~Frysztacki, J.~Hampp, 
 \href{https://docs.gurobi.com/projects/optimizer/en/current/concepts/logging/barrier.html}{Barrier {{Logging}} - {{Gurobi Optimizer Reference Manual}}}.
 \newline\urlprefix\url{https://docs.gurobi.com/projects/optimizer/en/current/concepts/logging/barrier.html}
 
+\bibitem{kies_noprofit_pypsa}
+A.~Kies, Deriving the zero-profit condition for pypsa, unpublished internal document.
+
 \end{thebibliography}

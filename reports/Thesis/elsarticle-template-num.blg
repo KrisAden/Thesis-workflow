@@ -29,45 +29,46 @@ Warning--empty year in GNUGeneralPublic
 Warning--empty year in horschPyPSAEurOpenOptimisation2023
 Warning--empty year in UCloudUserGuide
 Warning--empty year in BarrierLoggingGurobi
-You've used 12 entries,
+Warning--empty year in kies_noprofit_pypsa
+You've used 13 entries,
             2952 wiz_defined-function locations,
-            747 strings with 8309 characters,
-and the built_in function-call counts, 3431 in all, are:
-= -- 287
-> -- 144
+            753 strings with 8454 characters,
+and the built_in function-call counts, 3595 in all, are:
+= -- 302
+> -- 148
 < -- 0
-+ -- 56
-- -- 44
-* -- 307
-:= -- 478
-add.period$ -- 19
-call.type$ -- 12
-change.case$ -- 12
++ -- 58
+- -- 45
+* -- 313
+:= -- 502
+add.period$ -- 20
+call.type$ -- 13
+change.case$ -- 14
 chr.to.int$ -- 0
-cite$ -- 26
-duplicate$ -- 105
-empty$ -- 381
-format.name$ -- 51
-if$ -- 855
+cite$ -- 28
+duplicate$ -- 111
+empty$ -- 400
+format.name$ -- 52
+if$ -- 899
 int.to.chr$ -- 0
-int.to.str$ -- 12
+int.to.str$ -- 13
 missing$ -- 6
-newline$ -- 61
-num.names$ -- 7
-pop$ -- 87
+newline$ -- 64
+num.names$ -- 8
+pop$ -- 91
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 197
+skip$ -- 212
 stack$ -- 0
-substring$ -- 100
+substring$ -- 102
 swap$ -- 30
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
-warning$ -- 14
-while$ -- 16
-width$ -- 14
-write$ -- 109
-(There were 20 warnings)
+warning$ -- 15
+while$ -- 17
+width$ -- 15
+write$ -- 116
+(There were 21 warnings)

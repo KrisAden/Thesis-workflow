@@ -209,45 +209,138 @@ Introduction to results
 \subsection{Least-cost systems}
 Maps and figures showing a few least-cost networks, their optimized topology and key figures like system cost and marginal prices.
 
-\begin{figure}[H]
-\centering
-\includegraphics[width=\linewidth]{doc/CapacityMap_C0_K0.png}
-\caption{Figure text}
-\label{fig1}
-\end{figure}
+\medskip
+\noindent
+
+\newpage
+\subsection{Zero cost condition, brownfield systems and scarcity-rents}
+\noindent
+When reviewing the electricity prices associated with the optimized networks, it is of interest to compare two different cost measures: The mean marginal demand-weighted price and the levelized cost of electricity (LCOE). The mean marginal demand-weighted price is defined as:
+
+\begin{equation}
+\text{Mean Marginal Demand-Weighted Price}
+=
+\frac{\sum_{t \in T} \sum_{n} \left( L_{n,t} \times \lambda_t \right)}
+{\sum_{t \in T} \sum_{n} L_{n,t}}
+\end{equation}
+
+\noindent
+For time \textit{t}, Nodes \textit{n}, Loads \textit{L} and marginal price \textit{$\lambda$}. This cost measure represents the average price that consumers pay for electricity over the entire time period, weighted by their demand. The other cost measure, the levelized cost of electricity (LCOE) is defined as:
+\begin{equation}
+\text{LCOE}
+=
+\frac{\sum_{t \in T} \sum_{g}
+\left( \text{Capital Costs}_{g,t} + \text{Marginal Costs}_{g,t} \right)}
+{\sum_{t \in T} \sum_{n} L_{n,t}}
+\end{equation}
+
+
+\noindent
+For generator technologies \textit{g}. LCOE represents the average cost of producing electricity over the lifetime of the system.
 
 \medskip
 \noindent
+Seen below in Figure \ref{fig1} is a plot comparing the mean levelized cost of electricity for the different levels of decarbonization, compared to the mean marginal demand-weighted price:
+
 \begin{figure}[H]
 \centering
-\includegraphics[width=\linewidth]{doc/CapacityMap_C80_K0.png}
-\caption{Figure text}
+\includegraphics[width=\linewidth]{doc/Margnal_vs_LCOE_temp.png}
+\caption{Comparison of mean LCOE and mean marginal price}
+\label{fig1}
+\end{figure}
+
+
+\medskip
+\noindent
+This plot shows two different interesting results. Firstly it can be seen that as the system begins to decarbonize, initially the mean marginal demand weighted price \textit{decreases} before increasing dramatically at high levels of decarbonization.
+Secondly it can be seen that for a majority of decarbonization levels a significant gap between the two cost measures is present.
+
+\medskip
+\noindent
+Traditionally optimized energy system models such as the ones produced by PyPSA must adhere to the zero-profit condition \cite{kies_noprofit_pypsa}:
+
+\begin{equation}
+\sum_{t \in T} \sum_{n} \left( L_{n,t} \times \lambda_t \right)
+=
+\sum_{t \in T} \sum_{g}
+\left( \text{Capital Costs}_{g,t} + \text{Marginal Costs}_{g,t} \right)
+\end{equation}
+
+\noindent
+This equation states that for all times the demand-weighted marginal price in all nodes must be equal to the sum of the capital and marginal costs across all technologies and times. Or, in other words: The revenue must be equal to the expenditure.
+However, critically, the zero-profit condition applies to long-run competitive equilibrium subject to the following assumptions:
+\begin{itemize}
+  \item All capacity is free to expand and contract in order to achieve optimality.
+  \item No artificially imposed constraints on the system.
+  \item Steady state market conditions.
+\end{itemize}
+
+\medskip
+\noindent
+This clashes with the modelling methodology in several ways. The optimized model is a \textit{Brownfield} system, meaning that even before optimization some fossil generation capacity exists in the system. As stated in the modelling section XXX, fossil generation capacity is allowed to contract but not to expand as constrained by:
+\begin{equation}
+  p_{\text{nom}} \leq p_{\text{nom, max}} = p_{\text{nom, baseline}}
+\end{equation}
+
+\noindent
+This means that the zero profit condition does not apply to optimization performed in this thesis, which leads to the difference between levelized cost and mean marginal price, also known as scarcity rent, as seen in Figure \ref{fig1}. The scarcity rents manifest when the optimizer ideally would increase capacity to meet demand, but is constrained by a binding capacity constraint.
+
+\medskip
+\noindent
+Imagine for example that a fossil fuel-based generator is producing electricity at a lower marginal cost than the current market price. If the fossil based generator was allowed to expand, this would naturally attract additional fossil based generation to the market, until it becomes saturated and the mean marginal demand weighted price decreases to the point where the fossil generator is no longer profitable. However, as the fossil generator is not allowed to expand capacity, it can continue to produce electricity at a profit, leading to the scarcity rents seen in the system. This is the primary driving mechanism behind the gap between LCOE and mean marginal demand weighted prices seen in Figure \ref{fig1}.
+
+\medskip
+\noindent
+This mechanism also applies to non-extendable renewable generation capacity, like nuclear, geothermal and biomass, as well as non-extendable storage like pumped hydro-storage.
+Pictured below, in Figure \ref{fig2} is the evolution of the contribution to the total scarcity rent from the different technologies not constrained by the zero-profit condition:
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{doc/scarcity_rent_evolution_contributions.png}
+\caption{Scarcity rent contributions by technology}
 \label{fig2}
 \end{figure}
 
 \medskip
 \noindent
+Here it can be seen that at low levels of decarbonization the majority of the contribution to the total scarcity rent comes from the fossil-fuel based generators. As the system decarbonizes the amount of fossil fuel generation is reduced in order to meet the decarbonization constraint and as such the contribution to the scarcity rent decreases. However at around 80\% decarbonization where the vast majority of the fossil based generation has been phased out, the main contributors become the dispatchable renewable generators, such as nuclear, and storage units needed for balancing.
+This is illustrated in the modified version of Figure \ref{fig1} below:
+
 \begin{figure}[H]
 \centering
-\includegraphics[width=\linewidth]{doc/CapacityMap_C100_K0.png}
-\caption{Figure text}
+\includegraphics[width=\linewidth]{doc/Margnal_vs_LCOE_transition.png}
+\caption{Transition between main scarcity rent contributors}
 \label{fig3}
 \end{figure}
+
+
+\noindent
+As a side note, a negative scarcity rent indicates that the technology in question is running at a loss, meaning that the revenue from selling electricity is not sufficient to cover the capital and marginal costs of the technology. One might think that such a technology would not be included in the optimized system, however as the optimization is performed on a brownfield system with existing capacity, it may be optimal to keep such a technology running at a loss if the overall system cost is reduced by doing so.
+
+\medskip
+\noindent
+As for the initial decrease in mean marginal demand weighted price. This can be attributed to something called the "merit-order effect": When the decarbonization constraint of fossil fuel energy generation tightens, fossil-fuel based energy production is replaced by renewable generation. As some forms of renewable generation have very low marginal costs the mean marginal demand weighted price decreases as these low marginal cost generators set the market price in more snapshots. However the total system cost increases as the newly installed generation- and storage-capacity has capital costs that contribute to the overall increase in system cost as seen in Figure \ref{fig18} below:
 
 \medskip
 \noindent
 \begin{figure}[H]
 \centering
-\includegraphics[width=\linewidth]{doc/RegionalElectricityPrice_C100_80_0_K_0.png}
+\includegraphics[width=\linewidth]{doc/SystemCost_K_infs.png}
+\caption{Total system cost in least-cost systems}
+\label{fig18}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{doc/CapacityMap_C0_K0.png}
 \caption{Figure text}
 \label{fig4}
 \end{figure}
 
-\medskip
-\noindent
+
 \begin{figure}[H]
 \centering
-\includegraphics[width=\linewidth]{doc/GenerationCapacityStackedBar_C100_80_0_K0.png}
+\includegraphics[width=\linewidth]{doc/CapacityMap_C0_K0.png}
 \caption{Figure text}
 \label{fig5}
 \end{figure}
@@ -256,7 +349,7 @@ Maps and figures showing a few least-cost networks, their optimized topology and
 \noindent
 \begin{figure}[H]
 \centering
-\includegraphics[width=\linewidth]{doc/GenerationStackedBar_C100_80_0_K0.png}
+\includegraphics[width=\linewidth]{doc/CapacityMap_C80_K0.png}
 \caption{Figure text}
 \label{fig6}
 \end{figure}
@@ -265,7 +358,7 @@ Maps and figures showing a few least-cost networks, their optimized topology and
 \noindent
 \begin{figure}[H]
 \centering
-\includegraphics[width=\linewidth]{doc/StorageCapacityMap_C0_K0.png}
+\includegraphics[width=\linewidth]{doc/CapacityMap_C100_K0.png}
 \caption{Figure text}
 \label{fig7}
 \end{figure}
@@ -274,7 +367,7 @@ Maps and figures showing a few least-cost networks, their optimized topology and
 \noindent
 \begin{figure}[H]
 \centering
-\includegraphics[width=\linewidth]{doc/StorageCapacityMap_C80_K0.png}
+\includegraphics[width=\linewidth]{doc/RegionalElectricityPrice_C100_80_0_K_0.png}
 \caption{Figure text}
 \label{fig8}
 \end{figure}
@@ -283,7 +376,7 @@ Maps and figures showing a few least-cost networks, their optimized topology and
 \noindent
 \begin{figure}[H]
 \centering
-\includegraphics[width=\linewidth]{doc/StorageCapacityMap_C100_K0.png}
+\includegraphics[width=\linewidth]{doc/GenerationCapacityStackedBar_C100_80_0_K0.png}
 \caption{Figure text}
 \label{fig9}
 \end{figure}
@@ -292,9 +385,45 @@ Maps and figures showing a few least-cost networks, their optimized topology and
 \noindent
 \begin{figure}[H]
 \centering
-\includegraphics[width=\linewidth]{doc/StorageCapacityStackedBar_C100_80_0_K0.png}
+\includegraphics[width=\linewidth]{doc/GenerationStackedBar_C100_80_0_K0.png}
 \caption{Figure text}
 \label{fig10}
+\end{figure}
+
+\medskip
+\noindent
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{doc/StorageCapacityMap_C0_K0.png}
+\caption{Figure text}
+\label{fig11}
+\end{figure}
+
+\medskip
+\noindent
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{doc/StorageCapacityMap_C80_K0.png}
+\caption{Figure text}
+\label{fig12}
+\end{figure}
+
+\medskip
+\noindent
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{doc/StorageCapacityMap_C100_K0.png}
+\caption{Figure text}
+\label{fig13}
+\end{figure}
+
+\medskip
+\noindent
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{doc/StorageCapacityStackedBar_C100_80_0_K0.png}
+\caption{Figure text}
+\label{fig14}
 \end{figure}
 
 \subsubsection{Sanity checks and validations}
@@ -308,7 +437,7 @@ Analyzing trends in key figures and plots for the decarbonizing systems
 \centering
 \includegraphics[width=\linewidth]{doc/EquityChange_K_infs.png}
 \caption{Figure text}
-\label{fig11}
+\label{fig15}
 \end{figure}
 
 \medskip
@@ -317,7 +446,7 @@ Analyzing trends in key figures and plots for the decarbonizing systems
 \centering
 \includegraphics[width=\linewidth]{doc/GenerationStackedBar_K_infs.png}
 \caption{Figure text}
-\label{fig12}
+\label{fig16}
 \end{figure}
 
 \medskip
@@ -326,17 +455,9 @@ Analyzing trends in key figures and plots for the decarbonizing systems
 \centering
 \includegraphics[width=\linewidth]{doc/RenewableCapacity_K_infs.png}
 \caption{Figure text}
-\label{fig13}
+\label{fig17}
 \end{figure}
 
-\medskip
-\noindent
-\begin{figure}[H]
-\centering
-\includegraphics[width=\linewidth]{doc/SystemCost_K_infs.png}
-\caption{Figure text}
-\label{fig14}
-\end{figure}
 
 \medskip
 \noindent
@@ -344,7 +465,7 @@ Analyzing trends in key figures and plots for the decarbonizing systems
 \centering
 \includegraphics[width=\linewidth]{doc/ElectricityPrices_K_infs.png}
 \caption{Figure text}
-\label{fig15}
+\label{fig19}
 \end{figure}
 
 \medskip
@@ -353,7 +474,7 @@ Analyzing trends in key figures and plots for the decarbonizing systems
 \centering
 \includegraphics[width=\linewidth]{doc/StorageCapacityMap_K_infs.png}
 \caption{Figure text}
-\label{fig16}
+\label{fig20}
 \end{figure}
 
 \subsubsection{Driving Mechanisms in decarbonizing systems}
