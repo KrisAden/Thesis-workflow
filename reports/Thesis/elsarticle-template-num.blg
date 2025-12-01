@@ -15,6 +15,18 @@ Warning--entry type for "UCloudUserGuide" isn't style-file defined
 --line 122 of file Sources.bib
 Warning--entry type for "BarrierLoggingGurobi" isn't style-file defined
 --line 128 of file Sources.bib
+Warning--entry type for "EnergyBalanceDocumentation" isn't style-file defined
+--line 144 of file Sources.bib
+Warning--entry type for "SnakemakeSnakemake9140" isn't style-file defined
+--line 153 of file Sources.bib
+Warning--entry type for "hedegaardadenThesisworkflowFairnessDecarbonizing2025" isn't style-file defined
+--line 161 of file Sources.bib
+Warning--entry type for "GNUGeneralPublica" isn't style-file defined
+--line 172 of file Sources.bib
+Warning--entry type for "TransparencyPlatform" isn't style-file defined
+--line 179 of file Sources.bib
+Warning--entry type for "CarbonFreeEurope" isn't style-file defined
+--line 186 of file Sources.bib
 Warning--empty year in ParisAgreementUNFCCC
 Warning--empty journal in rodriguezCostoptimalDesignSimplified2015a
 Warning--empty year in rodriguezCostoptimalDesignSimplified2015a
@@ -26,49 +38,55 @@ Warning--empty journal in eriksenOptimalHeterogeneitySimplified2017a
 Warning--empty year in eriksenOptimalHeterogeneitySimplified2017a
 Warning--empty year in ScaleRussianSabotage
 Warning--empty year in GNUGeneralPublic
+Warning--empty year in SnakemakeSnakemake9140
+Warning--empty year in hedegaardadenThesisworkflowFairnessDecarbonizing2025
+Warning--empty year in GNUGeneralPublica
 Warning--empty year in horschPyPSAEurOpenOptimisation2023
+Warning--empty year in TransparencyPlatform
+Warning--empty year in CarbonFreeEurope
 Warning--empty year in UCloudUserGuide
 Warning--empty year in BarrierLoggingGurobi
+Warning--empty year in EnergyBalanceDocumentation
 Warning--empty year in kies_noprofit_pypsa
-You've used 13 entries,
+You've used 19 entries,
             2952 wiz_defined-function locations,
-            753 strings with 8454 characters,
-and the built_in function-call counts, 3595 in all, are:
-= -- 302
-> -- 148
+            779 strings with 9625 characters,
+and the built_in function-call counts, 4602 in all, are:
+= -- 371
+> -- 157
 < -- 0
-+ -- 58
-- -- 45
-* -- 313
-:= -- 502
-add.period$ -- 20
-call.type$ -- 13
-change.case$ -- 14
++ -- 65
+- -- 46
+* -- 368
+:= -- 601
+add.period$ -- 26
+call.type$ -- 19
+change.case$ -- 20
 chr.to.int$ -- 0
-cite$ -- 28
-duplicate$ -- 111
-empty$ -- 400
-format.name$ -- 52
-if$ -- 899
+cite$ -- 40
+duplicate$ -- 159
+empty$ -- 569
+format.name$ -- 53
+if$ -- 1192
 int.to.chr$ -- 0
-int.to.str$ -- 13
+int.to.str$ -- 19
 missing$ -- 6
-newline$ -- 64
-num.names$ -- 8
-pop$ -- 91
+newline$ -- 88
+num.names$ -- 9
+pop$ -- 144
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 212
+skip$ -- 298
 stack$ -- 0
 substring$ -- 102
-swap$ -- 30
+swap$ -- 36
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
-warning$ -- 15
-while$ -- 17
-width$ -- 15
-write$ -- 116
-(There were 21 warnings)
+warning$ -- 21
+while$ -- 18
+width$ -- 21
+write$ -- 153
+(There were 33 warnings)

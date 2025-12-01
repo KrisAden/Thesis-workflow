@@ -17,6 +17,7 @@
 \usepackage{breakurl}           % breaks URLs in bibliography (with latex)
 \usepackage{etoolbox}           % allows patching of commands
 \usepackage{booktabs}
+\usepackage{xcolor}
 
 \hypersetup{
     hidelinks,
@@ -144,20 +145,170 @@ C1 R1 & C1 R2 \\
 C2 R1 & C2 R2 \\
 \end{tabular}
 
+\newpage
 \section{Methodology}
+\subsection{Modeling framework}
+\noindent
+For the purpose of structuring the modeling a Snakemake workflow was constructed. Snakemake is a workflow management system that allows for modular and reproducible data analysis \cite{SnakemakeSnakemake9140}. The workflow is divided into multiple stps or "rules" that when chained together ensures that the data is processed in the correct order. The complete workflow used to produce the results in this master's thesis is openly available in a public repository \cite{hedegaardadenThesisworkflowFairnessDecarbonizing2025} under a GNU General Public License \cite{GNUGeneralPublica}. 
+
+\medskip
+\noindent
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.54\linewidth]{doc/Snakemake_DAG.png}
+\caption{Map of Snakemake Workflow}
+\label{fig_workflow}
+\end{figure}
+
+\medskip
+\noindent
+Seen above in Figure \ref{fig_workflow} is a map of the rules and data-input used in the workflow divided into three main sections: Preprocessing, optimization and vizualization/postprocessing. The following sections will go further into detail on the diferent sections of the workflow, excluding the vizualizations and postprocessing which are primarily used for producing figures and tables for this master's thesis.
+
+\medskip
+\subsection{Precompiled network model}
+\noindent
 Many energy modeling frameworks and pieces of commercially available software for optimizing nodal-networks exist. The work represented by this paper utilizes the open-source framework PyPSA (Python for power system analysis \cite{PyPSA}). The reasoning for this is twofold: Firstly PyPSA is completely free and open source to use. This encourages open and collaborative science as well as transparency in the philosophy behind the energy system modeling. Secondly PyPSA consists of two separate parts. A modeling workflow based in the Python programming language, and a large database containing relevant open source data for constructing models, particularly of the European Union. This dataset is referred to as PyPSA-Eur\cite{PyPSAEur} and is invaluable in its quality of data for building macro energy system models in the PyPSA workflow. This masters thesis utilizes both parts of the PyPSA environment. Acting as a baseline for all of the network topology for the European Union is a pre-compiled network developed with PyPSA-EUR using the default settings as published in the Zenodo repository \cite{horschPyPSAEurOpenOptimisation2023}.
 
 \medskip
 \noindent The simple philosophy behind the PyPSA models is that a network is perceived as multiple interconnected nodes. These nodes and connections are then given a set of constraints that define the feasible solution space. Examples of constraints could be that each node is assigned an electrical load that must be serviced based on historical consumption, capacity factor time-series based on solar- and wind-patterns, or maximum or minimum capacity constraints like a maximum allowable power flow from one node to another representing the transmission infrastructure in the network. The network used in this master's thesis is a 37 node network representing the 25 (excluding the island states of Malta and Cyprus) member nations of the EU. Additionally Switzerland, Norway, Bosnia-Herzegovina, Albania, Montenegro, North Macedonia, The United Kingdom and Serbia are included as their electrical infrastructure is connected to that of the EU. The following nations are also represented by more than one node as they have large populations on islands: Denmark, Spain, Great Britain and Italy.
 
 \medskip
-\noindent These nodes are then interconnected with HVDC and AC links and lines respectively. The nodes are then each assigned load patterns, and 
+\noindent These nodes are then interconnected with HVDC and AC links and lines based on real-world connections. A graphical overview of the network can be seen below in Figure \ref{fig_network}:
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{doc/NetworkMap.png}
+\caption{Overview of the 37-node European energy network.}
+\end{figure}
+\label{fig_network}
+\medskip
+\noindent
+
+\medskip
+\noindent
+{\color{red}Should i add something about spatial and temporal resolution and clustering?}
+
+
+\subsection{Load rescaling}
+\noindent
+The precompiled network models comes preloaded with electrical demand time series for each of the nodes from the ENTSOE-E transparency platform \cite{TransparencyPlatform}. These hourly demand time series are, however, in the case of the precompiled model from the year 2013. In order to ensure a more representative demand profile for the nodes the loads have been rescaled to projected values for 2025. Each node is assigned a target electricity consumption value based on figures from Carbon-Free Europe \cite{CarbonFreeEurope}. These are then used together with the load values from 2013 to calculate a nodal scaling factor for each node as seen in equation \eqref{load_scaling} below:
+
+\begin{equation}
+\text{scaling factor}_{n}
+=
+\frac{\text{target Load}_{n}}
+{\text{2013 Load}_{n}}
+\quad\forall\,n
+\label{load_scaling}
+\end{equation}
+
+\medskip
+\noindent
+Here $n$ denotes the set of all nodes. These nodal scaling factors are then used as weights on the hourly load time series for each node to produce a rescaled load time series for each node as seen in equation \eqref{load_rescaled} below:
+
+\begin{equation}
+\text{rescaled Load}_{n,t}
+=
+\text{scaling factor}_{n} \cdot \text{2013 Load}_{n,t}
+\quad\forall\,n,t
+\label{load_rescaled}
+\end{equation}
+
+\medskip
+\noindent
+Where $t$ denotes the set of all time snapshots. This way the total load is scaled to the projected value but the general shape of the load time series is preserved. An example of a nodal load time series before and after rescaling can be seen below in Figure \ref{fig_load_rescale}:
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{doc/Load_Rescaling_Example.png}
+\caption{Example of load rescaling for node representing Denmark.}
+\label{fig_load_rescale}
+\end{figure}
+
+\medskip
+\noindent
+Here it can be seen that the shape of the load time series has been preserved while the total load has been rescaled to match the projected values.
+
+\subsection{Cost Modeling}
+\noindent
+Although the precompiled network comes with some cost data already defined, there are some technologies that do not hace cost data defined. In order to be able to optimize the network fully this must be rectified. Table \ref{tab:costs} below shows the cost data used for the different generation and storage technologies in the network.
+
+\begin{table}[H]
+\centering
+\caption{Cost assumptions for generation technologies}
+\label{tab:costs}
+\makebox[\textwidth][c]{%
+\small
+\begin{tabular}{lrrrrrp{2.5cm}}
+\toprule
+\textbf{Carrier} & \textbf{CAPEX} & \textbf{Lifetime} & \textbf{Discount} & \textbf{FOM (abs)} & \textbf{FOM (rate)} & \textbf{Notes} \\
+ & \textbf{(EUR/MW)} & \textbf{(years)} & \textbf{rate} & \textbf{(EUR/MW/a)} & \textbf{(per a)} & \\
+\midrule
+CCGT & 830,000 & 25 & 0.07 & 27,800 & -- & DEA 2030 \\
+OCGT & 435,000 & 25 & 0.07 & 7,745 & -- & DEA 2030 \\
+Coal & 1,860,000 & 30 & 0.07 & 30,355 & -- & DEA 2030 \\
+Lignite & 1,860,000 & 30 & 0.07 & 30,355 & -- & Proxied as coal CAPEX \\
+Oil & 343,000 & 25 & 0.07 & 8,448 & -- & DEA 2030 \\
+Biomass & 3,300,000 & 25 & 0.07 & 96,000 & -- & DEA 2030 \\
+Geothermal & 4,290,000 & 20 & 0.07 & -- & 0.02 & EGS $\sim$2\% FOM \\
+Nuclear & 5,870,000 & 60 & 0.07 & -- & 0.02 & NEA 2020 $\sim$2\% FOM \\
+\bottomrule
+\end{tabular}}
+\end{table}
+
+\medskip
+\noindent
+PyPSA, stores generator cost paramaters as annualized total ownership costs. Due to differences in the way different sources report costs, some conversion is necessary in order to convert the reported costs into the format used by PyPSA. Firstly, for sources that report the FOM (Fixed Operation and Maintenance) costs as an absolute value the total annualized cost is calculated as:
+
+\begin{equation}
+\text{Annualized Cost}
+=
+\text{CAPEX} \cdot \text{Annuity Factor} + \text{FOM (abs)}
+\end{equation}
+
+\medskip
+\noindent
+Where the Annuity Factor is calculated as:
+
+\medskip
+\begin{equation}
+\text{Annuity Factor}
+=
+\frac{r(1+r)^n}{(1+r)^n - 1}
+\end{equation}
+
+\medskip
+\noindent
+With $r$ being the discount rate and $n$ being the lifetime of the technology in years. For sources that report FOM as an annual rate the annualized cost is calculated as:
+
+\begin{equation}
+\text{Annualized Cost}
+=
+\text{CAPEX} \cdot \text{Annuity Factor} + \text{CAPEX} \cdot \text{FOM (rate)}
+\end{equation}
+
+\medskip
+\noindent
+An finally for sources that report neither FOM (abs) nor FOM (rate) the annualized cost is simply calculated as calculated as:
+
+\begin{equation}
+\text{Annualized Cost}
+=
+\text{CAPEX} \cdot \text{Annuity Factor}
+\end{equation}
+
+\medskip
+\noindent
+Performing these operations ensures that all the cost data is formatted the same when interfacing with the PyPSA model.
+
+
 
 \subsection{Optimization strategy}
 Optimizing complex energy networks with many variables and constraints is computationally very intensive. For this reason the optimizations performed for this master's thesis have exclusively been performed on a High Performance Computing (HPC) environment. More specifically the UCloud HPC operated by SDU \cite{UCloudUserGuide}. The optimizations were typically run on a set of 4 machines, each with an Intel Xeon Gold 6130 CPU and took on average 12 core-hours apiece to achieve an optimal solution. The optimization algorithm was chosen as the Barrier method in the commercial optimizer by Gurobi, chosen primarily for its numerical stability \cite{BarrierLoggingGurobi}.
 
 \subsubsection{Objective functions and constraints}
-Objective functions in  PyPSA and interacting with Gurobi. Adding the de-carbonization constraint to the least cost system
+{\color{red}Objective functions in PyPSA and interacting with Gurobi. Adding the de-carbonization constraint to the least cost system}
 
 \medskip
 \noindent In order to optimize the network first an objective function must be defined. An objective function is, as the name suggests, the function which when minimized or maximized leads to the objective of the optimization to be achieved. The objective function for finding the cheapest possible electrical system is defined as minimizing the sum of all the costs:
@@ -176,6 +327,7 @@ Objective functions in  PyPSA and interacting with Gurobi. Adding the de-carboni
   $}
   \label{eq:cost_min}
 \end{equation}
+
 \medskip
 \noindent Here $n$ denotes the set of all nodes, and $t$ denotes the set of all snapshots during the timeframe. However in order to construct a feasible solution space the objective function must be defined by a set of bounding constraints. Initially an equality constraint is defined so that, for each snapshot, all nodes must have their electricity demand met by a combination of energy production and nodal balancing:
 
@@ -188,12 +340,56 @@ Objective functions in  PyPSA and interacting with Gurobi. Adding the de-carboni
 \label{eq:load_balance}
 \end{equation}
 
+\medskip
+\noindent
+Here $\lambda$ is known as the dual-variable or the Karush-Kuhn-Tucker (KKT) multipler associated wth the constraint. This variable can be interpreted as the shadow price, or marginal price of electricity in node $n$ at time $t$. This marginal price represents the cost of supplying one additional unit of electricity to a node and as such is set by the most expensive generator needed to meet demand in that node at that time\cite{EnergyBalanceDocumentation}.
+
+\medskip
+\noindent
+{\color{red}Should i explain how the KKT multipliers work here?}
 
 
 \subsection{Least-cost system}
-Introduction to least-cost systems and their purpose as a baseline.
-\subsubsection{Modeling}
-Modeling assumptions and methodology. Describing network topology and cost modeling.
+{\color{red}Introduction to least-cost systems and their purpose as a baseline.}
+
+\medskip
+\noindent
+In order to analyse and compare the effects of decentralization at different levels of decarbonization, first a set of refernce systems, at each level of decarbonisation, that have not been forced to decentralize, must be constructed. These systems are referred to as least-cost systems. In addition to the objective function \eqref{eq:cost_min} and the load balance \eqref{eq:load_balance} these systems are also constrained by a decarbonization constraint as seen in equation \eqref{decarb_constraint} below:
+
+\begin{equation}
+\text{total emissions}_{C} \leq (1 - C \cdot \text{baseline emissions})
+\quad\longleftrightarrow\quad \mu_{C}
+\label{decarb_constraint}
+\end{equation}
+
+\medskip
+\noindent
+Where $C$ is the level of decarbonization as a fraction of the baseline emissions and $\mu$ is the KKT multiplier and can be interpreted as the price of emitting an additional unit of CO$_2$ in the system at decarbonization level $C$. The \textit{baseline emissions} refer to the total emissions of the system when optimzed purely based on the objective function and load-balance, without any decarbonization constraint. The emissions of the system are calculated based on the emission factors of each generator technology and their respective power output as seen in equation \eqref{emissions_calc} below:
+
+\begin{equation}
+\text{total emissions}
+=
+\sum_{t} \sum_{n} \left( \sum_{g} p_{g,n,t} \cdot e_g \right) \cdot w_t
+\label{emissions_calc}
+\end{equation}
+
+\medskip
+\noindent
+Here $p$ is the power output of generator $g$ in node $n$ at time $t$, $e$ is the emission factor of generator $g$ and $w$ is the weighting factor for snapshot $t$.
+
+\medskip
+\noindent
+Based on previous experience with opimising energy systems the following levels of C were chosen for the reference systems:
+
+\begin{equation}
+C \in \{0\%, 10\%, 20\%, 30\%, 40\%, 50\%, 60\%, 70\%, 80\%, 90\%, 93\%, 96\%, 99\%, 100\%\}
+\label{decarb_levels}
+\end{equation}
+
+\medskip
+\noindent
+This was done in order to achive a wide range of decarbonization, while increasing resolution at higher levels of decarbonisation where the system tends to change more rapidly.
+
 \subsection{Decentralized systems}
 Introduction to the secondary decentralizing sweeps
 \subsubsection{Measures of decentralization}
