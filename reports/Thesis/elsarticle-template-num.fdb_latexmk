@@ -1,14 +1,14 @@
 # Fdb version 4
-["bibtex elsarticle-template-num"] 1764590527.29777 "elsarticle-template-num.aux" "elsarticle-template-num.bbl" "elsarticle-template-num" 1764590588.12703 0
-  "./Sources.bib" 1764588930 17059 c950ec5b4f5724401dfa50688a865b1e ""
+["bibtex elsarticle-template-num"] 1764600614.18987 "elsarticle-template-num.aux" "elsarticle-template-num.bbl" "elsarticle-template-num" 1764600623.8635 0
+  "./Sources.bib" 1764600406 17059 c950ec5b4f5724401dfa50688a865b1e ""
   "./elsarticle-num.bst" 1763031933 29462 d2b5b1799e10c2334c188d78937e1ac9 ""
-  "elsarticle-template-num.aux" 1764590586 11568 44a17c5ed28da5a11aa888b602b8d821 "pdflatex"
+  "elsarticle-template-num.aux" 1764600621 13716 1423decb34aed8c69eaf6f5e8f79a1d1 "pdflatex"
   (generated)
   "elsarticle-template-num.bbl"
   "elsarticle-template-num.blg"
   (rewritten before read)
-["pdflatex"] 1764590578.88599 "c:/Users/krisa/Documents/GitHub/pypsa-eur/Thesis-workflow/reports/Thesis/elsarticle-template-num.tex" "elsarticle-template-num.pdf" "elsarticle-template-num" 1764590588.12789 0
-  "c:/Users/krisa/Documents/GitHub/pypsa-eur/Thesis-workflow/reports/Thesis/elsarticle-template-num.tex" 1764590577 36380 886d18e207e2a36400a9aa4bd76bb1ab ""
+["pdflatex"] 1764600615.03729 "c:/Users/krisa/Documents/GitHub/pypsa-eur/Thesis-workflow/reports/Thesis/elsarticle-template-num.tex" "elsarticle-template-num.pdf" "elsarticle-template-num" 1764600623.86431 0
+  "c:/Users/krisa/Documents/GitHub/pypsa-eur/Thesis-workflow/reports/Thesis/elsarticle-template-num.tex" 1764600602 43057 0e5db5997931b9696612f7f8da41de2d ""
   "c:/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1763038793 2971 def0b6c1f0b107b3b936def894055589 ""
   "c:/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1763038793 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "c:/texlive/2025/texmf-dist/fonts/map/fontname/texfonts.map" 1763042560 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -146,11 +146,11 @@
   "doc/StorageCapacityStackedBar_C100_80_0_K0.png" 1763031933 47963 6a3c7f205c36da7fb3c6622906bef54b ""
   "doc/SystemCost_K_infs.png" 1763031934 148990 b0b790044a57971c32054b501a7e215c ""
   "doc/scarcity_rent_evolution_contributions.png" 1764064678 212274 57c8247b8a87b0f60974d2fd414c5643 ""
-  "elsarticle-template-num.aux" 1764590586 11568 44a17c5ed28da5a11aa888b602b8d821 "pdflatex"
-  "elsarticle-template-num.bbl" 1764590527 6615 bacf318f728307391a8171ae9b2d1363 "bibtex elsarticle-template-num"
-  "elsarticle-template-num.out" 1764590586 5756 59bc542acf153e99b3c8f954a3c7dec4 "pdflatex"
-  "elsarticle-template-num.spl" 1764590579 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "elsarticle-template-num.tex" 1764590577 36380 886d18e207e2a36400a9aa4bd76bb1ab ""
+  "elsarticle-template-num.aux" 1764600621 13716 1423decb34aed8c69eaf6f5e8f79a1d1 "pdflatex"
+  "elsarticle-template-num.bbl" 1764600615 6615 bacf318f728307391a8171ae9b2d1363 "bibtex elsarticle-template-num"
+  "elsarticle-template-num.out" 1764600621 6781 35acf6bf9c2f6985ff8814f629b412e8 "pdflatex"
+  "elsarticle-template-num.spl" 1764600616 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "elsarticle-template-num.tex" 1764600602 43057 0e5db5997931b9696612f7f8da41de2d ""
   (generated)
   "elsarticle-template-num.aux"
   "elsarticle-template-num.log"

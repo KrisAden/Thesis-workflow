@@ -230,7 +230,7 @@ Where $t$ denotes the set of all time snapshots. This way the total load is scal
 \noindent
 Here it can be seen that the shape of the load time series has been preserved while the total load has been rescaled to match the projected values.
 
-\subsection{Cost Modeling}
+\subsection{Generator Cost Modeling} \label{generator_cost_modeling}
 \noindent
 Although the precompiled network comes with some cost data already defined, there are some technologies that do not hace cost data defined. In order to be able to optimize the network fully this must be rectified. Table \ref{tab:costs} below shows the cost data used for the different generation and storage technologies in the network.
 
@@ -256,6 +256,8 @@ Nuclear & 5,870,000 & 60 & 0.07 & -- & 0.02 & NEA 2020 $\sim$2\% FOM \\
 \bottomrule
 \end{tabular}}
 \end{table}
+{\color{red}Needs sources for cost data cited. Also where is run of river in my system?}
+
 
 \medskip
 \noindent
@@ -300,8 +302,79 @@ An finally for sources that report neither FOM (abs) nor FOM (rate) the annualiz
 
 \medskip
 \noindent
-Performing these operations ensures that all the cost data is formatted the same when interfacing with the PyPSA model.
+Performing these operations ensures that all the cost data is formatted the same when interfacing with the PyPSA model. The full cost assumptions for the different types of generators can be found in \nameref{Appendix_A}.
 
+\subsection{Transmission- and generator-expansion}
+\noindent
+In order to find the optimal network the transmission infrastructure as well as select generator types must be allowed to vary their capacity. For transmission infrastructure the line capacity was constrained as seen in equation \eqref{transmission_constraint} below:
+
+\begin{equation}
+p_{\text{existing}}\leq p_{\text{line}} \leq p_{\text{line, max}}
+\label{transmission_constraint}
+\end{equation}
+
+\medskip
+\noindent
+Where $p_{\text{existing}}$ is the existing capacity of the line, $p_{\text{line}}$ is the optimized capacity of the line and $p_{\text{line, max}}$ is the maximum allowable capacity of the line. The minimum capacity is set to the pre-existing  capacity as it is assumed that the existing transmission infrastructure will not be decommissioneddue to the trouble of digging up existing lines. In order to avoid transmission bottlenecks, and find the optimal solution of installed generation capacity in the nodes, the maximum capacity was set to an arbitrarily high value.
+
+\medskip
+\noindent
+A similar approach was used for the \textit{fossil-based} generators in the system. These generators are allowed to decomission in order to meet the decarbonization targets, but are not allowed to expand their capacity beyond the existing existing capacity as can be seen in equation \eqref{fossil_constraint} below:
+
+\begin{equation}
+p_{\text{nom}} \leq p_{\text{existing}}
+\label{fossil_constraint}
+\end{equation}
+
+\medskip
+\noindent
+Moste of the renewable generators are allowed to expand their capacity between 0 and an arbitrarily high value as these are the capacities that will later be constrained by the decentralization measures. However some renewable generators like nuclear, geothermal and biomass are, like the fossil based technologies, constrained to not expand beyond their existing capacity. This is primarily done as calculating the maximum installable capacity for these technologies is a large task in itself and is outside the scope of this master's thesis. The freely expandable renewable technologies in the system are solar PV, onshore wind and offshore wind and are constrained as seen in equation \eqref{renewable_constraint} below:
+
+\begin{equation}
+0 \leq p_{\text{nom}}
+\label{renewable_constraint}
+\end{equation}
+
+\medskip
+\noindent
+This does not however mean that there are no limits to the nodal capacities of these renewables, but rather that these are "soft" limits constrained by the capacity factor time series for solar and wind that determine the amount of wind and sun available at each node at each time snapshot.
+
+\subsection{Energy storage infrastructure}
+\noindent
+Finally, the last step before the system is ready to be optimized, is to implement the energy storage infrastructure. The pre-compiled network comes with a few different types of storage already implemented: Pumped-Hydro Storage (PHS), and Regular (resovoir) hydro storage. Historically hydro based storage in the European Union has been the primary method of energy storage and as a result most areas capable having hydro based storage installed have already been utilized. As a result of this the hydro based storage technologies are not allowed to change their capacity in the optimization and are constrained as seen in equation \eqref{hydro_constraint} below:
+
+\begin{equation}
+p_{\text{nom}} = p_{\text{existing}}
+\label{hydro_constraint}
+\end{equation}
+
+\medskip
+\noindent
+However as the system decarbonizes and the amount of dispatchable fossil-based generation decreases it is increasingly necessary to have large amounts of energy storage capacity installed. In order to properly model this two additional storage technologies, namely Battery storage and hydrogen storage has been added to the network. Battery stoage consists of battteries and inverters and hydrogen storage consists of a hydrogen tank, an electrolyzer as well as a fuel cell. When adding the additional storage technologies their costs have been calculated in a manner similar to that o the generators as seen in section \ref{generator_cost_modeling} above. The cost assumptions for battery and hydrogen storage can be seen below in Table \ref{tab:storage_costs}:
+
+\begin{table}[H]
+\centering
+\caption{Storage technology cost assumptions used in the optimization model.}
+\label{tab:storage_costs}
+\makebox[\textwidth][c]{%
+\begin{tabular}{llcccc}
+\toprule
+\textbf{Component} & \textbf{Type} & \textbf{CAPEX} & \textbf{Lifetime} & \textbf{Efficiency} & \textbf{Annualized Cost} \\
+ &  & \textbf{(EUR/unit)} & \textbf{(years)} &  & \textbf{(EUR/unit/a)} \\
+\midrule
+Battery & Energy (Cells) & 142 kWh & 25 & --- & 12.2k MWh/yr \\
+ & Power (Inverter) & 160 kW & 25 & 0.96 & 13.7k MW/yr \\
+Hydrogen & Energy (Tank) & 57 kWh & 25 & --- & 4.9k MWh/yr \\
+ & Power (Electrolyser) & 600 kW & 30 & 0.66 & 48.4k MW/yr \\
+ & Power (Fuel Cell) & 1100 kW & 10 & 0.50 & 156.6k MW/yr \\
+\bottomrule
+\end{tabular}}
+\end{table}
+{\color{red}Needs sourcing}
+
+\medskip
+\noindent
+Here it is important to note that the storage units include effciencies for charging and dischaging. This efficiency is incoporated in optimization model as it has a large imnpact on system cost, which was annualized as per equations in section \ref{generator_cost_modeling} above. As for the complete cost assumptions for the different storage components these can be found in \nameref{Appendix_B}.
 
 
 \subsection{Optimization strategy}
@@ -701,6 +774,10 @@ How else could this approach be used and how would this expand the workflows use
 
 \section{Acknowledgments}
 
+\medskip
+\noindent
+The auhor would like to thank Sommer Marie Aden-Dam for her moral support and help in keeping my breaks short.
+
 \section{References}
 
 %% If you have bib database file and want bibtex to generate the
@@ -716,28 +793,60 @@ How else could this approach be used and how would this expand the workflows use
 
 \section{Appendices}
 
-Cross reference: \eqref{eq:cost_min}
+\subsection{Appendix A: Generator cost assumptions} \label{Appendix_A}
 
 \medskip
-\noindent Inline equation: $CO_{2}$
+\noindent
+\begin{table}[htbp]
+\centering
+\caption{Generator technology cost assumptions used in the optimization model.}
+\label{tab:generator_costs_appendix}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Technology} & \textbf{Capital Cost} & \textbf{Marginal Cost} \\
+ & \textbf{(EUR/MW/a)} & \textbf{(EUR/MWh)} \\
+\midrule
+CCGT & 99.0k & 47.20 \\
+OCGT & 45.1k & 58.38 \\
+biomass & 379.2k & 14.96 \\
+coal & 180.2k & 24.10 \\
+geothermal & 490.7k & 0.00 \\
+lignite & 180.2k & 13.49 \\
+nuclear & 535.5k & 16.90 \\
+offwind-ac & 196.7k & 0.01 \\
+offwind-dc & 219.4k & 0.01 \\
+oil & 37.9k & 130.23 \\
+onwind & 133.8k & 0.01 \\
+ror & 270.9k & 0.00 \\
+solar & 55.1k & 0.01 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\noindent Figure reference and figure: \ref{fig1}:
-
-
+\subsection{Appendix B: Storage cost assumptions} \label{Appendix_B}
 
 \medskip
-\noindent List:
-\begin{itemize}
-    \item \(S\) represents the set of snapshots,
-    \item \(G_r\) is the set of generators located in region \(r\),
-    \item \(p_{g,s}\) is the power output of generator \(g\) at snapshot \(s\),
-    \item \(e_g\) is the emission factor of generator \(g\), and
-    \item \(w_s\) is the weighting factor for snapshot \(s\).
-\end{itemize}
+\noindent
+\begin{table}[htbp]
+\centering
+\caption{Storage technology cost assumptions extracted from the optimized network.}
+\label{tab:storage_costs_appendix}
+\begin{tabular}{lcc}
+\toprule
+\textbf{Technology} & \textbf{Capital Cost} & \textbf{Marginal Cost} \\
+ & \textbf{(EUR/MW/a)} & \textbf{(EUR/MWh)} \\
+\midrule
+Battery & 13.7k & 0.00 \\
+Hydrogen & 205.0k & 0.00 \\
+PHS & 160.6k & 0.00 \\
+Hydro & 0.0k & 0.00 \\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\newpage
-
-
+\medskip
+\noindent
+\color{red}This complicates scarcity rents as hydro does not have a captal cost defined
 
 \end{document}
 
