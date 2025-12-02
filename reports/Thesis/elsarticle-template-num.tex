@@ -138,11 +138,48 @@ In a world where the necessity of reducing the carbon emissions of our energy ne
 
 \section{Nomenclature}
 
+\subsection*{Symbols}
 \begin{tabular}{ll}
-\textbf{Table Example} & \\
-\hline
-C1 R1 & C1 R2 \\
-C2 R1 & C2 R2 \\
+\toprule
+\textbf{Symbol} & \textbf{Description} \\
+\midrule
+$n$ & Node index (spatial unit) \\
+$t$ & Time snapshot index \\
+$g$ & Generator technology index \\
+$C$ & Decarbonization level (fraction of baseline emissions) \\
+$K$ & Decentralization parameter (capacity distribution factor) \\
+$\lambda_{n,t}$ & Marginal electricity price at node $n$ and time $t$ (EUR/MWh) \\
+$\mu_C$ & Shadow price of CO$_2$ emissions at decarbonization level $C$ (EUR/tCO$_2$) \\
+$p$ & Power output or capacity (MW) \\
+$e_g$ & Emission factor for generator technology $g$ (tCO$_2$/MWh) \\
+$w_t$ & Temporal weighting factor for snapshot $t$ \\
+$L_{n,t}$ & Electrical load (demand) at node $n$ and time $t$ (MWh) \\
+$\omega_n$ & Normalized load-share weight for node $n$ \\
+$R$ & Renewable generation capacity (MW) \\
+$r$ & Discount rate (per annum) \\
+$G$ & Gini coefficient of inequality \\
+\bottomrule
+\end{tabular}
+
+\subsection*{Abbreviations}
+\begin{tabular}{ll}
+\toprule
+\textbf{Abbreviation} & \textbf{Definition} \\
+\midrule
+AC & Alternating Current \\
+CAPEX & Capital Expenditure \\
+CCGT & Combined Cycle Gas Turbine \\
+EU & European Union \\
+FOM & Fixed Operation and Maintenance \\
+HPC & High Performance Computing \\
+HVDC & High Voltage Direct Current \\
+KKT & Karush-Kuhn-Tucker \\
+LCOE & Levelized Cost of Electricity \\
+OCGT & Open Cycle Gas Turbine \\
+PHS & Pumped Hydro Storage \\
+PyPSA & Python for Power System Analysis \\
+SDRCL & Standard Deviation of Nodal Renewable Capacity per Load \\
+\bottomrule
 \end{tabular}
 
 \newpage
@@ -236,7 +273,7 @@ Although the precompiled network comes with some cost data already defined, ther
 
 \begin{table}[H]
 \centering
-\caption{Cost assumptions for generation technologies}
+\caption{Cost assumptions for generation technologies \cite{TechnologyDataGeneration2024} \cite{FutureGeothermalEnergy2024} \cite{ProjectedCostsGenerating}}
 \label{tab:costs}
 \makebox[\textwidth][c]{%
 \small
@@ -256,8 +293,6 @@ Nuclear & 5,870,000 & 60 & 0.07 & -- & 0.02 & NEA 2020 $\sim$2\% FOM \\
 \bottomrule
 \end{tabular}}
 \end{table}
-{\color{red}Needs sources for cost data cited. Also where is run of river in my system?}
-
 
 \medskip
 \noindent
@@ -328,7 +363,7 @@ p_{\text{nom}} \leq p_{\text{existing}}
 
 \medskip
 \noindent
-Moste of the renewable generators are allowed to expand their capacity between 0 and an arbitrarily high value as these are the capacities that will later be constrained by the decentralization measures. However some renewable generators like nuclear, geothermal and biomass are, like the fossil based technologies, constrained to not expand beyond their existing capacity. This is primarily done as calculating the maximum installable capacity for these technologies is a large task in itself and is outside the scope of this master's thesis. The freely expandable renewable technologies in the system are solar PV, onshore wind and offshore wind and are constrained as seen in equation \eqref{renewable_constraint} below:
+Most of the renewable generators are allowed to expand their capacity between 0 and an arbitrarily high value as these are the capacities that will later be constrained by the decentralization measures. However some renewable generators like nuclear, geothermal and biomass are, constrained to "only" expand a factor 100 beyond their existing capacity int the nodes where they are already present. This is primarily done as calculating the maximum installable capacity for these technologies is a large task in itself and is outside the scope of this master's thesis. The freely expandable renewable technologies in the system are therefore solar PV, onshore wind and offshore wind which are constrained as seen in equation \eqref{renewable_constraint} below:
 
 \begin{equation}
 0 \leq p_{\text{nom}}
@@ -354,7 +389,7 @@ However as the system decarbonizes and the amount of dispatchable fossil-based g
 
 \begin{table}[H]
 \centering
-\caption{Storage technology cost assumptions used in the optimization model.}
+\caption{Storage technology cost assumptions used in the optimization model \cite{TechnologyDataEnergy2024}.}
 \label{tab:storage_costs}
 \makebox[\textwidth][c]{%
 \begin{tabular}{llcccc}
@@ -370,7 +405,6 @@ Hydrogen & Energy (Tank) & 57 kWh & 25 & --- & 4.9k MWh/yr \\
 \bottomrule
 \end{tabular}}
 \end{table}
-{\color{red}Needs sourcing}
 
 \medskip
 \noindent
@@ -380,11 +414,12 @@ Here it is important to note that the storage units include effciencies for char
 \subsection{Optimization strategy}
 Optimizing complex energy networks with many variables and constraints is computationally very intensive. For this reason the optimizations performed for this master's thesis have exclusively been performed on a High Performance Computing (HPC) environment. More specifically the UCloud HPC operated by SDU \cite{UCloudUserGuide}. The optimizations were typically run on a set of 4 machines, each with an Intel Xeon Gold 6130 CPU and took on average 12 core-hours apiece to achieve an optimal solution. The optimization algorithm was chosen as the Barrier method in the commercial optimizer by Gurobi, chosen primarily for its numerical stability \cite{BarrierLoggingGurobi}.
 
-\subsubsection{Objective functions and constraints}
-{\color{red}Objective functions in PyPSA and interacting with Gurobi. Adding the de-carbonization constraint to the least cost system}
+\subsection{Baseline system}
+\noindent
+As seen in Figure \ref{fig_workflow} above, in order to be able to analyze the impacts of varying decarbonization constraints and decentralization measures first a baseline system that is subjected to neither decarbonization nor decentralization constraints must be optimized. This system, which will be used for comparrison is referred to as the \textit{baseline} system. The optimization of this system is performed based on the objective function and load-balance, and is a \textit{least cost} system, meaning that the total system cost is minimized.
 
 \medskip
-\noindent In order to optimize the network first an objective function must be defined. An objective function is, as the name suggests, the function which when minimized or maximized leads to the objective of the optimization to be achieved. The objective function for finding the cheapest possible electrical system is defined as minimizing the sum of all the costs:
+\noindent In order to optimize the networks first an objective function must be defined. An objective function is, as the name suggests, the function which when minimized or maximized leads to the objective of the optimization to be achieved. The objective function for finding the cheapest possible electrical system is defined as minimizing the sum of all the costs:
 
 \medskip
 \noindent Equation:
@@ -421,13 +456,13 @@ Here $\lambda$ is known as the dual-variable or the Karush-Kuhn-Tucker (KKT) mul
 \noindent
 {\color{red}Should i explain how the KKT multipliers work here?}
 
-
-\subsection{Least-cost system}
-{\color{red}Introduction to least-cost systems and their purpose as a baseline.}
-
 \medskip
 \noindent
-In order to analyse and compare the effects of decentralization at different levels of decarbonization, first a set of refernce systems, at each level of decarbonisation, that have not been forced to decentralize, must be constructed. These systems are referred to as least-cost systems. In addition to the objective function \eqref{eq:cost_min} and the load balance \eqref{eq:load_balance} these systems are also constrained by a decarbonization constraint as seen in equation \eqref{decarb_constraint} below:
+Optimizing the network with, only in regards to the objective function \eqref{eq:cost_min} and the load balance constraint \eqref{eq:load_balance} is what produces the baseline system that will be used for comparrison in the following sections. 
+
+\subsection{Decarbonized systems}
+\noindent
+Once the baseline system has been optimized the a set of new networks at different levels of decarbonization can be defined and optimzed. In addition to the objective function \eqref{eq:cost_min} and the load balance \eqref{eq:load_balance} these systems are also constrained by a decarbonization constraint as seen in equation \eqref{decarb_constraint} below:
 
 \begin{equation}
 \text{total emissions}_{C} \leq (1 - C \cdot \text{baseline emissions})
@@ -437,7 +472,7 @@ In order to analyse and compare the effects of decentralization at different lev
 
 \medskip
 \noindent
-Where $C$ is the level of decarbonization as a fraction of the baseline emissions and $\mu$ is the KKT multiplier and can be interpreted as the price of emitting an additional unit of CO$_2$ in the system at decarbonization level $C$. The \textit{baseline emissions} refer to the total emissions of the system when optimzed purely based on the objective function and load-balance, without any decarbonization constraint. The emissions of the system are calculated based on the emission factors of each generator technology and their respective power output as seen in equation \eqref{emissions_calc} below:
+Where $C$ is the level of decarbonization as a fraction of the baseline emissions (the total emissions from the baseline system) and $\mu$ is the KKT multiplier and can be interpreted as the price of emitting an additional unit of CO$_2$ in the system at decarbonization level $C$.  The baseline emissions are calculated based on the emission factors of each generator technology and their respective power output as seen in equation \eqref{emissions_calc} below:
 
 \begin{equation}
 \text{total emissions}
@@ -461,18 +496,62 @@ C \in \{0\%, 10\%, 20\%, 30\%, 40\%, 50\%, 60\%, 70\%, 80\%, 90\%, 93\%, 96\%, 9
 
 \medskip
 \noindent
-This was done in order to achive a wide range of decarbonization, while increasing resolution at higher levels of decarbonisation where the system tends to change more rapidly.
+This was done in order to achive a wide range of decarbonization, while increasing resolution at higher levels of decarbonisation where the system tends to change more rapidly. The outcome of the the decarbonization workflow is therefore a set of 14 different networks (excluding the baseline), each at a different level of decarbonization defined as a fraction of the baseline emissions.
 
 \subsection{Decentralized systems}
-Introduction to the secondary decentralizing sweeps
-\subsubsection{Measures of decentralization}
-Discussion on Standard deviation approach vs Gini Approach
-\subsubsection{Linear systems}
-Talking points on avoiding non-convex solution spaces
-\subsubsection{Added constraints}
-Discussing the K-constrains introduced for decentralization
-\subsubsection{Avoiding constraint interactions}
-Talking about how the normal K approach does not work as it leads to over de-carbonization
+The first step in creating a set of decentralized systems, at each level of decarbonization, is to define a measure of decentralization. Some papers like "Modeling all alternative solutiions for highly renewable energy systems" by Pedersen et al. \cite{pedersenModelingAllAlternative2021a} use the \textit{Gini Coefficient} of inequality of installed renewable capacity as a measure of decentralization:
+
+\medskip
+\noindent
+\begin{equation}
+G = \frac{n + 1 - 2 \cdot \frac{\sum_{i=1}^n C_i}{C_n}}{n}
+\label{Gini}
+\end{equation}
+
+\medskip
+\noindent
+Here $n$ is the number of nodes, $C_i$ is the cumulative installed capacity at node $i$ when the nodes are sorted in ascending order of installed capacity and $C_n$ is the total installed capacity in the system. This, however comes with a number of issues. primary among them is that fact that the Gini coefficient is non-linear and as such cannot directly be used as a constraint as this will lead to non-convex solution spaces and local minima. While it is possible to work around this by using a sampling based approach and then calculating the Gini coefficient post optimization, this approach is difficult to understand and implement. As a result the decentralization of the systems was constrained as seen in equation \eqref{eq:k_constraint} below:
+
+\begin{equation}
+\frac{1}{K} \cdot \omega_n \cdot R_{\text{total}} \leq R_{\text{cap},n} \leq K \cdot \omega_n \cdot R_{\text{total}}
+\quad\forall\,n
+\label{eq:k_constraint}
+\end{equation}
+
+\medskip
+\noindent
+Where $\omega_n = \frac{L_n}{\sum_{n'} L_{n'}}$ is the normalized load-share weight for node $n$, $R_{\text{total}}$ is the total renewable capacity across all nodes, $R_{\text{cap},n}$ is the installed renewable capacity at node $n$, and $K$ is the decentralization parameter. This way each node is given a minimum renewable capacity as a fraction of the total renewable capacity in the system based on their share of the total load. Simultaniously each node is also assigned a maximum renewable capacity as a factor of the total renewable capacity in the system based on their share of the total load. If, for examle $K=3$ that means that each node is allowed to "outperform" their load-share based renewable capacity by a factor of 3, while also being required to install at least one third of their load-share based renewable capacity. By then gradually having $K$ approach 1 the system is foced to decentralized until at $K=1$ each node is required to install renewable capacity exactly equal to their load-share based renewable capacity, which leads to the system becoming increasingly decentralized.
+
+\medskip
+\noindent
+Based on previous preliminary experiments following levels of K were chosen for the decentralized systems:
+
+\begin{equation}
+K \in \{8, 7, 6, 5, 4, 3, 2, 1\}
+\label{K_levels}
+\end{equation}  
+
+\medskip
+\noindent
+This approach has the benifit of being linear, but also avoids another pitfall when implementing decenralization in systems that also are subjected to decarbonization constraints. Both these constraints, in some way, interact with the amount of renewable capacity installed in the nodes of the network. If one was to simply constrain the amount of installed renewable capacity in each node without taking into account the total amount of renewable capacity in the system, it could lead to the system installing more renewable capacity than needed to meet the decarbonization constraint. This interaction would then lead to the system becoming overly decarbonized and difficult to compare to other systems.
+
+\medskip
+\noindent
+The final outcome of the decentralization workflow is therefore a set of 112 different networks, each at a different level of decarbonization and decentralization. Before proceeding to the results of the optimization workflow it is usefull to introduce a more intuitive measure of the decentralization of a given system as the K parameter is somewhat abstract. A more intuitive measure of decentralization is the \textit{Standard Deviation of Nodal Renewable Capacity per Load} defined as:
+
+\begin{equation}
+\text{SDRCL}
+=
+\sqrt{\frac{1}{n} \sum_{n} \left( \frac{R_{\text{cap},n}}{L_n} - \mu \right)^2}
+\quad\text{where}\quad
+\mu = \frac{1}{n} \sum_{n} \frac{R_{\text{cap},n}}{L_n}
+\end{equation}
+
+\medskip
+\noindent
+Here $R_{\text{cap},n}$ is the installed renewable capacity at node $n$, $L_n$ is the load at node $n$ and $n$ is the number of nodes. This measure represents the standard deviation of the ratio between installed renewable capacity and load at each node. A low value of SDRCL indicates that the renewable capacity is more evenly distributed across the nodes relative to their load, while a high value indicates a more uneven distribution. By then comparing the SDRCL values for each of the decentralized systems to the network at the same level of decarbonization but without decentralization constraints, it is possible to get a more intuitive measure of how decentralized a given system is and how succesfull the decentralization constraints were.
+
+\newpage
 \section{Results}
 Introduction to results
 \subsection{Least-cost systems}

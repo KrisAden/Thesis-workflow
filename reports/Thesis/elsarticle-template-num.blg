@@ -27,6 +27,14 @@ Warning--entry type for "TransparencyPlatform" isn't style-file defined
 --line 179 of file Sources.bib
 Warning--entry type for "CarbonFreeEurope" isn't style-file defined
 --line 186 of file Sources.bib
+Warning--entry type for "TechnologyDataGeneration2024" isn't style-file defined
+--line 212 of file Sources.bib
+Warning--entry type for "FutureGeothermalEnergy2024" isn't style-file defined
+--line 221 of file Sources.bib
+Warning--entry type for "ProjectedCostsGenerating" isn't style-file defined
+--line 232 of file Sources.bib
+Warning--entry type for "TechnologyDataEnergy2024" isn't style-file defined
+--line 242 of file Sources.bib
 Warning--empty year in ParisAgreementUNFCCC
 Warning--empty journal in rodriguezCostoptimalDesignSimplified2015a
 Warning--empty year in rodriguezCostoptimalDesignSimplified2015a
@@ -44,49 +52,55 @@ Warning--empty year in GNUGeneralPublica
 Warning--empty year in horschPyPSAEurOpenOptimisation2023
 Warning--empty year in TransparencyPlatform
 Warning--empty year in CarbonFreeEurope
+Warning--empty year in TechnologyDataGeneration2024
+Warning--empty year in FutureGeothermalEnergy2024
+Warning--empty year in ProjectedCostsGenerating
+Warning--empty year in TechnologyDataEnergy2024
 Warning--empty year in UCloudUserGuide
 Warning--empty year in BarrierLoggingGurobi
 Warning--empty year in EnergyBalanceDocumentation
+Warning--empty journal in pedersenModelingAllAlternative2021a
+Warning--empty year in pedersenModelingAllAlternative2021a
 Warning--empty year in kies_noprofit_pypsa
-You've used 19 entries,
+You've used 24 entries,
             2952 wiz_defined-function locations,
-            779 strings with 9625 characters,
-and the built_in function-call counts, 4602 in all, are:
-= -- 371
-> -- 157
+            805 strings with 10771 characters,
+and the built_in function-call counts, 5602 in all, are:
+= -- 447
+> -- 174
 < -- 0
-+ -- 65
-- -- 46
-* -- 368
-:= -- 601
-add.period$ -- 26
-call.type$ -- 19
-change.case$ -- 20
++ -- 74
+- -- 50
+* -- 439
+:= -- 710
+add.period$ -- 32
+call.type$ -- 24
+change.case$ -- 25
 chr.to.int$ -- 0
-cite$ -- 40
-duplicate$ -- 159
-empty$ -- 569
-format.name$ -- 53
-if$ -- 1192
+cite$ -- 51
+duplicate$ -- 201
+empty$ -- 717
+format.name$ -- 58
+if$ -- 1469
 int.to.chr$ -- 0
-int.to.str$ -- 19
-missing$ -- 6
-newline$ -- 88
-num.names$ -- 9
-pop$ -- 144
+int.to.str$ -- 24
+missing$ -- 7
+newline$ -- 109
+num.names$ -- 10
+pop$ -- 187
 preamble$ -- 1
 purify$ -- 0
 quote$ -- 0
-skip$ -- 298
+skip$ -- 370
 stack$ -- 0
-substring$ -- 102
-swap$ -- 36
+substring$ -- 120
+swap$ -- 43
 text.length$ -- 0
 text.prefix$ -- 0
 top$ -- 0
 type$ -- 0
-warning$ -- 21
-while$ -- 18
-width$ -- 21
-write$ -- 153
-(There were 33 warnings)
+warning$ -- 27
+while$ -- 20
+width$ -- 26
+write$ -- 187
+(There were 43 warnings)

@@ -70,6 +70,22 @@ J.~Hörsch, F.~Neumann, F.~Hofmann, D.~Schlachtberger, M.~Frysztacki, J.~Hampp, 
 \href{https://www.carbonfreeeurope.org}{Carbon {{Free Europe}}}.
 \newline\urlprefix\url{https://www.carbonfreeeurope.org}
 
+\bibitem{TechnologyDataGeneration2024}
+\href{https://ens.dk/en/analyses-and-statistics/technology-data-generation-electricity-and-district-heating}{Technology {{Data}} for {{Generation}} of {{Electricity}} and {{District Heating}} | {{Energistyrelsen}}}.
+\newline\urlprefix\url{https://ens.dk/en/analyses-and-statistics/technology-data-generation-electricity-and-district-heating}
+
+\bibitem{FutureGeothermalEnergy2024}
+\href{https://www.iea.org/reports/the-future-of-geothermal-energy}{The {{Future}} of {{Geothermal Energy}} – {{Analysis}}}.
+\newline\urlprefix\url{https://www.iea.org/reports/the-future-of-geothermal-energy}
+
+\bibitem{ProjectedCostsGenerating}
+\href{https://www.oecd-nea.org/jcms/pl_28612/projected-costs-of-generating-electricity}{Projected {{Costs}} of {{Generating Electricity}}}.
+\newline\urlprefix\url{https://www.oecd-nea.org/jcms/pl_28612/projected-costs-of-generating-electricity}
+
+\bibitem{TechnologyDataEnergy2024}
+\href{https://ens.dk/en/analyses-and-statistics/technology-data-energy-storage}{Technology {{Data}} for {{Energy Storage}} | {{Energistyrelsen}}}.
+\newline\urlprefix\url{https://ens.dk/en/analyses-and-statistics/technology-data-energy-storage}
+
 \bibitem{UCloudUserGuide}
 \href{https://docs.cloud.sdu.dk/index.html}{{{UCloud User Guide}} — {{UCloud}}}.
 \newline\urlprefix\url{https://docs.cloud.sdu.dk/index.html}
@@ -81,6 +97,11 @@ J.~Hörsch, F.~Neumann, F.~Hofmann, D.~Schlachtberger, M.~Frysztacki, J.~Hampp, 
 \bibitem{EnergyBalanceDocumentation}
 \href{https://docs.pypsa.org/latest/user-guide/optimization/energy-balance/}{Energy {{Balance}} - {{Documentation}}}.
 \newline\urlprefix\url{https://docs.pypsa.org/latest/user-guide/optimization/energy-balance/}
+
+\bibitem{pedersenModelingAllAlternative2021a}
+T.~T. Pedersen, M.~Victoria, M.~G. Rasmussen, G.~B. Andresen, \href{https://www.sciencedirect.com/science/article/pii/S0360544221015425}{Modeling all alternative solutions for highly renewable energy systems} 234  121294.
+\newblock \href {https://doi.org/10.1016/j.energy.2021.121294} {\path{doi:10.1016/j.energy.2021.121294}}.
+\newline\urlprefix\url{https://www.sciencedirect.com/science/article/pii/S0360544221015425}
 
 \bibitem{kies_noprofit_pypsa}
 A.~Kies, Deriving the zero-profit condition for pypsa, unpublished internal document.
