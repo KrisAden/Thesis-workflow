@@ -62,6 +62,11 @@ J.~Hörsch, F.~Neumann, F.~Hofmann, D.~Schlachtberger, M.~Frysztacki, J.~Hampp, 
 \newblock \href {https://doi.org/10.5281/zenodo.7646728} {\path{doi:10.5281/zenodo.7646728}}.
 \newline\urlprefix\url{https://zenodo.org/records/7646728}
 
+\bibitem{schyskaSensitivityPowerSystem2021b}
+B.~U. Schyska, A.~Kies, M.~Schlott, L.~{von Bremen}, W.~Medjroubi, \href{https://www.sciencedirect.com/science/article/pii/S254243512100355X}{The sensitivity of power system expansion models} 5~(10)  2606--2624.
+\newblock \href {https://doi.org/10.1016/j.joule.2021.07.017} {\path{doi:10.1016/j.joule.2021.07.017}}.
+\newline\urlprefix\url{https://www.sciencedirect.com/science/article/pii/S254243512100355X}
+
 \bibitem{TransparencyPlatform}
 \href{https://transparency.entsoe.eu/load/total/dayAhead?appState=%7B%22sa%22%3A%5B%22CTY%7C10YBE----------2%22%5D%2C%22st%22%3A%22CTY%22%2C%22mm%22%3Atrue%2C%22ma%22%3Afalse%2C%22sp%22%3A%22HALF%22%2C%22dt%22%3A%22TABLE%22%2C%22df%22%3A%5B%222025-12-01%22%2C%222025-12-01%22%5D%2C%22tz%22%3A%22CET%22%7D}{Transparency {{Platform}}}.
 \newline\urlprefix\url{https://transparency.entsoe.eu/load/total/dayAhead?appState=%7B%22sa%22%3A%5B%22CTY%7C10YBE----------2%22%5D%2C%22st%22%3A%22CTY%22%2C%22mm%22%3Atrue%2C%22ma%22%3Afalse%2C%22sp%22%3A%22HALF%22%2C%22dt%22%3A%22TABLE%22%2C%22df%22%3A%5B%222025-12-01%22%2C%222025-12-01%22%5D%2C%22tz%22%3A%22CET%22%7D}
