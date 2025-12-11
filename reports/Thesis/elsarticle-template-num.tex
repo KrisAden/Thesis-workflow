@@ -1062,6 +1062,34 @@ Here it can be observed that The K=1 systems is highly volatile when compared to
   \item \textbf{Onshore Wind:} When increasing decentralization, installed capacity decreases. This effect is particularly pronounced at high levels of decarbonization. At low levels of decarbonization the K=1 is consistant but amplified before diverging from 50\% to 80\% before finally becoming consistant again at higher levels of decarbonization.
   \item \textbf{Offshore Wind (AC):} A more decentralized system leads to more installed capacity across all levels of decarbonization with a significant increase at low levels of decarbonizatio amd a huge increase at high levekls of decarbonization. The extreme K=1 scenario is consistent with this trend at all levels of decarbonization.
   \item \textbf{Offshore Wind (DC):} In general a decentralizing system will lead to an decrease in installed capacity, particularly at high levels of decarbonization. At low levels of decarbonization the K=1 scenario is inconsistent with this trend but at high levels of decarbonization it becomes consistent.
+  
+\medskip
+\noindent
+Overall it seems that decentralization leads to an increase in  solar and AC-offshore wind capacity was these can that can be more easily distributed across the networkcompared to onshore wind farms and DC-offshore wind which require more specialized infrastructure. It is known that, due to the variance in capacity factor time-series for diffrent generating technologies, the installed capacity and the annnual generation do generally follow the same trends. This has been confirmed by reviewing the generation results across the different K-constraints and decarbonization levels, which can be found in the supplementary material under Appendix \nameref{Appendix_D}. As expected the trends in generation follow those of installed capacity closely. As for the transmission capacity results, these can be seen below in figure \ref{fig5}:
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{doc/transmission_capacity_stackedline_decent.png}
+\caption{Total installed transmission capacity across K-constraints and decarbonization levels.}
+\label{fig5}
+\end{figure}
+
+\medskip
+\noindent
+Unsurprisingly as the system is forced to decentralize the total transmission capacity decreases, a trend that is increasingly pronounced at low and high levels of decarbonization where the system is known to already be increasingly centralized leading to a higher sensitivity to decentralization measures. In order to analyze the interactions between the different tyes of storage capacity, the decentralization measure and the level of decarbonization initially a coefficient of variance analysis was performed in order to determine which storage technologies are the most sensitive tot the decentralization process. The results of this analysis can be found in Appendix \nameref{Appendix_E}. Here it can be seen that the maximum capacity limited nature of the water-based storage technologies means that these are not sensitive to decentralization measures. While hydrogen based storage is sensitive to decentralization overall installed capacity remains negligable. Pictured below in figure \ref{fig8} is the installed storage capacities of batteries for all levels of decarboinization and decentralization:
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{doc/storage_capacity_line_decent.png}
+\caption{Installed battery and hydrogen storage capacity across K-constraints and decarbonization levels.}
+\label{fig8}
+\end{figure}
+
+\medskip
+\noindent
+These plots illustrate the fact that as the system decarbonizaes and decentralizes the installed battery capacity initially decreases a little due to the load following mechanism discussed above before increasing dramatically at high levels of decarbonization and decentralization. This aligns well with the idea that as the system is forced to decentralize the need for local nodal balancing increases.
+
+
 \end{itemize}
 \section{Sanity checks and validations}
 Comparing the key figures like marginal prices to those from real networks
@@ -1155,7 +1183,7 @@ Hydro & 0.0k & 0.00 \\
 
 \medskip
 \noindent
-\color{red}This complicates scarcity rents as hydro does not have a captal cost defined
+This complicates scarcity rents as hydro does not have a captal cost defined
 
 \subsection{Appendix C: Capacity sensitivity} \label{Appendix_C}
 \medskip
@@ -1182,6 +1210,45 @@ Biomass & 9.9 (0\%) & 9.9 (0\%) & 9.9 (0\%) & 9.9 (0\%) \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\subsection{Appendix D: Annual generation evolution for decentralization and decarbonization} \label{Appendix_D}
+\noindent
+The total annual generation from the four freely expanable renewable sources, across the different levels of decentralization and decarbonization can be seen below in Figure \ref{fig5}. In order to de-clutter the vizualization each technology is represented by its k=1 scenario and the mean across the remaining K-constraints.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=\linewidth]{doc/generation_line_decent.png}
+\caption{Total annual generation from renewable sources across K-constraints and decarbonization levels
+.}
+\label{fig5}
+\end{figure}
+
+\subsection{Appendix E: Coefficient of Variance analysis for Storage capaciy} \label{Appendix_E}
+\begin{table}[htbp]
+\centering
+\caption{Sensitivity of Storage Capacity to K-Constraint Levels}
+\label{tab:storage_sensitivity}
+\small
+\begin{tabular}{lrrrrr}
+\toprule
+Storage Technology & Avg Capacity & Avg CV & Min CV & Max CV & Avg Range \\
+           & (GW)        & (\%)   & (\%)   & (\%)   & (\%) \\
+\midrule
+Battery              &    686.7 &   5.50 &   0.00 &  20.02 &  18.13 \\
+Hydro Storage        &     99.6 &   0.00 &   0.00 &   0.00 &   0.00 \\
+Hydrogen             &      0.0 & 142.38 &   0.00 & 264.14 & 438.71 \\
+Pumped Hydro         &     54.6 &   0.00 &   0.00 &   0.00 &   0.00 \\
+\bottomrule
+\end{tabular}
+
+\vspace{0.5em}
+\small
+\textit{Note:} CV = Coefficient of Variation. Range = (Max - Min) / Mean × 100\%. 
+Statistics calculated across all K-constraint levels (K=1 through K=$\infty$) for each decarbonization scenario.
+Low CV values (<5\%) indicate insensitivity to K-constraint, suggesting capacity is at maximum available limit.
+\end{table}
+
+
 
 \end{document}
 
