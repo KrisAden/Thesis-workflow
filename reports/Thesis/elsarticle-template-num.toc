@@ -1,0 +1,35 @@
+\contentsline {section}{\numberline {1}Introduction}{3}{section.1}%
+\contentsline {section}{\numberline {2}Nomenclature}{5}{section.2}%
+\contentsline {section}{\numberline {3}Methodology}{6}{section.3}%
+\contentsline {subsection}{\numberline {3.1}Modeling framework}{6}{subsection.3.1}%
+\contentsline {subsection}{\numberline {3.2}Precompiled network model}{8}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.3}Load rescaling}{9}{subsection.3.3}%
+\contentsline {subsection}{\numberline {3.4}Generator Cost Modeling}{11}{subsection.3.4}%
+\contentsline {subsection}{\numberline {3.5}Transmission- and generator-expansion}{12}{subsection.3.5}%
+\contentsline {subsection}{\numberline {3.6}Energy storage infrastructure}{13}{subsection.3.6}%
+\contentsline {subsection}{\numberline {3.7}Optimization strategy}{14}{subsection.3.7}%
+\contentsline {subsection}{\numberline {3.8}Baseline system}{15}{subsection.3.8}%
+\contentsline {subsection}{\numberline {3.9}Decarbonized systems}{16}{subsection.3.9}%
+\contentsline {subsection}{\numberline {3.10}Decentralized systems}{17}{subsection.3.10}%
+\contentsline {section}{\numberline {4}Results}{21}{section.4}%
+\contentsline {subsection}{\numberline {4.1}Baseline system}{21}{subsection.4.1}%
+\contentsline {subsection}{\numberline {4.2}Baseline mechanisms and interactions}{28}{subsection.4.2}%
+\contentsline {subsection}{\numberline {4.3}Decarbonized systems}{30}{subsection.4.3}%
+\contentsline {subsection}{\numberline {4.4}Decarbonization mechanisms and interactions}{46}{subsection.4.4}%
+\contentsline {subsection}{\numberline {4.5}Decentralized systems}{46}{subsection.4.5}%
+\contentsline {subsection}{\numberline {4.6}Decentralization mechanisms and interactions}{60}{subsection.4.6}%
+\contentsline {section}{\numberline {5}Discussion}{61}{section.5}%
+\contentsline {subsection}{\numberline {5.1}Economic trends and societal paradigms}{64}{subsection.5.1}%
+\contentsline {subsection}{\numberline {5.2}Future policy implications}{64}{subsection.5.2}%
+\contentsline {subsection}{\numberline {5.3}Uses for methodology}{64}{subsection.5.3}%
+\contentsline {section}{\numberline {6}Conclusion}{64}{section.6}%
+\contentsline {section}{\numberline {7}Assumptions}{64}{section.7}%
+\contentsline {section}{\numberline {8}Acknowledgments}{64}{section.8}%
+\contentsline {section}{\numberline {9}References}{64}{section.9}%
+\contentsline {section}{\numberline {10}Appendices}{67}{section.10}%
+\contentsline {subsection}{\numberline {10.1}Appendix A: Generator cost assumptions}{67}{subsection.10.1}%
+\contentsline {subsection}{\numberline {10.2}Appendix B: Storage cost assumptions}{67}{subsection.10.2}%
+\contentsline {subsection}{\numberline {10.3}Appendix C: Capacity sensitivity}{69}{subsection.10.3}%
+\contentsline {subsection}{\numberline {10.4}Appendix D: Annual generation evolution for decentralization and decarbonization}{69}{subsection.10.4}%
+\contentsline {subsection}{\numberline {10.5}Appendix E: Coefficient of Variance analysis for Storage capaciy}{70}{subsection.10.5}%
+\contentsline {subsection}{\numberline {10.6}Appendix F: Mean capacity factors}{71}{subsection.10.6}%

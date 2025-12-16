@@ -19,6 +19,8 @@
 \usepackage{booktabs}
 \usepackage{xcolor}
 \usepackage{colortbl}  % For cell color shading
+\usepackage{multirow}
+\usepackage{threeparttable}
 
 \hypersetup{
     hidelinks,
@@ -108,6 +110,8 @@ European energy system \sep De-centralization \sep De-carbonization \sep PyPSA-E
 
 \end{keyword}
 
+
+
 \end{frontmatter}
 
 %% Add \usepackage{lineno} before \begin{document} and uncomment 
@@ -116,6 +120,8 @@ European energy system \sep De-centralization \sep De-carbonization \sep PyPSA-E
 
 %% main text
 %%
+
+\tableofcontents
 
 \newpage
 
@@ -531,7 +537,7 @@ Based on previous experience with opimising energy systems the following levels 
 \begin{equation}
 C \in \{0\%, 10\%, 20\%, 30\%, 40\%, 50\%, 60\%, 70\%, 80\%, 90\%, 93\%, 96\%, 99\%, 100\%\}
 \label{decarb_levels}
-\end{equation}
+\end{equation} 
 
 \medskip
 \noindent
@@ -596,7 +602,7 @@ The final outcome of the decentralization workflow is therefore a set of 105 dif
 \quad\text{where}\quad
 \mu = \frac{1}{n} \sum_{n} \frac{R_{\text{cap},n}}{L_n}
 \label{SDRCL}
-\end{equation}
+\end{equation} 
 
 \medskip
 \noindent
@@ -1073,11 +1079,11 @@ Overall it seems that decentralization leads to an increase in  solar and AC-off
 Here it is evident that as the system decarbonizes, for decentralization levels $K\neq1$ the mean capacity factor for solar remains fairly consistent at all levels of decarbonization. However for the extreme K=1 scenario the mean capacity factor decreases significantly as the system decarbonizes and is 13\%-21\% lower than the mean of the other decentralization levels. This is also the case for onshore wind, were the the wind based technologies that see a mean capacity factor decrease of 3\%-5\% between K=1 and the other decentralization levels at high levels of decarbonization and offshore wind that sees a 12\%-20\% decrease. These plots can be found in the supplementary material under Appendix \nameref{Appendix_F}. The decrease is caused by the fact that $K\neq 1$ forces renreable capacity buildout in worse locations, for all four technologies at all levels of decarbonization. This makes sense for the less extreme decentralization levels, however for the extreme K=1 it does not explain why al low levels of decarbonization $K \neq 1$ reduces decarbonization and why this changes at high levels of decarbonization.
 \linebreak
 \noindent
-At lower levels of decarbonization the $K=1$ scenario esentially says: \textit{ Meet at modest $CO_2$ constraint at minumum cost, while spreading extra renewables proportionally across all nodes (bad solar and bad wind alike)}. This means hat in order to keep costs low the optimizer installs additional renewable capacity that produces the most MWh per GW and has a low degree of curtailment. This punishes solar PV capacity as solar has the largest decrease in capacity factor when decentralizing as seen above. The optimizer therefore ends up surpressing solar capacity buildut at low levels of decarbonization. This trend however reverses at high levels of decarbonization. Here the question changes from \textit{ How do we meet a modest $CO_2$ constraint at minimum cost while spreading renewables proportionally across all nodes?} to \textit{How do i meet the load with all renewable energy despite correlation and curtailment?}. Here, as he system is forced to decarbonize completely, the increase in necessary wind capacity to meet the load leads to very large amounts of curtailment as wind generation is highly correlated across the network. Solar PV capacity then becomes the escape valve as solar generation is better suited for storage and balancing with the prevalent technology (batteries) and produces energy in diferent hours than wind. This forced diversification then leads to a massive solar buildout at very high levels of decarbonization.
+At lower levels of decarbonization the $K=1$ scenario esentially says: \textit{ Meet at modest $CO_2$ constraint at minumum cost, while spreading extra renewables proportionally across all nodes (bad solar and bad wind alike)}. This means hat in order to keep costs low the optimizer installs additional renewable capacity that produces the most MWh per forced system-wide GW and has a low degree of curtailment. This punishes solar PV capacity as solar has the largest decrease in capacity factor when decentralizing as seen above. The optimizer therefore ends up surpressing solar capacity buildut at low levels of decarbonization. This trend however reverses at high levels of decarbonization. Here the question changes from \textit{ How do we meet a modest $CO_2$ constraint at minimum cost while spreading renewables proportionally across all nodes?} to \textit{How do i meet the load with all renewable energy despite correlation and curtailment?}. Here, as he system is forced to decarbonize completely, the increase in necessary wind capacity to meet the load leads to very large amounts of curtailment as wind generation is highly correlated across the network. at 100\% decarbonization and $K=1$ the wind curtailment reaches 12\%-16\% across all wind technologies while solar remains around 2\%. This seems to indicate that wind deplayment has reache econimic saturation in the system. Solar PV capacity then becomes the escape valve as solar generation is better suited for storage and balancing with the prevalent technology (batteries) and produces energy in diferent hours than wind. This forced diversification then leads to a massive solar buildout at very high levels of decarbonization.
 
 \medskip
 \noindent
-However the most important takeaway from this discussion is the fact that the extreme decentralization scenario of K=1 behaves fundamentally different from the other decentralization levels due to the highly restrictive nature of the constraint and the system wide heterogenity becoming a efficiency bottleneck. This explains the sudden changes in decarbonization strategy  and leads to changes in dominating technologies when compared to the other decentralization levels.
+However the most important takeaway from this discussion is the fact that the extreme decentralization scenario of K=1 behaves fundamentally different from the other decentralization levels due to the highly restrictive nature of the constraint and the system wide heterogenity becoming a efficiency bottleneck. This happens as $K=1$ represents a fudamentally diffrent plannning paradigme. Here spatal optimization collapses due to the decentralization constraint converting the problem from a spatial and technological optimization, to a purely technological optimization. What follows is then a system where every additional GW capacity must be replicated system wide due to the decentralization constraint. This explains the sudden changes in decarbonization strategy  and leads to changes in dominating technologies when compared to the other decentralization levels.
 
 \medskip
 \noindent
@@ -1103,7 +1109,7 @@ Unsurprisingly as the system is forced to decentralize the total transmission ca
 
 \medskip
 \noindent
-These plots illustrate the fact that as the system decarbonizaes and decentralizes the installed battery capacity initially decreases a little due to the load following mechanism discussed above before increasing dramatically at high levels of decarbonization and decentralization. This aligns well with the idea that as the system is forced to decentralize the need for local nodal balancing increases.
+These plots illustrate the fact that as the system decarbonizaes and decentralizes the installed battery capacity initially decreases a little due to the load following mechanism discussed above before increasing dramatically at high levels of decarbonization and decentralization. This aligns well with the idea that as the system is forced to decentralize the need for local nodal balancing increases. It also aligns with the fact that the decrease in transmission capacity when decentralizing means that less remote balancing can be performed through the transmission network and as such more localized storage is needed.
 
 \medskip
 \noindent
@@ -1151,7 +1157,45 @@ Finally it is of great interest to observe how the SDRCL behaves when both decen
 
 \medskip
 \noindent
-As evident from the graph the k-constraint measure has succesully decentralized the system across all levels of decarbonization. In order to better ilustrate how the decentralization measure has impacted the equity of the system, Pictured below is the distribution of the renewable capacity to load ratio used to calculate the SDRCL for 100\% decarbonisation for $K=\infty$ (free to centralize) and $K=4 \text{ } \wedge K=1$ constained scenarios.
+As evident from the graph the k-constraint measure has succesully decentralized the system across all levels of decarbonization. Interstingly as seen in figure \ref{fig12} above it appears that the decentralization constraint tightens, the system becomes less sensitive to the decarboinization level. The main takeaway from this figure however, is that the K-constrained networks all achieve significant reduction in centralization, while having similar cost premiums as seen in figure \ref{fig11} above. This would indicate that the solution space in regards to cost optimizing while reducing centralization is actually quite flat. This is a very significant result and migh indicate that decentralizing systems is not as cost prohibitive as previously thought. This can be seen in table \ref{tab:cost_equity_tradeoff} below which summarizes the cost-equity trade-off between the moderate decentralization scenario of K=4 and the extreme decentralization scenario of K=1:
+
+\medskip
+\begin{table}[htbp]
+\centering
+\caption{Cost-Equity Trade-off Analysis: Moderate Decentralization (K=4) vs Complete Decentralization (K=1)}
+\label{tab:cost_equity_tradeoff}
+\makebox[\textwidth][c]{%
+\begin{threeparttable}
+\small
+\begin{tabular}{lcccccc}
+\toprule
+\multirow{2}{*}{\textbf{Decarb.}} & \multicolumn{2}{c}{\textbf{Cost Premium (\%)}} & \multicolumn{2}{c}{\textbf{Equity Benefit (\%)}} & \multicolumn{2}{c}{\textbf{K=4 Relative to K=1}} \\
+\cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
+& K=1 & K=4 & K=1 & K=4 & Cost & Equity \\
+\midrule
+30\% & 2.82 & 0.36 & 98.3 & 78.3 & 12.8\% & 79.7\% \\
+50\% & 2.51 & 0.15 & 98.1 & 72.5 & 6.1\% & 73.9\% \\
+100\% & 18.11 & 3.32 & 99.4 & 84.8 & 18.3\% & 85.3\% \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item \textit{Note:} Cost premium calculated relative to K=$\infty$ (no constraint). 
+Equity benefit measured as percentage reduction in SDRCL (Standard Deviation of Renewable Capacity per Load) from K=$\infty$ baseline. 
+K=4 'Relative' columns show K=4 performance as percentage of K=1. 
+Lower cost premium and higher equity benefit are desirable. 
+K=4 achieves 74--85\% of K=1's equity benefits at only 6--18\% of the cost penalty, 
+demonstrating a 5--12$\times$ superior cost-equity trade-off across all decarbonization levels.
+\end{tablenotes}
+\end{threeparttable}
+}
+\end{table}
+
+\newpage
+
+\medskip
+\noindent
+In order to better ilustrate how the decentralization measure has impacted the equity of the system, Pictured below is the distribution of the renewable capacity to load ratio used to calculate the SDRCL for 100\% decarbonisation for $K=\infty$ (free to centralize) and $K=4 \text{ } \wedge K=1$ constained scenarios.
 
 \begin{figure}[H]
 \centering
@@ -1162,7 +1206,7 @@ As evident from the graph the k-constraint measure has succesully decentralized 
 
 \medskip
 \noindent
-Here it is clearly illustrated that as K approachs 1 the distribution is forced to "flatten" meaning that all nodes must have similar renewable capacity to load ratios. Interstingly as seen in figure \ref{fig12} above it appears that the decentralization constraint tightens, the system becomes less sensitive to the decarboinization level.
+Here it is clearly illustrated that as K approachs 1 the distribution is forced to "flatten" meaning that all nodes must have similar renewable capacity to load ratios. As a side note the upper bound on the nodal renewable capacity relative to the nodal load is defined as a fraction of the system wide-capacity to load ratio. This explains why the distribution in figure \ref{fig13} above maxes out at 12 MW renewable capacity per MW load as the system-wide ratio at 100\% decarbonization is $\approx3$ and the upper bound for $K=4$ is then $4 \times 3 = 12$.
 
 \subsection{Decentralization mechanisms and interactions}
 \noindent
@@ -1177,7 +1221,34 @@ While there seems to be a significant overlap between the mechanisms governing t
 \medskip
 \noindent
 \section{Discussion}
-Introduction to discussion
+Having throughly reviewed and analyzed the results from the workflow it is now imporant to consider the results and trends in a broader context. In real-world applications energy system modelling does not stand alone but is a tool to be used to make informed decisions and guide policy makers.  It is therefor of utmost importance to take a step back and review the results of this master's thesis in such a broader context.
+
+\medskip
+\noindent
+Decarbonization and centralization are both very complex issues with many interactions and mechanisms at play. The main takeaway from the analysis performed in this thesis' is however that of the interacting paradigmes that govern the two processes. Understanding these paradigmes are key to making informed decisions and developing a comprehensive understanding of the energy system transition.
+
+\medskip
+\noindent
+When considering the decarbonzing system i is governed by two main planning-paradigmes: The load-following paradigme and the resource-quality paradigme. Given the current state of the European energy system, it seems that the transition towards a decarbonized system will initially, in a collaborative least-cost system, increase the equity in the system relative to the baseline. This occurs as renewable capacity will see substantial buildout in countries with large shares of the european load, that may not up untill now have investe significantly in renewable generation. However at a certain inflection point, estimated to be around 80-90\% decarbonization, the system will transition from one plnning paradigme (load following) to another (resource quality). Here it becomes necessary in order to service the load and keep costs as low as possible to begin to centralize renewable capacity in a few regions with the best renewable resources. This could for example be Spain having a larger share of solar capacity buildout than their share of the european load, and the UK and Ireland having a larger share of offshore wind capacity buildout than their share of the european load. Thus, when removing the last remanants of fossil fuel generation from the system the system will become increasingly centralized. This also coincides with a large buildout of transmission and storage infrastructure needed to balance the highly renewable system and as such large cost increases. This is supported by the analysis of the infra-marginal rent which reveals how system bottlenecks evolve during the decarbonization process. At low levels of decarbonization the scarcity rents are driven by fossil fuel generation capacity while at high levels of decarbonization, when the paradigme shifts, the scarcity rents are driven by renewable generation capacity, transmission capacity and storage capacity. The shift in scarcity rent drivers further supports the idea of two separate planning-paradigmes governing the decarbonization process and shows the fundemental change in which system constraints are dominant.
+
+\medskip
+\noindent
+If a system planner then wishes to combat this natural centralization that stems from the resource-quality paradigme, say forexample due to security concerns or political reasons, then decentralization measures can be enforced. Firstly it is very imporatnt hat this is done with care. As described in the methodology of this thesis' if decentralization is enforced as a hard limit and not normalized by some other system measure, it can lead to the decentralization constarint becoming the dominant limit in the system instead of the decarbonization constraint. This then leads to the system overshooting decarbonization targets and large cost premiums. The worrk done in this thesis' has shown that decentralization can be successfully enforced through the K-constraint method while still allowing the system to decarbonize in a least-cost manner. This process, like that of decentralization, is also governed by two main planning-paradigmes: One for increasing equity at low to moderate levels of decentralization ($K\neq1$), and one for extreme decentralization ($K=1$). For both paradigmes the system can succesfully increase equity by a sgnificant amount for relatively low cost premiums. This is extremely important as it indicates that decentralization is not as cost prohibitive as previously thought. However the two planning-paradigmes, while achieving similar results, differ wildly in their underlying mechanisms and strategies.
+
+\medskip
+\noindent
+At low to moderate levels of decentralization the system primarily follows the same mechanisms as the decarbonizing system ,although somewhat amplified, where at low levels of decarbonization the load-following mechanism dominates and at high levels of decarbonization the resource-quality mechanism dominates.
+
+\medskip
+\noindent
+However at extreme decentralization the system is forced to decentralize completely regardless of the level of decarbonization. This leads to unique decarbonization strategies when compared to the other decentralization levels. Here at low levels of decarbonization the system primarily prioritizes cost minimization while spreading renewable capacity proportionally across all nodes, leading to suppression of solar capacity buildout. This happens due to the extreme decentralization paradigme forcing renewable deployment in suboptimal locations. This then in return lowers the capacity the mean capacity factor of solar by upwards of 20\% and wind 5\% offshore and 20\% onshore. The degredation if capacity factor is the root cause of the extreme decentralization paradigmes unique behaviour at low levels of decarbonization. At high levels of decarbonization the system primarily prioritizes meeting the load with all renewable energy. This means that the level of curtailment for wind reaches upwards of 16\% while solar curtailment remains around 2\%. This is a symptom of the economic saturation of wind generation in the system and leads to solar capacity becoming the escape valve as additional wind deployment would simply lead to more curtailment due to the high correlation of wind generation across the network. This forced diversification then leads to a massive solar buildout at very high levels of decarbonization. In addition the extreme decentralization paradigme leads to large increases in battery storage capacity as the system is forced to balance more locally due to the decrease in transmission capacity which constitues a large cost increase.
+
+\medskip
+\noindent
+While overall the results from this thesis' indicate that both decarbonization and decentralization can be successfully achieved together, the volatility of the extreme decentralization paradigme indicates that this approach may not be suited fore real-world applications. The highly restrictive nature of the extreme decentralization constraint means that small changes in the system can lead to large changes in the decarbonization strategy. This could lead to unforeseen consequences and instability in the energy system transition if applied in real-world scenarios. econimically the extreme decentralization paradigme also lacks support as the cost of spatial equity varies wildly depending on the level of decarbonization. Therefore it is recommended that if decentralization measures are to be enforced in real-world applications, that this is done through low to moderate levels of decentralization where the system can still follow least-cost decarbonization strategies with more predictable cost premiums. The cost of spatial equity varies dramatically with decarbonization ambition. At 30-50\% decarbonization, K=1 imposes modest cost premiums (~2.5-3\%) as distributed wind can still meet most requirements. However, at 100\% decarbonization, K=1 cost premiums reach ~18\% due to forced solar over-building and CF degradation. Critically, moderate decentralization (K=4) achieves 60-80\% of K=1's equity benefits at only 13-18\% of the cost penalty, suggesting partial decentralization is far more economically viable.
+
+
+
 \subsection{Economic trends and societal paradigms}
 What can interactions can be taken from my results and how does this align with expectations and real-world trends
 \subsection{Future policy implications}
