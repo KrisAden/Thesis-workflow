@@ -1157,45 +1157,43 @@ Finally it is of great interest to observe how the SDRCL behaves when both decen
 
 \medskip
 \noindent
-As evident from the graph the k-constraint measure has succesully decentralized the system across all levels of decarbonization. Interstingly as seen in figure \ref{fig12} above it appears that the decentralization constraint tightens, the system becomes less sensitive to the decarboinization level. The main takeaway from this figure however, is that the K-constrained networks all achieve significant reduction in centralization, while having similar cost premiums as seen in figure \ref{fig11} above. This would indicate that the solution space in regards to cost optimizing while reducing centralization is actually quite flat. This is a very significant result and migh indicate that decentralizing systems is not as cost prohibitive as previously thought. This can be seen in table \ref{tab:cost_equity_tradeoff} below which summarizes the cost-equity trade-off between the moderate decentralization scenario of K=4 and the extreme decentralization scenario of K=1:
+As evident from the graph the k-constraint measure has succesully decentralized the system across all levels of decarbonization. Interstingly as seen in figure \ref{fig12} above it appears that the decentralization constraint tightens, the system becomes less sensitive to the decarboinization level. The main takeaway from this figure however, is that the K-constrained networks all achieve significant reduction in centralization, while having similar cost premiums as seen in figure \ref{fig11} above. This would indicate that the solution space in regards to cost optimizing while reducing centralization is actually quite flat. This is a very significant result and migh indicate that decentralizing systems is not as cost prohibitive as previously thought. A full breakdown of cost and equity tradeoff can be found in \nameref{Appendix_G}. The best performing constarint ($K=7$) is seen below in table \ref{tab:cost_equity_tradeoff} below which summarizes the cost-equity trade-off between the decentralization scenario of K=7 and the extreme decentralization scenario of K=1:
 
 \medskip
 \begin{table}[htbp]
 \centering
-\caption{Cost-Equity Trade-off Analysis: Moderate Decentralization (K=4) vs Complete Decentralization (K=1)}
+\caption{Cost-Equity Trade-off Analysis: Moderate Decentralization (K=7) vs Complete Decentralization (K=1)}
 \label{tab:cost_equity_tradeoff}
-\makebox[\textwidth][c]{%
 \begin{threeparttable}
-\small
+\footnotesize
 \begin{tabular}{lcccccc}
 \toprule
-\multirow{2}{*}{\textbf{Decarb.}} & \multicolumn{2}{c}{\textbf{Cost Premium (\%)}} & \multicolumn{2}{c}{\textbf{Equity Benefit (\%)}} & \multicolumn{2}{c}{\textbf{K=4 Relative to K=1}} \\
+\multirow{2}{*}{\textbf{Decarb.}} & \multicolumn{2}{c}{\textbf{Cost (\%)}} & \multicolumn{2}{c}{\textbf{Equity (\%)}} & \multicolumn{2}{c}{\textbf{K=7 vs K=1}} \\
 \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7}
-& K=1 & K=4 & K=1 & K=4 & Cost & Equity \\
+& K=1 & K=7 & K=1 & K=7 & Cost & Equity \\
 \midrule
-30\% & 2.82 & 0.36 & 98.3 & 78.3 & 12.8\% & 79.7\% \\
-50\% & 2.51 & 0.15 & 98.1 & 72.5 & 6.1\% & 73.9\% \\
-100\% & 18.11 & 3.32 & 99.4 & 84.8 & 18.3\% & 85.3\% \\
+30\% & 2.82 & 0.23 & 98.3 & 68.3 & 8.2\% & 69.5\% \\
+50\% & 2.51 & 0.09 & 98.1 & 61.8 & 3.4\% & 63.0\% \\
+100\% & 18.11 & 1.56 & 99.4 & 76.1 & 8.6\% & 76.6\% \\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}
-\small
+\footnotesize
 \item \textit{Note:} Cost premium calculated relative to K=$\infty$ (no constraint). 
 Equity benefit measured as percentage reduction in SDRCL (Standard Deviation of Renewable Capacity per Load) from K=$\infty$ baseline. 
-K=4 'Relative' columns show K=4 performance as percentage of K=1. 
+K=7 'Relative' columns show K=7 performance as percentage of K=1. 
 Lower cost premium and higher equity benefit are desirable. 
-K=4 achieves 74--85\% of K=1's equity benefits at only 6--18\% of the cost penalty, 
-demonstrating a 5--12$\times$ superior cost-equity trade-off across all decarbonization levels.
+K=7 achieves 63--77\% of K=1's equity benefits at only 3--9\% of the cost penalty, 
+demonstrating a 7--19$\times$ superior cost-equity trade-off across all decarbonization levels.
 \end{tablenotes}
 \end{threeparttable}
-}
 \end{table}
 
 \newpage
 
 \medskip
 \noindent
-In order to better ilustrate how the decentralization measure has impacted the equity of the system, Pictured below is the distribution of the renewable capacity to load ratio used to calculate the SDRCL for 100\% decarbonisation for $K=\infty$ (free to centralize) and $K=4 \text{ } \wedge K=1$ constained scenarios.
+In order to better ilustrate how the decentralization measure has impacted the equity of the system, Pictured below is the distribution of the renewable capacity to load ratio used to calculate the SDRCL for 100\% decarbonisation for $K=\infty$ (free to centralize) and $K=7 \text{ } \wedge K=1$ constained scenarios.
 
 \begin{figure}[H]
 \centering
@@ -1206,7 +1204,7 @@ In order to better ilustrate how the decentralization measure has impacted the e
 
 \medskip
 \noindent
-Here it is clearly illustrated that as K approachs 1 the distribution is forced to "flatten" meaning that all nodes must have similar renewable capacity to load ratios. As a side note the upper bound on the nodal renewable capacity relative to the nodal load is defined as a fraction of the system wide-capacity to load ratio. This explains why the distribution in figure \ref{fig13} above maxes out at 12 MW renewable capacity per MW load as the system-wide ratio at 100\% decarbonization is $\approx3$ and the upper bound for $K=4$ is then $4 \times 3 = 12$.
+Here it is clearly illustrated that as K approachs 1 the distribution is forced to "flatten" meaning that all nodes must have similar renewable capacity to load ratios. As a side note the upper bound on the nodal renewable capacity relative to the nodal load is defined as a fraction of the system wide-capacity to load ratio. This explains why the distribution in figure \ref{fig13} above maxes out at 20 MW renewable capacity per MW load as the system-wide ratio at 100\% decarbonization is $\approx3$ and the upper bound for $K=7$ is then $7 \times 3 = 12$.
 
 \subsection{Decentralization mechanisms and interactions}
 \noindent
@@ -1245,7 +1243,11 @@ However at extreme decentralization the system is forced to decentralize complet
 
 \medskip
 \noindent
-While overall the results from this thesis' indicate that both decarbonization and decentralization can be successfully achieved together, the volatility of the extreme decentralization paradigme indicates that this approach may not be suited fore real-world applications. The highly restrictive nature of the extreme decentralization constraint means that small changes in the system can lead to large changes in the decarbonization strategy. This could lead to unforeseen consequences and instability in the energy system transition if applied in real-world scenarios. econimically the extreme decentralization paradigme also lacks support as the cost of spatial equity varies wildly depending on the level of decarbonization. Therefore it is recommended that if decentralization measures are to be enforced in real-world applications, that this is done through low to moderate levels of decentralization where the system can still follow least-cost decarbonization strategies with more predictable cost premiums. The cost of spatial equity varies dramatically with decarbonization ambition. At 30-50\% decarbonization, K=1 imposes modest cost premiums (~2.5-3\%) as distributed wind can still meet most requirements. However, at 100\% decarbonization, K=1 cost premiums reach ~18\% due to forced solar over-building and CF degradation. Critically, moderate decentralization (K=4) achieves 60-80\% of K=1's equity benefits at only 13-18\% of the cost penalty, suggesting partial decentralization is far more economically viable.
+While overall the results from this thesis' indicate that both decarbonization and decentralization can be successfully achieved together, the volatility of the extreme decentralization paradigme indicates that this approach may not be suited fore real-world applications. The highly restrictive nature of the extreme decentralization constraint means that small changes in the system can lead to large changes in the decarbonization strategy. This could lead to unforeseen consequences and instability in the energy system transition if applied in real-world scenarios. econimically the extreme decentralization paradigme also lacks support as the cost of spatial equity varies wildly depending on the level of decarbonization. Therefore it is recommended that if decentralization measures are to be enforced in real-world applications, that this is done through low to moderate levels of decentralization where the system can still follow least-cost decarbonization strategies with more predictable cost premiums. The cost of spatial equity varies dramatically with decarbonization ambition. At 30-50\% decarbonization, K=1 imposes modest cost premiums (2.5-2.8\%) as distributed renewables can still meet most requirements. However, at 100\% decarbonization, K=1 cost premiums reach 18.1\% due to forced solar over-building and capacity factor degradation.
+
+\medskip
+\noindent
+Critically, moderate decentralization (K=7) achieves 62-76\% of K=1's equity benefits at only 3-9\% of the cost penalty across all decarbonization levels, demonstrating a 7-34$\times$ superior cost-equity trade-off. This suggests partial decentralization is far more economically viable than complete spatial equity.
 
 
 
@@ -1423,5 +1425,168 @@ Low CV values (<5\%) indicate insensitivity to K-constraint, suggesting capacity
 \caption{Mean capacity factor for offshore wind (DC) across K-constraints and decarbonization levels.}
 \label{fig18}
 \end{figure}
+
+\subsection{Appendix G: Cost-Equity tradeoff} \label{Appendix_G}
+
+\begin{table}[htbp]
+\centering
+\caption{Cost-Equity Trade-off: Low to Moderate Decarbonization (10\%--50\%)}
+\label{tab:cost_equity_part1}
+\small
+\begin{tabular}{cccccc}
+\toprule
+\textbf{Decarb} & \textbf{K} & \textbf{Cost} & \textbf{Equity} & \textbf{Cost} & \textbf{Efficiency} \\
+\textbf{Level} & \textbf{Value} & \textbf{Premium (\%)} & \textbf{Benefit (\%)} & \textbf{(\% of K=1)} & \textbf{Ratio} \\
+\midrule
+10\% & K=1 & 3.32 & 98.5 & 100.0 & 1.0x \\
+ & K=2 & 1.10 & 91.4 & 33.2 & 2.8x \\
+ & K=3 & 0.66 & 85.9 & 19.8 & 4.4x \\
+ & K=4 & 0.52 & 82.4 & 15.7 & 5.3x \\
+ & K=5 & 0.47 & 79.9 & 14.1 & 5.8x \\
+ & K=6 & 0.43 & 77.7 & 12.8 & 6.1x \\
+ & K=7 & 0.39 & 75.7 & 11.8 & 6.5x \\
+\midrule
+20\% & K=1 & 3.09 & 98.4 & 100.0 & 1.0x \\
+ & K=2 & 1.02 & 89.9 & 33.0 & 2.8x \\
+ & K=3 & 0.60 & 84.3 & 19.3 & 4.4x \\
+ & K=4 & 0.45 & 80.5 & 14.6 & 5.6x \\
+ & K=5 & 0.38 & 77.3 & 12.4 & 6.3x \\
+ & K=6 & 0.34 & 74.9 & 11.0 & 6.9x \\
+ & K=7 & 0.31 & 72.3 & 9.9 & 7.4x \\
+\midrule
+30\% & K=1 & 2.82 & 98.3 & 100.0 & 1.0x \\
+ & K=2 & 0.83 & 88.3 & 29.3 & 3.1x \\
+ & K=3 & 0.48 & 83.0 & 17.0 & 5.0x \\
+ & K=4 & 0.36 & 78.3 & 12.8 & 6.2x \\
+ & K=5 & 0.30 & 74.7 & 10.7 & 7.1x \\
+ & K=6 & 0.26 & 71.6 & 9.3 & 7.8x \\
+ & K=7 & 0.23 & 68.3 & 8.2 & 8.5x \\
+\midrule
+40\% & K=1 & 2.59 & 98.0 & 100.0 & 1.0x \\
+ & K=2 & 0.60 & 85.3 & 23.1 & 3.8x \\
+ & K=3 & 0.31 & 77.9 & 11.8 & 6.7x \\
+ & K=4 & 0.23 & 73.5 & 8.8 & 8.5x \\
+ & K=5 & 0.19 & 69.6 & 7.2 & 9.9x \\
+ & K=6 & 0.16 & 65.4 & 6.1 & 11.0x \\
+ & K=7 & 0.14 & 61.6 & 5.2 & 12.1x \\
+\midrule
+50\% & K=1 & 2.51 & 98.1 & 100.0 & 1.0x \\
+ & K=2 & 0.49 & 85.0 & 19.6 & 4.4x \\
+ & K=3 & 0.22 & 78.1 & 9.0 & 8.9x \\
+ & K=4 & 0.15 & 72.5 & 6.1 & 12.0x \\
+ & K=5 & 0.12 & 69.1 & 4.9 & 14.4x \\
+ & K=6 & 0.10 & 65.6 & 4.1 & 16.3x \\
+ & K=7 & 0.09 & 61.8 & 3.4 & 18.3x \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item \textit{Note:} Cost premium and equity benefit calculated relative to K=$\infty$ (no constraint). 
+Efficiency ratio = (Equity benefit) / (Cost premium), where higher values indicate better trade-offs.
+Table continues in Table~\ref{tab:cost_equity_part2}.
+\end{tablenotes}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Cost-Equity Trade-off: High Decarbonization (60\%--96\%)}
+\label{tab:cost_equity_part2}
+\small
+\begin{tabular}{cccccc}
+\toprule
+\textbf{Decarb} & \textbf{K} & \textbf{Cost} & \textbf{Equity} & \textbf{Cost} & \textbf{Efficiency} \\
+\textbf{Level} & \textbf{Value} & \textbf{Premium (\%)} & \textbf{Benefit (\%)} & \textbf{(\% of K=1)} & \textbf{Ratio} \\
+\midrule
+60\% & K=1 & 2.44 & 98.1 & 100.0 & 1.0x \\
+ & K=2 & 0.46 & 85.5 & 18.9 & 4.6x \\
+ & K=3 & 0.21 & 78.9 & 8.8 & 9.1x \\
+ & K=4 & 0.15 & 73.2 & 6.0 & 12.4x \\
+ & K=5 & 0.12 & 69.9 & 4.8 & 14.8x \\
+ & K=6 & 0.10 & 66.5 & 4.0 & 17.0x \\
+ & K=7 & 0.08 & 62.8 & 3.3 & 19.1x \\
+\midrule
+70\% & K=1 & 2.36 & 97.9 & 100.0 & 1.0x \\
+ & K=2 & 0.40 & 83.1 & 16.8 & 5.1x \\
+ & K=3 & 0.19 & 75.3 & 8.0 & 9.6x \\
+ & K=4 & 0.13 & 68.5 & 5.5 & 12.7x \\
+ & K=5 & 0.10 & 63.4 & 4.2 & 15.6x \\
+ & K=6 & 0.08 & 58.9 & 3.4 & 17.8x \\
+ & K=7 & 0.07 & 54.5 & 2.8 & 20.1x \\
+\midrule
+80\% & K=1 & 2.32 & 97.6 & 100.0 & 1.0x \\
+ & K=2 & 0.33 & 79.7 & 14.4 & 5.7x \\
+ & K=3 & 0.15 & 70.7 & 6.3 & 11.6x \\
+ & K=4 & 0.09 & 63.0 & 4.0 & 16.1x \\
+ & K=5 & 0.07 & 57.5 & 3.1 & 19.3x \\
+ & K=6 & 0.06 & 52.5 & 2.5 & 21.9x \\
+ & K=7 & 0.05 & 47.0 & 2.0 & 24.5x \\
+\midrule
+90\% & K=1 & 2.77 & 98.3 & 100.0 & 1.0x \\
+ & K=2 & 0.39 & 84.3 & 14.1 & 6.1x \\
+ & K=3 & 0.17 & 75.9 & 6.3 & 12.4x \\
+ & K=4 & 0.09 & 68.2 & 3.4 & 20.4x \\
+ & K=5 & 0.07 & 62.1 & 2.5 & 25.4x \\
+ & K=6 & 0.06 & 58.4 & 2.1 & 28.0x \\
+ & K=7 & 0.05 & 54.6 & 1.8 & 30.8x \\
+\midrule
+93\% & K=1 & 3.64 & 98.5 & 100.0 & 1.0x \\
+ & K=2 & 0.66 & 86.3 & 18.1 & 4.8x \\
+ & K=3 & 0.30 & 78.3 & 8.3 & 9.5x \\
+ & K=4 & 0.15 & 72.6 & 4.2 & 17.4x \\
+ & K=5 & 0.10 & 67.1 & 2.7 & 25.5x \\
+ & K=6 & 0.07 & 62.8 & 2.0 & 31.4x \\
+ & K=7 & 0.06 & 59.7 & 1.8 & 34.5x \\
+\midrule
+96\% & K=1 & 5.56 & 99.0 & 100.0 & 1.0x \\
+ & K=2 & 1.74 & 88.3 & 31.2 & 2.9x \\
+ & K=3 & 0.98 & 83.3 & 17.7 & 4.8x \\
+ & K=4 & 0.63 & 79.5 & 11.3 & 7.1x \\
+ & K=5 & 0.38 & 76.6 & 6.9 & 11.2x \\
+ & K=6 & 0.22 & 72.2 & 3.9 & 18.6x \\
+ & K=7 & 0.16 & 68.4 & 2.8 & 24.7x \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item \textit{Continued from Table~\ref{tab:cost_equity_part1}.}
+\textbf{K=7 achieves peak efficiency at 90--93\% decarbonization (28--35$\times$ better than K=1).}
+Table continues in Table~\ref{tab:cost_equity_part3}.
+\end{tablenotes}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Cost-Equity Trade-off: Near-Complete to Complete Decarbonization (99\%--100\%)}
+\label{tab:cost_equity_part3}
+\small
+\begin{tabular}{cccccc}
+\toprule
+\textbf{Decarb} & \textbf{K} & \textbf{Cost} & \textbf{Equity} & \textbf{Cost} & \textbf{Efficiency} \\
+\textbf{Level} & \textbf{Value} & \textbf{Premium (\%)} & \textbf{Benefit (\%)} & \textbf{(\% of K=1)} & \textbf{Ratio} \\
+\midrule
+99\% & K=1 & 9.90 & 99.4 & 100.0 & 1.0x \\
+ & K=2 & 3.98 & 91.6 & 40.2 & 2.3x \\
+ & K=3 & 2.30 & 87.3 & 23.2 & 3.8x \\
+ & K=4 & 1.49 & 84.2 & 15.1 & 5.6x \\
+ & K=5 & 1.15 & 81.3 & 11.6 & 7.1x \\
+ & K=6 & 0.94 & 78.3 & 9.5 & 8.3x \\
+ & K=7 & 0.84 & 75.7 & 8.5 & 9.0x \\
+\midrule
+100\% & K=1 & 18.11 & 99.4 & 100.0 & 1.0x \\
+ & K=2 & 7.99 & 91.8 & 44.1 & 2.1x \\
+ & K=3 & 4.78 & 88.0 & 26.4 & 3.4x \\
+ & K=4 & 3.32 & 84.8 & 18.3 & 4.7x \\
+ & K=5 & 2.46 & 81.1 & 13.6 & 6.0x \\
+ & K=6 & 1.91 & 78.3 & 10.5 & 7.5x \\
+ & K=7 & 1.56 & 76.1 & 8.6 & 8.9x \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item \textit{Continued from Table~\ref{tab:cost_equity_part2}.}
+\textbf{At extreme decarbonization (99--100\%), efficiency advantages moderate to 5--9$\times$ due to fundamental resource constraints and system saturation.}
+K=1 cost premiums reach 10--18\% as forced spatial equity becomes increasingly expensive near complete decarbonization.
+\end{tablenotes}
+\end{table}
 
 \end{document}

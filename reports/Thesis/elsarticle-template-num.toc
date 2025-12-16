@@ -28,8 +28,9 @@
 \contentsline {section}{\numberline {9}References}{64}{section.9}%
 \contentsline {section}{\numberline {10}Appendices}{67}{section.10}%
 \contentsline {subsection}{\numberline {10.1}Appendix A: Generator cost assumptions}{67}{subsection.10.1}%
-\contentsline {subsection}{\numberline {10.2}Appendix B: Storage cost assumptions}{67}{subsection.10.2}%
+\contentsline {subsection}{\numberline {10.2}Appendix B: Storage cost assumptions}{68}{subsection.10.2}%
 \contentsline {subsection}{\numberline {10.3}Appendix C: Capacity sensitivity}{69}{subsection.10.3}%
 \contentsline {subsection}{\numberline {10.4}Appendix D: Annual generation evolution for decentralization and decarbonization}{69}{subsection.10.4}%
 \contentsline {subsection}{\numberline {10.5}Appendix E: Coefficient of Variance analysis for Storage capaciy}{70}{subsection.10.5}%
 \contentsline {subsection}{\numberline {10.6}Appendix F: Mean capacity factors}{71}{subsection.10.6}%
+\contentsline {subsection}{\numberline {10.7}Appendix G: Cost-Equity tradeoff}{73}{subsection.10.7}%
