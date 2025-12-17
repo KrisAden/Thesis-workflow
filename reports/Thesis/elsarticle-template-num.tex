@@ -1249,15 +1249,13 @@ While overall the results from this thesis' indicate that both decarbonization a
 \noindent
 Critically, moderate decentralization (K=7) achieves 62-76\% of K=1's equity benefits at only 3-9\% of the cost penalty across all decarbonization levels, demonstrating a 7-34$\times$ superior cost-equity trade-off. This suggests partial decentralization is far more economically viable than complete spatial equity.
 
+\medskip
+\noindent
+Although the results and analysis presented in this thesis' is comprehensive there are of course many differnt avenues of research that could be persued. In order to do so it would be of interest to consider some of the more novel approaches deveoped for this thesis. Firstly the K-constraint method for enforcing decentralization in the system without over-decarbonizing seems to be a promising and efficient solution to modelling decentralization. Having previosly worked with the Gini coefficient as a measure of decentralization and using it to define decentralization constraints, this K-approach seems more intuitive and easier to implement. Aditionally the use of the SDRCL as an equity measure seems promising as it is easy to calculate and understand while providing crucial insight into the system distribution of renewable capacity relative to load. Further research into these two methods and their applications in different contexts would be of great interest. Furthermore the decarbonisation paradigmes of load-following and resource-quality would be intersting topics to investigate further in order to uncover if these are fundemental mechanisms governing the decarbonization process in general or if they are specific to this model and context. Finally the role of the extreme decentralization paradigme and its fundemental differences from the moderate decentralization paradigme would be an interesting topic to investigate further.
 
-
-\subsection{Economic trends and societal paradigms}
-What can interactions can be taken from my results and how does this align with expectations and real-world trends
-\subsection{Future policy implications}
-Discussing how this workflow can be used to analyze and incorporate paradigms to review implications of energy policy.
-\subsection{Uses for methodology}
-How else could this approach be used and how would this expand the workflows use-case.
-
+\medskip
+\noindent
+In regards to the limitations of the work done for this master's thesis the major point of improvement is the cost modelling of hydrogen storage as the conservatie esitmates of efficiency from the DEA seemingly excludes hydrogen storage from becoming viable in the system. Further research into more accurate cost estimates for hydrogen storage would be of great interest as hydrogen storage is often described as a very important part of the puzzle for balancing highly renewable energy systems.
 
 
 \section{Conclusion}
@@ -1430,162 +1428,165 @@ Low CV values (<5\%) indicate insensitivity to K-constraint, suggesting capacity
 
 \begin{table}[htbp]
 \centering
-\caption{Cost-Equity Trade-off: Low to Moderate Decarbonization (10\%--50\%)}
-\label{tab:cost_equity_part1}
+\caption{Cost-Equity Trade-off Across All K-Constraint Levels (Part 1: 10-50\% Decarbonization)}
+\label{tab:cost_equity_all_k_part1}
 \small
-\begin{tabular}{cccccc}
+\begin{tabular}{ccccccc}
 \toprule
-\textbf{Decarb} & \textbf{K} & \textbf{Cost} & \textbf{Equity} & \textbf{Cost} & \textbf{Efficiency} \\
-\textbf{Level} & \textbf{Value} & \textbf{Premium (\%)} & \textbf{Benefit (\%)} & \textbf{(\% of K=1)} & \textbf{Ratio} \\
+\textbf{Decarb} & \textbf{K} & \textbf{Cost} & \textbf{Equity} & \textbf{Cost} & \textbf{Efficiency} & \textbf{Efficiency} \\
+\textbf{Level} & \textbf{Value} & \textbf{Premium (\%)} & \textbf{Benefit (\%)} & \textbf{(\% of K=1)} & \textbf{vs K=1} & \textbf{vs K=$\infty$} \\
 \midrule
-10\% & K=1 & 3.32 & 98.5 & 100.0 & 1.0x \\
- & K=2 & 1.10 & 91.4 & 33.2 & 2.8x \\
- & K=3 & 0.66 & 85.9 & 19.8 & 4.4x \\
- & K=4 & 0.52 & 82.4 & 15.7 & 5.3x \\
- & K=5 & 0.47 & 79.9 & 14.1 & 5.8x \\
- & K=6 & 0.43 & 77.7 & 12.8 & 6.1x \\
- & K=7 & 0.39 & 75.7 & 11.8 & 6.5x \\
+10\% & K=1 & 3.32 & 98.5 & 100.0 & 1.0x & 29.7x \\
+ & K=2 & 1.10 & 91.4 & 33.2 & 2.8x & 82.8x \\
+ & K=3 & 0.66 & 85.9 & 19.8 & 4.4x & 130.8x \\
+ & K=4 & 0.52 & 82.4 & 15.7 & 5.3x & 158.4x \\
+ & K=5 & 0.47 & 79.9 & 14.1 & 5.8x & 170.9x \\
+ & K=6 & 0.43 & 77.7 & 12.8 & 6.1x & 182.1x \\
+ & K=7 & 0.39 & 75.7 & 11.8 & 6.5x & 193.2x \\
 \midrule
-20\% & K=1 & 3.09 & 98.4 & 100.0 & 1.0x \\
- & K=2 & 1.02 & 89.9 & 33.0 & 2.8x \\
- & K=3 & 0.60 & 84.3 & 19.3 & 4.4x \\
- & K=4 & 0.45 & 80.5 & 14.6 & 5.6x \\
- & K=5 & 0.38 & 77.3 & 12.4 & 6.3x \\
- & K=6 & 0.34 & 74.9 & 11.0 & 6.9x \\
- & K=7 & 0.31 & 72.3 & 9.9 & 7.4x \\
+20\% & K=1 & 3.09 & 98.4 & 100.0 & 1.0x & 31.9x \\
+ & K=2 & 1.02 & 89.9 & 33.0 & 2.8x & 88.3x \\
+ & K=3 & 0.60 & 84.3 & 19.3 & 4.4x & 141.5x \\
+ & K=4 & 0.45 & 80.5 & 14.6 & 5.6x & 178.6x \\
+ & K=5 & 0.38 & 77.3 & 12.4 & 6.3x & 202.4x \\
+ & K=6 & 0.34 & 74.9 & 11.0 & 6.9x & 221.1x \\
+ & K=7 & 0.31 & 72.3 & 9.9 & 7.4x & 236.7x \\
 \midrule
-30\% & K=1 & 2.82 & 98.3 & 100.0 & 1.0x \\
- & K=2 & 0.83 & 88.3 & 29.3 & 3.1x \\
- & K=3 & 0.48 & 83.0 & 17.0 & 5.0x \\
- & K=4 & 0.36 & 78.3 & 12.8 & 6.2x \\
- & K=5 & 0.30 & 74.7 & 10.7 & 7.1x \\
- & K=6 & 0.26 & 71.6 & 9.3 & 7.8x \\
- & K=7 & 0.23 & 68.3 & 8.2 & 8.5x \\
+30\% & K=1 & 2.82 & 98.3 & 100.0 & 1.0x & 34.8x \\
+ & K=2 & 0.83 & 88.3 & 29.3 & 3.1x & 106.7x \\
+ & K=3 & 0.48 & 83.0 & 17.0 & 5.0x & 173.3x \\
+ & K=4 & 0.36 & 78.3 & 12.8 & 6.2x & 216.6x \\
+ & K=5 & 0.30 & 74.7 & 10.7 & 7.1x & 246.1x \\
+ & K=6 & 0.26 & 71.6 & 9.3 & 7.8x & 273.2x \\
+ & K=7 & 0.23 & 68.3 & 8.2 & 8.5x & 296.0x \\
 \midrule
-40\% & K=1 & 2.59 & 98.0 & 100.0 & 1.0x \\
- & K=2 & 0.60 & 85.3 & 23.1 & 3.8x \\
- & K=3 & 0.31 & 77.9 & 11.8 & 6.7x \\
- & K=4 & 0.23 & 73.5 & 8.8 & 8.5x \\
- & K=5 & 0.19 & 69.6 & 7.2 & 9.9x \\
- & K=6 & 0.16 & 65.4 & 6.1 & 11.0x \\
- & K=7 & 0.14 & 61.6 & 5.2 & 12.1x \\
+40\% & K=1 & 2.59 & 98.0 & 100.0 & 1.0x & 37.8x \\
+ & K=2 & 0.60 & 85.3 & 23.1 & 3.8x & 142.2x \\
+ & K=3 & 0.31 & 77.9 & 11.8 & 6.7x & 253.9x \\
+ & K=4 & 0.23 & 73.5 & 8.8 & 8.5x & 322.4x \\
+ & K=5 & 0.19 & 69.6 & 7.2 & 9.9x & 373.6x \\
+ & K=6 & 0.16 & 65.4 & 6.1 & 11.0x & 414.4x \\
+ & K=7 & 0.14 & 61.6 & 5.2 & 12.1x & 456.0x \\
 \midrule
-50\% & K=1 & 2.51 & 98.1 & 100.0 & 1.0x \\
- & K=2 & 0.49 & 85.0 & 19.6 & 4.4x \\
- & K=3 & 0.22 & 78.1 & 9.0 & 8.9x \\
- & K=4 & 0.15 & 72.5 & 6.1 & 12.0x \\
- & K=5 & 0.12 & 69.1 & 4.9 & 14.4x \\
- & K=6 & 0.10 & 65.6 & 4.1 & 16.3x \\
- & K=7 & 0.09 & 61.8 & 3.4 & 18.3x \\
+50\% & K=1 & 2.51 & 98.1 & 100.0 & 1.0x & 39.1x \\
+ & K=2 & 0.49 & 85.0 & 19.6 & 4.4x & 173.4x \\
+ & K=3 & 0.22 & 78.1 & 9.0 & 8.9x & 347.8x \\
+ & K=4 & 0.15 & 72.5 & 6.1 & 12.0x & 470.9x \\
+ & K=5 & 0.12 & 69.1 & 4.9 & 14.4x & 561.3x \\
+ & K=6 & 0.10 & 65.6 & 4.1 & 16.3x & 637.5x \\
+ & K=7 & 0.09 & 61.8 & 3.4 & 18.3x & 716.0x \\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}
 \small
-\item \textit{Note:} Cost premium and equity benefit calculated relative to K=$\infty$ (no constraint). 
-Efficiency ratio = (Equity benefit) / (Cost premium), where higher values indicate better trade-offs.
-Table continues in Table~\ref{tab:cost_equity_part2}.
+\item \textit{Note:} Cost premium and equity benefit calculated relative to K=$\infty$. 
+'Cost (\% of K=1)' shows each K-value's cost penalty as percentage of K=1's penalty. 
+'Efficiency vs K=1' = (Equity \% of K=1) / (Cost \% of K=1). 
+'Efficiency vs K=$\infty$' = (Equity Benefit \%) / (Cost Premium \%), measuring absolute decentralization effectiveness per unit cost.
 \end{tablenotes}
 \end{table}
 
 \begin{table}[htbp]
 \centering
-\caption{Cost-Equity Trade-off: High Decarbonization (60\%--96\%)}
-\label{tab:cost_equity_part2}
+\caption{Cost-Equity Trade-off Across All K-Constraint Levels (Part 2: 60-96\% Decarbonization)}
+\label{tab:cost_equity_all_k_part2}
 \small
-\begin{tabular}{cccccc}
+\begin{tabular}{ccccccc}
 \toprule
-\textbf{Decarb} & \textbf{K} & \textbf{Cost} & \textbf{Equity} & \textbf{Cost} & \textbf{Efficiency} \\
-\textbf{Level} & \textbf{Value} & \textbf{Premium (\%)} & \textbf{Benefit (\%)} & \textbf{(\% of K=1)} & \textbf{Ratio} \\
+\textbf{Decarb} & \textbf{K} & \textbf{Cost} & \textbf{Equity} & \textbf{Cost} & \textbf{Efficiency} & \textbf{Efficiency} \\
+\textbf{Level} & \textbf{Value} & \textbf{Premium (\%)} & \textbf{Benefit (\%)} & \textbf{(\% of K=1)} & \textbf{vs K=1} & \textbf{vs K=$\infty$} \\
 \midrule
-60\% & K=1 & 2.44 & 98.1 & 100.0 & 1.0x \\
- & K=2 & 0.46 & 85.5 & 18.9 & 4.6x \\
- & K=3 & 0.21 & 78.9 & 8.8 & 9.1x \\
- & K=4 & 0.15 & 73.2 & 6.0 & 12.4x \\
- & K=5 & 0.12 & 69.9 & 4.8 & 14.8x \\
- & K=6 & 0.10 & 66.5 & 4.0 & 17.0x \\
- & K=7 & 0.08 & 62.8 & 3.3 & 19.1x \\
+60\% & K=1 & 2.44 & 98.1 & 100.0 & 1.0x & 40.3x \\
+ & K=2 & 0.46 & 85.5 & 18.9 & 4.6x & 186.0x \\
+ & K=3 & 0.21 & 78.9 & 8.8 & 9.1x & 367.8x \\
+ & K=4 & 0.15 & 73.2 & 6.0 & 12.4x & 498.8x \\
+ & K=5 & 0.12 & 69.9 & 4.8 & 14.8x & 597.3x \\
+ & K=6 & 0.10 & 66.5 & 4.0 & 17.0x & 682.8x \\
+ & K=7 & 0.08 & 62.8 & 3.3 & 19.1x & 771.0x \\
 \midrule
-70\% & K=1 & 2.36 & 97.9 & 100.0 & 1.0x \\
- & K=2 & 0.40 & 83.1 & 16.8 & 5.1x \\
- & K=3 & 0.19 & 75.3 & 8.0 & 9.6x \\
- & K=4 & 0.13 & 68.5 & 5.5 & 12.7x \\
- & K=5 & 0.10 & 63.4 & 4.2 & 15.6x \\
- & K=6 & 0.08 & 58.9 & 3.4 & 17.8x \\
- & K=7 & 0.07 & 54.5 & 2.8 & 20.1x \\
+70\% & K=1 & 2.36 & 97.9 & 100.0 & 1.0x & 41.5x \\
+ & K=2 & 0.40 & 83.1 & 16.8 & 5.1x & 210.2x \\
+ & K=3 & 0.19 & 75.3 & 8.0 & 9.6x & 398.9x \\
+ & K=4 & 0.13 & 68.5 & 5.5 & 12.7x & 528.6x \\
+ & K=5 & 0.10 & 63.4 & 4.2 & 15.6x & 646.8x \\
+ & K=6 & 0.08 & 58.9 & 3.4 & 17.8x & 739.0x \\
+ & K=7 & 0.07 & 54.5 & 2.8 & 20.1x & 836.7x \\
 \midrule
-80\% & K=1 & 2.32 & 97.6 & 100.0 & 1.0x \\
- & K=2 & 0.33 & 79.7 & 14.4 & 5.7x \\
- & K=3 & 0.15 & 70.7 & 6.3 & 11.6x \\
- & K=4 & 0.09 & 63.0 & 4.0 & 16.1x \\
- & K=5 & 0.07 & 57.5 & 3.1 & 19.3x \\
- & K=6 & 0.06 & 52.5 & 2.5 & 21.9x \\
- & K=7 & 0.05 & 47.0 & 2.0 & 24.5x \\
+80\% & K=1 & 2.32 & 97.6 & 100.0 & 1.0x & 42.1x \\
+ & K=2 & 0.33 & 79.7 & 14.4 & 5.7x & 238.9x \\
+ & K=3 & 0.15 & 70.7 & 6.3 & 11.6x & 487.0x \\
+ & K=4 & 0.09 & 63.0 & 4.0 & 16.1x & 676.9x \\
+ & K=5 & 0.07 & 57.5 & 3.1 & 19.3x & 810.3x \\
+ & K=6 & 0.06 & 52.5 & 2.5 & 21.9x & 922.2x \\
+ & K=7 & 0.05 & 47.0 & 2.0 & 24.5x & 1029.3x \\
 \midrule
-90\% & K=1 & 2.77 & 98.3 & 100.0 & 1.0x \\
- & K=2 & 0.39 & 84.3 & 14.1 & 6.1x \\
- & K=3 & 0.17 & 75.9 & 6.3 & 12.4x \\
- & K=4 & 0.09 & 68.2 & 3.4 & 20.4x \\
- & K=5 & 0.07 & 62.1 & 2.5 & 25.4x \\
- & K=6 & 0.06 & 58.4 & 2.1 & 28.0x \\
- & K=7 & 0.05 & 54.6 & 1.8 & 30.8x \\
+90\% & K=1 & 2.77 & 98.3 & 100.0 & 1.0x & 35.5x \\
+ & K=2 & 0.39 & 84.3 & 14.1 & 6.1x & 215.9x \\
+ & K=3 & 0.17 & 75.9 & 6.3 & 12.4x & 438.9x \\
+ & K=4 & 0.09 & 68.2 & 3.4 & 20.4x & 724.5x \\
+ & K=5 & 0.07 & 62.1 & 2.5 & 25.4x & 903.4x \\
+ & K=6 & 0.06 & 58.4 & 2.1 & 28.0x & 996.5x \\
+ & K=7 & 0.05 & 54.6 & 1.8 & 30.8x & 1093.2x \\
 \midrule
-93\% & K=1 & 3.64 & 98.5 & 100.0 & 1.0x \\
- & K=2 & 0.66 & 86.3 & 18.1 & 4.8x \\
- & K=3 & 0.30 & 78.3 & 8.3 & 9.5x \\
- & K=4 & 0.15 & 72.6 & 4.2 & 17.4x \\
- & K=5 & 0.10 & 67.1 & 2.7 & 25.5x \\
- & K=6 & 0.07 & 62.8 & 2.0 & 31.4x \\
- & K=7 & 0.06 & 59.7 & 1.8 & 34.5x \\
+93\% & K=1 & 3.64 & 98.5 & 100.0 & 1.0x & 27.1x \\
+ & K=2 & 0.66 & 86.3 & 18.1 & 4.8x & 131.0x \\
+ & K=3 & 0.30 & 78.3 & 8.3 & 9.5x & 257.6x \\
+ & K=4 & 0.15 & 72.6 & 4.2 & 17.4x & 470.4x \\
+ & K=5 & 0.10 & 67.1 & 2.7 & 25.5x & 690.1x \\
+ & K=6 & 0.07 & 62.8 & 2.0 & 31.4x & 849.5x \\
+ & K=7 & 0.06 & 59.7 & 1.8 & 34.5x & 934.3x \\
 \midrule
-96\% & K=1 & 5.56 & 99.0 & 100.0 & 1.0x \\
- & K=2 & 1.74 & 88.3 & 31.2 & 2.9x \\
- & K=3 & 0.98 & 83.3 & 17.7 & 4.8x \\
- & K=4 & 0.63 & 79.5 & 11.3 & 7.1x \\
- & K=5 & 0.38 & 76.6 & 6.9 & 11.2x \\
- & K=6 & 0.22 & 72.2 & 3.9 & 18.6x \\
- & K=7 & 0.16 & 68.4 & 2.8 & 24.7x \\
+96\% & K=1 & 5.56 & 99.0 & 100.0 & 1.0x & 17.8x \\
+ & K=2 & 1.74 & 88.3 & 31.2 & 2.9x & 50.9x \\
+ & K=3 & 0.98 & 83.3 & 17.7 & 4.8x & 84.7x \\
+ & K=4 & 0.63 & 79.5 & 11.3 & 7.1x & 126.9x \\
+ & K=5 & 0.38 & 76.6 & 6.9 & 11.2x & 199.8x \\
+ & K=6 & 0.22 & 72.2 & 3.9 & 18.6x & 330.6x \\
+ & K=7 & 0.16 & 68.4 & 2.8 & 24.7x & 439.8x \\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}
 \small
-\item \textit{Continued from Table~\ref{tab:cost_equity_part1}.}
-\textbf{K=7 achieves peak efficiency at 90--93\% decarbonization (28--35$\times$ better than K=1).}
-Table continues in Table~\ref{tab:cost_equity_part3}.
+\item \textit{Note:} Cost premium and equity benefit calculated relative to K=$\infty$. 
+'Cost (\% of K=1)' shows each K-value's cost penalty as percentage of K=1's penalty. 
+'Efficiency vs K=1' = (Equity \% of K=1) / (Cost \% of K=1). 
+'Efficiency vs K=$\infty$' = (Equity Benefit \%) / (Cost Premium \%), measuring absolute decentralization effectiveness per unit cost.
 \end{tablenotes}
 \end{table}
 
 \begin{table}[htbp]
 \centering
-\caption{Cost-Equity Trade-off: Near-Complete to Complete Decarbonization (99\%--100\%)}
-\label{tab:cost_equity_part3}
+\caption{Cost-Equity Trade-off Across All K-Constraint Levels (Part 3: 99-100\% Decarbonization)}
+\label{tab:cost_equity_all_k_part3}
 \small
-\begin{tabular}{cccccc}
+\begin{tabular}{ccccccc}
 \toprule
-\textbf{Decarb} & \textbf{K} & \textbf{Cost} & \textbf{Equity} & \textbf{Cost} & \textbf{Efficiency} \\
-\textbf{Level} & \textbf{Value} & \textbf{Premium (\%)} & \textbf{Benefit (\%)} & \textbf{(\% of K=1)} & \textbf{Ratio} \\
+\textbf{Decarb} & \textbf{K} & \textbf{Cost} & \textbf{Equity} & \textbf{Cost} & \textbf{Efficiency} & \textbf{Efficiency} \\
+\textbf{Level} & \textbf{Value} & \textbf{Premium (\%)} & \textbf{Benefit (\%)} & \textbf{(\% of K=1)} & \textbf{vs K=1} & \textbf{vs K=$\infty$} \\
 \midrule
-99\% & K=1 & 9.90 & 99.4 & 100.0 & 1.0x \\
- & K=2 & 3.98 & 91.6 & 40.2 & 2.3x \\
- & K=3 & 2.30 & 87.3 & 23.2 & 3.8x \\
- & K=4 & 1.49 & 84.2 & 15.1 & 5.6x \\
- & K=5 & 1.15 & 81.3 & 11.6 & 7.1x \\
- & K=6 & 0.94 & 78.3 & 9.5 & 8.3x \\
- & K=7 & 0.84 & 75.7 & 8.5 & 9.0x \\
+99\% & K=1 & 9.90 & 99.4 & 100.0 & 1.0x & 10.0x \\
+ & K=2 & 3.98 & 91.6 & 40.2 & 2.3x & 23.0x \\
+ & K=3 & 2.30 & 87.3 & 23.2 & 3.8x & 38.0x \\
+ & K=4 & 1.49 & 84.2 & 15.1 & 5.6x & 56.5x \\
+ & K=5 & 1.15 & 81.3 & 11.6 & 7.1x & 70.8x \\
+ & K=6 & 0.94 & 78.3 & 9.5 & 8.3x & 83.4x \\
+ & K=7 & 0.84 & 75.7 & 8.5 & 9.0x & 90.2x \\
 \midrule
-100\% & K=1 & 18.11 & 99.4 & 100.0 & 1.0x \\
- & K=2 & 7.99 & 91.8 & 44.1 & 2.1x \\
- & K=3 & 4.78 & 88.0 & 26.4 & 3.4x \\
- & K=4 & 3.32 & 84.8 & 18.3 & 4.7x \\
- & K=5 & 2.46 & 81.1 & 13.6 & 6.0x \\
- & K=6 & 1.91 & 78.3 & 10.5 & 7.5x \\
- & K=7 & 1.56 & 76.1 & 8.6 & 8.9x \\
+100\% & K=1 & 18.11 & 99.4 & 100.0 & 1.0x & 5.5x \\
+ & K=2 & 7.99 & 91.8 & 44.1 & 2.1x & 11.5x \\
+ & K=3 & 4.78 & 88.0 & 26.4 & 3.4x & 18.4x \\
+ & K=4 & 3.32 & 84.8 & 18.3 & 4.7x & 25.6x \\
+ & K=5 & 2.46 & 81.1 & 13.6 & 6.0x & 33.0x \\
+ & K=6 & 1.91 & 78.3 & 10.5 & 7.5x & 41.0x \\
+ & K=7 & 1.56 & 76.1 & 8.6 & 8.9x & 48.7x \\
 \bottomrule
 \end{tabular}
 \begin{tablenotes}
 \small
-\item \textit{Continued from Table~\ref{tab:cost_equity_part2}.}
-\textbf{At extreme decarbonization (99--100\%), efficiency advantages moderate to 5--9$\times$ due to fundamental resource constraints and system saturation.}
-K=1 cost premiums reach 10--18\% as forced spatial equity becomes increasingly expensive near complete decarbonization.
+\item \textit{Note:} Cost premium and equity benefit calculated relative to K=$\infty$. 
+'Cost (\% of K=1)' shows each K-value's cost penalty as percentage of K=1's penalty. 
+'Efficiency vs K=1' = (Equity \% of K=1) / (Cost \% of K=1). 
+'Efficiency vs K=$\infty$' = (Equity Benefit \%) / (Cost Premium \%), measuring absolute decentralization effectiveness per unit cost.
 \end{tablenotes}
 \end{table}
 

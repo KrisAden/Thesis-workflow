@@ -1,14 +1,14 @@
 # Fdb version 4
-["bibtex elsarticle-template-num"] 1765890406.53638 "elsarticle-template-num.aux" "elsarticle-template-num.bbl" "elsarticle-template-num" 1765890964.31215 0
+["bibtex elsarticle-template-num"] 1765965431.4511 "elsarticle-template-num.aux" "elsarticle-template-num.bbl" "elsarticle-template-num" 1765977185.07445 0
   "./Sources.bib" 1765374279 22822 5f61f4018efe862a9ea34d1458ca8db2 ""
   "./elsarticle-num.bst" 1763031933 29462 d2b5b1799e10c2334c188d78937e1ac9 ""
-  "elsarticle-template-num.aux" 1765890962 25439 c73ccd3d871d48653fd797f310c43d2d "pdflatex"
+  "elsarticle-template-num.aux" 1765977183 25165 ae4827b53212700f1ba0d3f2c6bbbb4f "pdflatex"
   (generated)
   "elsarticle-template-num.bbl"
   "elsarticle-template-num.blg"
   (rewritten before read)
-["pdflatex"] 1765890955.78742 "c:/Users/krisa/Documents/GitHub/pypsa-eur/Thesis-workflow/reports/Thesis/elsarticle-template-num.tex" "elsarticle-template-num.pdf" "elsarticle-template-num" 1765890964.31301 0
-  "c:/Users/krisa/Documents/GitHub/pypsa-eur/Thesis-workflow/reports/Thesis/elsarticle-template-num.tex" 1765890954 112062 a4112eef3c5a295251ea38b38bf28d7d ""
+["pdflatex"] 1765977175.54887 "c:/Users/krisa/Documents/GitHub/pypsa-eur/Thesis-workflow/reports/Thesis/elsarticle-template-num.tex" "elsarticle-template-num.pdf" "elsarticle-template-num" 1765977185.07539 0
+  "c:/Users/krisa/Documents/GitHub/pypsa-eur/Thesis-workflow/reports/Thesis/elsarticle-template-num.tex" 1765977172 114906 674370d2252ab96ec7700ae2596a67b2 ""
   "c:/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-t1.enc" 1763038793 2971 def0b6c1f0b107b3b936def894055589 ""
   "c:/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc" 1763038793 2900 1537cc8184ad1792082cd229ecc269f4 ""
   "c:/texlive/2025/texmf-dist/fonts/map/fontname/texfonts.map" 1763042560 3524 cb3e574dea2d1052e39280babc910dc8 ""
@@ -147,7 +147,7 @@
   "doc/CapacityMap_C0_K0.png" 1763031934 229688 59fec954184013e5c499b586bb6e3e60 ""
   "doc/CapacityMap_C100_K0.png" 1763031933 237205 0ea6efd1a0dd90c3ec35cec152b9746e ""
   "doc/CapacityMap_C80_K0.png" 1763031933 237295 28a4cf57c7b03a111080b980fe9e851e ""
-  "doc/EquityChange_K_infs.png" 1763031934 66450 1980cdd6e4645c60c64d59fb22eea471 ""
+  "doc/EquityChange_K_infs.png" 1765977170 83894 463fcf567dd3e80a048ebb80659bcbc4 ""
   "doc/Load_Rescaling_example.png" 1764677804 191100 240e6109ba80dc8cba2040c976aa6a79 ""
   "doc/Margnal_vs_LCOE_temp.png" 1764076594 72419 743f8eee064e97fa3a1195233c8c9f85 ""
   "doc/Margnal_vs_LCOE_transition.png" 1764076811 114033 fc1df55b25c9cff30892dd6b5c5e96cd ""
@@ -183,12 +183,12 @@
   "doc/tottalsystemcost_line_decent.png" 1765458857 75091 94e7fe32cbce90d9dc6a48037bba9b3f ""
   "doc/transmission_capacity_stackedline_decarb.png" 1764847042 63304 d89e930e80b5043ebfab8b73eb49ffbb ""
   "doc/transmission_capacity_stackedline_decent.png" 1765445460 99559 9718ac4a684a5185c1078a095f58e7eb ""
-  "elsarticle-template-num.aux" 1765890962 25439 c73ccd3d871d48653fd797f310c43d2d "pdflatex"
-  "elsarticle-template-num.bbl" 1765890407 8727 cfc947ece71fde8982132df4bb7df246 "bibtex elsarticle-template-num"
-  "elsarticle-template-num.out" 1765890962 6704 a2ac0eb976026d1fa0f07de7933194a4 "pdflatex"
-  "elsarticle-template-num.spl" 1765890956 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
-  "elsarticle-template-num.tex" 1765890954 112062 a4112eef3c5a295251ea38b38bf28d7d ""
-  "elsarticle-template-num.toc" 1765890962 3233 d2b21f8346cf683f86b39c870fc1cc40 "pdflatex"
+  "elsarticle-template-num.aux" 1765977183 25165 ae4827b53212700f1ba0d3f2c6bbbb4f "pdflatex"
+  "elsarticle-template-num.bbl" 1765965432 8727 cfc947ece71fde8982132df4bb7df246 "bibtex elsarticle-template-num"
+  "elsarticle-template-num.out" 1765977183 6086 be130e01683846b9e2030474cc47d4e9 "pdflatex"
+  "elsarticle-template-num.spl" 1765977176 0 d41d8cd98f00b204e9800998ecf8427e "pdflatex"
+  "elsarticle-template-num.tex" 1765977172 114906 674370d2252ab96ec7700ae2596a67b2 ""
+  "elsarticle-template-num.toc" 1765977183 2948 541d0b426779fdd62a399ad179ee4e97 "pdflatex"
   (generated)
   "elsarticle-template-num.aux"
   "elsarticle-template-num.log"
