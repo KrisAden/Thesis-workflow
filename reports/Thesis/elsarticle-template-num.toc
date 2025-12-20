@@ -17,18 +17,19 @@
 \contentsline {subsection}{\numberline {4.3}Decarbonized systems}{31}{subsection.4.3}%
 \contentsline {subsection}{\numberline {4.4}Decarbonization mechanisms and interactions}{46}{subsection.4.4}%
 \contentsline {subsection}{\numberline {4.5}Decentralized systems}{47}{subsection.4.5}%
-\contentsline {subsection}{\numberline {4.6}Decentralization mechanisms and interactions}{59}{subsection.4.6}%
-\contentsline {section}{\numberline {5}Discussion}{60}{section.5}%
-\contentsline {section}{\numberline {6}Conclusion}{63}{section.6}%
-\contentsline {section}{\numberline {7}Assumptions}{63}{section.7}%
-\contentsline {section}{\numberline {8}Acknowledgments}{63}{section.8}%
-\contentsline {section}{\numberline {9}References}{63}{section.9}%
-\contentsline {section}{\numberline {10}Appendices}{67}{section.10}%
-\contentsline {subsection}{\numberline {10.1}Appendix A: Generator cost assumptions}{67}{subsection.10.1}%
-\contentsline {subsection}{\numberline {10.2}Appendix B: Storage cost assumptions}{68}{subsection.10.2}%
-\contentsline {subsection}{\numberline {10.3}Appendix C: Capacity sensitivity}{69}{subsection.10.3}%
-\contentsline {subsection}{\numberline {10.4}Appendix D: Annual generation evolution for decentralization and decarbonization}{70}{subsection.10.4}%
-\contentsline {subsection}{\numberline {10.5}Appendix E: Coefficient of Variance analysis for Storage capaciy}{71}{subsection.10.5}%
-\contentsline {subsection}{\numberline {10.6}Appendix F: Mean capacity factors}{72}{subsection.10.6}%
-\contentsline {subsection}{\numberline {10.7}Appendix G: Cost-Equity tradeoff}{75}{subsection.10.7}%
-\contentsline {subsection}{\numberline {10.8}Appendix H: Distribution statistics}{79}{subsection.10.8}%
+\contentsline {subsection}{\numberline {4.6}Decentralization mechanisms and interactions}{57}{subsection.4.6}%
+\contentsline {section}{\numberline {5}Discussion}{58}{section.5}%
+\contentsline {section}{\numberline {6}Conclusion}{61}{section.6}%
+\contentsline {section}{\numberline {7}Assumptions}{61}{section.7}%
+\contentsline {section}{\numberline {8}Acknowledgments}{61}{section.8}%
+\contentsline {section}{\numberline {9}References}{61}{section.9}%
+\contentsline {section}{\numberline {10}Appendices}{65}{section.10}%
+\contentsline {subsection}{\numberline {10.1}Appendix A: Generator cost assumptions}{65}{subsection.10.1}%
+\contentsline {subsection}{\numberline {10.2}Appendix B: Storage cost assumptions}{66}{subsection.10.2}%
+\contentsline {subsection}{\numberline {10.3}Appendix C: Capacity sensitivity}{67}{subsection.10.3}%
+\contentsline {subsection}{\numberline {10.4}Appendix D: Annual generation evolution for decentralization and decarbonization}{68}{subsection.10.4}%
+\contentsline {subsection}{\numberline {10.5}Appendix E: Coefficient of Variance analysis for Storage capaciy}{69}{subsection.10.5}%
+\contentsline {subsection}{\numberline {10.6}Appendix F: Mean capacity factors}{70}{subsection.10.6}%
+\contentsline {subsection}{\numberline {10.7}Appendix G: Cost-Equity tradeoff}{73}{subsection.10.7}%
+\contentsline {subsection}{\numberline {10.8}Appendix H: Distribution statistics}{77}{subsection.10.8}%
+\contentsline {subsection}{\numberline {10.9}Appendix I: Figures for decentralization evolution}{79}{subsection.10.9}%

@@ -21,6 +21,7 @@
 \usepackage{colortbl}  % For cell color shading
 \usepackage{multirow}
 \usepackage{threeparttable}
+\usepackage{array}
 
 \hypersetup{
     hidelinks,
@@ -144,7 +145,7 @@ In a world where the necessity of reducing the carbon emissions of our energy ne
 \noindent Two such challenges are those of physical security and and political feasibility. With the recent surge in so-called hybrid attacks on European energy infrastructure\cite{ScaleRussianSabotage}, the focus on physical security has increased. If a system is overly centralized it means that a large amount of critical infrastructure is installed on a relatively small area. This makes the infrastructure an obvious target for such hybrid attacks as a single hostile action can impact more infrastructure and more people. As for the political feasibility, nations who end up as net energy importers become less self sufficient and increasingly reliant on the net exporting regions. This shift in power-balance heavily favors the net exporters and as such may face resistance from net importing nations that wish to remain at a high degree of self sufficiency.    
 
 \medskip
-\noindent The objective of this masters thesis is to incorporate societal paradigms and priorities in the form of decentralization into a macro-scale energy network model of the EU, and to analyze and expose the mechanisms behind de-carbonization and its interactions with decentralization. The main hypothesis is that, by incorporating decentralization, the resulting networks will illuminate the underlying mechanisms of said decentralization and help uncover alternative transition pathways. This in tun may then help develop a workflow that by incorporating societal paradigms and reviewing their system impacts, will help close the gap between the models used to inform energy policy makers and the results of the proposed policies. Although this workflow and methodology may in time prove relevant for policy makers to understand, the target audience of this master's thesis remains peers in the field of energy system modeling who may draw inspiration from the intersection between societal paradigms and strict mathematic modeling that this work represents. It is also for this reason that all the data and code used to produce the results which can be seen in this paper is openly available in a public repository under an open science license\cite{GNUGeneralPublic}.
+\noindent The objective of this masters thesis is to incorporate societal paradigms and priorities in the form of decentralization into a macro-scale energy network model of the EU, and to analyze and expose the mechanisms behind de-carbonization and its interactions with decentralization. The main research question is then: \textit{By incorporating decentralization, will the resulting networks illuminate the underlying mechanisms of said decentralization and help uncover alternative transition pathways?} This in turn may then help develop a workflow that by incorporating societal paradigms and reviewing their system impacts, will help close the gap between the models used to inform energy policy makers and the results of the proposed policies. Although this workflow and methodology may in time prove relevant for policy makers to understand, the target audience of this master's thesis remains peers in the field of energy system modeling who may draw inspiration from the intersection between societal paradigms and strict mathematic modeling that this work represents. It is also for this reason that all the data and code used to produce the results which can be seen in this paper is openly available in a public repository under an open science license\cite{GNUGeneralPublic}.
 
 \section{Nomenclature}
 
@@ -1050,9 +1051,12 @@ The decarbonization process as seen above behaves mostly as one would expect. In
 \subsection{Decentralized systems}
 \noindent
 Having performed pertubations of both the level of decarbonization and the decentralization constraint K yields a total of 105 networks, which means that in order to summarize the results some initial screening is required. For the capacity results this has been done by performing a coefficient of variation (CV) analysis of installed capacity across the different K-constraints for each decarbonization level. This coefficient of variance is defined as $CV = \frac{\sigma}{\mu} \times 100\%$, where $\sigma$ is the standard deviation and $\mu$ is the mean value across the different K-constraints. The results of which can be found in appendix \nameref{Appendix_C}. Unsurprisingly the generation capacity CV analysis shows that the freely extendable renewable generation technologies solar and wind are impacted the most. Pictured in figure \ref{fig4} below the evolution of the total installed renewable generation capacity for the different levels o decentralization and decarbonization. 
+
+\newpage
+
 \begin{figure}[H]
 \centering
-\adjustbox{center}{\includegraphics[width=0\linewidth]{doc/dispatchrenew_bands_decent.png}}
+\adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/dispatchrenew_bands_decent.png}}
 \caption{Total installed renewable generation capacity across K-constraints and decarbonization levels.}
 \label{fig4}
 \end{figure}
@@ -1081,7 +1085,7 @@ Overall it seems that decentralization leads to an increase in  solar and AC-off
 
 \medskip
 \noindent
-Here it is evident that as the system decarbonizes, for decentralization levels $K\neq1$ the mean capacity factor for solar remains fairly consistent at all levels of decarbonization. However for the extreme K=1 scenario the mean capacity factor decreases significantly as the system decarbonizes and is 13\%-21\% lower than the mean of the other decentralization levels. This degredation of resource quality also appears fro the other technologies albeit not as large. The plots of capacity factors can be found in the supplementary material under Appendix \nameref{Appendix_F} where it can be seen that for $K=1$ the poorest performing capacity factors belong to solar PV followed by Onshore wind, then Offshore AC and finally Offshore DC. The decrease in capacity factor is caused by the fact that $K\neq 1$ forces renewable capacity buildout in worse locations, for all four technologies at all levels of decarbonization. This then explains why at some levels of decarbonization, as seen in figure \ref{fig4}, the extremely decentralized $K=1$ leads to a decrease in installed capacity due to poor performance. However it does not explain why at some levels of decarbonization $K = 1$ increases capacity of the very same poorly performing technologies.
+Here it is evident that as the system decarbonizes, for decentralization levels $K\neq1$ the mean capacity factor for solar remains fairly consistent at all levels of decarbonization. However for the extreme K=1 scenario the mean capacity factor decreases significantly as the system decarbonizes and is 13\%-21\% lower than the mean of the other decentralization levels. This degradation of resource quality also appears for the other technologies albeit not as large. The plots of capacity factors can be found in the supplementary material under Appendix \nameref{Appendix_F} where it can be seen that for $K=1$ the poorest performing capacity factors belong to solar PV followed by Onshore wind, then Offshore AC and finally Offshore DC. The decrease in capacity factor is caused by the fact that $K\neq 1$ forces renewable capacity buildout in worse locations, for all four technologies at all levels of decarbonization. This then explains why at some levels of decarbonization, as seen in figure \ref{fig4}, the extremely decentralized $K=1$ leads to a decrease in installed capacity due to poor performance. However it does not explain why at some levels of decarbonization $K = 1$ increases capacity of the very same poorly performing technologies.
 
 \medskip
 \noindent
@@ -1093,55 +1097,16 @@ However the most important takeaway from this discussion is the fact that the ex
 
 \medskip
 \noindent
-It is known that, due to the variance in capacity factor time-series for diffrent generating technologies, the installed capacity and the annnual generation do generally follow the same trends and ar therefor not depicted here. This has been confirmed by reviewing the generation results across the different K-constraints and decarbonization levels, which can be found in the supplementary material under Appendix \nameref{Appendix_D}. As for the transmission capacity results, these can be seen below in figure \ref{transmission}:
-
-\begin{figure}[H]
-\centering
-\adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/transmission_capacity_stackedline_decent.png}}
-\caption{Total installed transmission capacity across K-constraints and decarbonization levels.}
-\label{transmission}
-\end{figure}
+It is known that, due to the variance in capacity factor time-series for diffrent generating technologies, the installed capacity and the annnual generation do generally follow the same trends and ar therefor not depicted here. This has been confirmed by reviewing the generation results across the different K-constraints and decarbonization levels, which can be found in the supplementary material under Appendix \nameref{Appendix_D}. As for the transmission capacity results, these can be seen in \nameref{Appendix_I }below in figure \ref{transmission}:
 
 \medskip
 \noindent
-Unsurprisingly as the system is forced to decentralize the total transmission capacity decreases, a trend that is increasingly pronounced at low and high levels of decarbonization where the system is known to already be increasingly centralized leading to a higher sensitivity to decentralization measures. Transmission of course works in congruence with storage as parts of the nodal balancing. In order to analyze the interactions between the different tyes of storage capacity, the decentralization measure and the level of decarbonization initially a coefficient of variance analysis was performed in order to determine which storage technologies are the most sensitive tot the decentralization process. The results of this analysis can be found in Appendix \nameref{Appendix_E}. Here it can be seen that the maximum capacity limited nature of the water-based storage technologies means that these are not sensitive to decentralization measures. While hydrogen based storage is sensitive to decentralization overall installed capacity remains negligable. Pictured below in figure \ref{fig8} is the installed storage capacities of batteries for all levels of decarboinization and decentralization:
-
-\begin{figure}[H]
-\centering
-\adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/storage_capacity_line_decent.png}}
-\caption{Installed battery and hydrogen storage capacity across K-constraints and decarbonization levels.}
-\label{fig8}
-\end{figure}
+Unsurprisingly as the system is forced to decentralize the total transmission capacity decreases, a trend that is increasingly pronounced at low and high levels of decarbonization where the system is known to already be increasingly centralized leading to a higher sensitivity to decentralization measures. Transmission of course works in congruence with storage as parts of the nodal balancing. In order to analyze the interactions between the different tyes of storage capacity, the decentralization measure and the level of decarbonization initially a coefficient of variance analysis was performed in order to determine which storage technologies are the most sensitive tot the decentralization process. The results of this analysis can be found in Appendix \nameref{Appendix_E}. Here it can be seen that the maximum capacity limited nature of the water-based storage technologies means that these are not sensitive to decentralization measures. While hydrogen based storage is sensitive to decentralization overall installed capacity remains negligable. Pictured below in \nameref{Appendix_I} figure \ref{fig8} is the installed storage capacities of batteries for all levels of decarboinization and decentralization.
+As the system decarbonizaes and decentralizes the installed battery capacity initially decreases a little due to the load following mechanism discussed above before increasing dramatically at high levels of decarbonization and decentralization. This aligns well with the idea that as the system is forced to decentralize the need for local nodal balancing increases. It also aligns with the fact that the decrease in transmission capacity when decentralizing means that less remote balancing can be performed through the transmission network and as such more localized storage is needed.
 
 \medskip
 \noindent
-These plots illustrate the fact that as the system decarbonizaes and decentralizes the installed battery capacity initially decreases a little due to the load following mechanism discussed above before increasing dramatically at high levels of decarbonization and decentralization. This aligns well with the idea that as the system is forced to decentralize the need for local nodal balancing increases. It also aligns with the fact that the decrease in transmission capacity when decentralizing means that less remote balancing can be performed through the transmission network and as such more localized storage is needed.
-
-\medskip
-\noindent
-Regarding the economic metrics of the decentralized system the mean marginal demand-weighted price evolution can be seen below in figure \ref{fig9}:
-
-\begin{figure}[H]
-\centering
-\adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/mean_marginal_line_decent.png}}
-\caption{Mean marginal demand-weighted price across K-constraints and decarbonization levels.}
-\label{fig9}
-\end{figure}
-
-\medskip
-\noindent
-As expected the mean marginal demand weighted price follows the same trend when as seen in the decarbozing system above. The price increase when enforcing decentralization is also as expected due to the fact that as the system is forced to decentralize it can no longer fully utilize the best renewable resources and must instead rely on more expensive local resources. This can also be seen in the fact that at very high levels of decarbonization the price increase when decentralizing is more pronounced as the system is more reliant on renewable generation and is solidly within the resource--quality paradigme. Pictured below in figure \ref{fig10} is the evolution of the total scarcity rent across the different K-constraints and decarbonization levels:
-
-\begin{figure}[H]
-\centering
-\adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/inframarginalrent_line_decent.png}}
-\caption{Total scarcity rent across K-constraints and decarbonization levels.}
-\label{fig10}
-\end{figure}
-
-\medskip
-\noindent
-Here it can b seen that scarcity rents also interact with decentralization as the system becomes increasingly constrained which develops scarcity rents as explained previously. Total sytem cost behaves in an intuitive manner with an increase in decentralization leading to a higher total system cost, especially at high levels of decarbonization where the resurce quality paradigme is in full effect. A cost increase whn decentralizing is to be expexted as the system, especially at higher levels of decarbonization are heavily reliant on generation capacity installed in nodes with good renewable resources. Forcing decentralization then means that the system can no longer fully utilize these best resources and must instead rely on less efficient and more expensive local resources.
+Regarding the economic metrics of the decentralized system the mean marginal demand-weighted price evolution and the total scarcity rent evolution can be seen below in \nameref{Appendix_I} figure \ref{fig9} and \ref{fig10} respectively. As expected the mean marginal demand weighted price follows the same trend when as seen in the decarbozing system above. The price increase when enforcing decentralization is also as expected due to the fact that as the system is forced to decentralize it can no longer fully utilize the best renewable resources and must instead rely on more expensive local resources. This can also be seen in the fact that at very high levels of decarbonization the price increase when decentralizing is more pronounced as the system is more reliant on renewable generation and is solidly within the resource--quality paradigme. As for the evolution of the total scarcity rent across the different K-constraints and decarbonization level scarcity rents also interact with decentralization as the system becomes increasingly constrained which develops scarcity rents as explained previously. Total sytem cost behaves in an intuitive manner with an increase in decentralization leading to a higher total system cost, especially at high levels of decarbonization where the resurce quality paradigme is in full effect. A cost increase whn decentralizing is to be expexted as the system, especially at higher levels of decarbonization are heavily reliant on generation capacity installed in nodes with good renewable resources. Forcing decentralization then means that the system can no longer fully utilize these best resources and must instead rely on less efficient and more expensive local resources.
 \begin{figure}[H]
 \centering
 \adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/tottalsystemcost_line_decent.png}}
@@ -1169,10 +1134,11 @@ As evident from the graph the k-constraint measure has succesully decentralized 
 \centering
 \caption{Cost-Equity Trade-off Analysis: Optimal Decentralization (K=7) vs Complete Decentralization (K=1)}
 \label{tab:cost_equity_tradeoff}
+\makebox[\textwidth][c]{%
 \small
 \begin{tabular}{lcccccccc}
 \toprule
-\multirow{2}{*}{\textbf{Decarb.}} & \multicolumn{2}{c}{\textbf{Cost Premium (\%)}} & \multicolumn{2}{c}{\textbf{Equity Benefit (\%)}} & \multicolumn{2}{c}{\textbf{K=7 Relative to K=1}} & \multicolumn{2}{c}{\textbf{Efficiency vs K=$\infty$}} \\
+\multirow{2}{*}{\textbf{Decarb.}} & \multicolumn{2}{c}{\textbf{Cost Premium (\%)}} & \multicolumn{2}{c}{\textbf{Equity Benefit (\%)}} & \multicolumn{2}{c}{\textbf{K=7 Relative to K=1}} & \multicolumn{2}{c}{\textbf{Efficiency vs K=$\boldsymbol{\infty}$}} \\
 \cmidrule(lr){2-3} \cmidrule(lr){4-5} \cmidrule(lr){6-7} \cmidrule(lr){8-9}
 & K=1 & K=7 & K=1 & K=7 & Cost & Equity & K=1 & K=7 \\
 \midrule
@@ -1180,14 +1146,15 @@ As evident from the graph the k-constraint measure has succesully decentralized 
 50\% & 2.51 & 0.09 & 98.1 & 61.8 & 3.4\% & 63.0\% & 39.1x & 716.0x \\
 100\% & 18.11 & 1.56 & 99.4 & 76.1 & 8.6\% & 76.5\% & 5.5x & 48.7x \\
 \bottomrule
-\end{tabular}
+\end{tabular}%
+}
 \end{table}
-
-\newpage
 
 \medskip
 \noindent
 Here it can be seen that $K=7$ seems to capyure a very large percentage of the equity gains of $K=1$ but for a fraction of the cost premium.   Critically, moderate decentralization (K=7) achieves 62-76\% of K=1's equity benefits at only 3-9\% of the cost penalty across all decarbonization levels, demonstrating a 7-34$\times$ superior cost-equity trade-off. This suggests partial decentralization is far more economically viable than complete spatial equity. In order to better ilustrate how the decentralization measure has impacted the equity of the system, Pictured below is the distribution of the renewable capacity to load ratio used to calculate the SDRCL for 100\% decarbonisation for $K=\infty$ (free to centralize) and $K=7 \text{ } \wedge K=1$ constained scenarios.
+
+\newpage
 
 \begin{figure}[H]
 \centering
@@ -1217,6 +1184,7 @@ A secondary transition from paradigm to paradigm occurs when decentralizing the 
 \medskip
 \noindent
 \section{Discussion}
+\noindent
 Having throughly reviewed and analyzed the results from the workflow it is now imporant to consider the results and trends in a broader context. In real-world applications energy system modelling does not stand alone but is a tool to be used to make informed decisions and guide policy makers.  It is therefor of utmost importance to take a step back and review the results of this master's thesis in such a broader context.
 
 \medskip
@@ -1692,6 +1660,36 @@ Lower Bound ($\mu - \sigma$) & 4.09 \\
 \bottomrule
 \end{tabular}
 \end{table}
+
+\subsection{Appendix I: Figures for decentralization evolution} \label{Appendix_I}
+
+\begin{figure}[H]
+\centering
+\adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/transmission_capacity_stackedline_decent.png}}
+\caption{Total installed transmission capacity across K-constraints and decarbonization levels.}
+\label{transmission}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/storage_capacity_line_decent.png}}
+\caption{Installed battery and hydrogen storage capacity across K-constraints and decarbonization levels.}
+\label{fig8}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/mean_marginal_line_decent.png}}
+\caption{Mean marginal demand-weighted price across K-constraints and decarbonization levels.}
+\label{fig9}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/inframarginalrent_line_decent.png}}
+\caption{Total scarcity rent across K-constraints and decarbonization levels.}
+\label{fig10}
+\end{figure}
 
 
 \end{document}
