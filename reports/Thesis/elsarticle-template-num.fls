@@ -215,6 +215,8 @@ INPUT ./elsarticle-template-num.toc
 INPUT ./elsarticle-template-num.toc
 INPUT elsarticle-template-num.toc
 OUTPUT elsarticle-template-num.toc
+INPUT c:/texlive/2025/texmf-dist/fonts/tfm/jknappen/ec/tcrm1200.tfm
+INPUT c:/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/jknappen/ec/ecrm1095.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmr10.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmmi10.tfm
@@ -272,8 +274,6 @@ INPUT ./doc/baseline_emission_breakdown.png
 INPUT ./doc/baseline_emission_breakdown.png
 INPUT ./doc/baseline_emission_breakdown.png
 INPUT ./doc/baseline_emission_breakdown.png
-INPUT c:/texlive/2025/texmf-dist/fonts/tfm/jknappen/ec/tcrm1200.tfm
-INPUT c:/texlive/2025/texmf-dist/fonts/enc/dvips/cm-super/cm-super-ts1.enc
 INPUT ./doc/centralization_bellcurve_baseline.png
 INPUT ./doc/centralization_bellcurve_baseline.png
 INPUT ./doc/centralization_bellcurve_baseline.png

@@ -100,15 +100,7 @@ Filler
 %% Keywords
 \begin{keyword}
 
-European energy system \sep De-centralization \sep De-carbonization \sep PyPSA-EUR \sep Energy systems modeling \sep Fairness in energy transitions \sep Paradigmes in energy transitions \sep Renewable Energy Engineering
-
-
-%% keywords here, in the form: keyword \sep keyword
-
-%% PACS codes here, in the form: \PACS code \sep code
-
-%% MSC codes here, in the form: \MSC code \sep code
-%% or \MSC[2008] code \sep code (2000 is the default)
+European energy system \sep Decentralization \sep Decarbonization \sep PyPSA-EUR \sep Energy systems modeling \sep Fairness in energy transitions \sep Paradigms in energy transitions \sep Renewable Energy Engineering
 
 \end{keyword}
 
@@ -130,22 +122,29 @@ European energy system \sep De-centralization \sep De-carbonization \sep PyPSA-E
 
 \section{Introduction}
 \noindent
-In a world where the necessity of reducing the carbon emissions of our energy networks is no longer a suggestion but a requirement careful and deliberate planning of the energy system of ourthe future is needed. When the Paris Climate agreement was signed into action in 2015 it signaled the commitment of the United Nations to reducing their overall carbon footprint \cite{ParisAgreementUNFCCC}. This common goal and understanding of the necessity of decarbonization was a crucial step towards a more sustainable world, and providing a common base understanding of what needs to be done. It also provides a massively complicated technological challenge that must be solved in order for the agreement to be fulfilled.
+In a world where the necessity of reducing the carbon emissions of our energy networks is no longer a suggestion, but a requirement, careful and deliberate planning of the energy system of the future is needed. When the Paris Climate Agreement was signed into action in 2015, it signaled the commitment of the United Nations to reducing their overall carbon footprint \cite{ParisAgreementUNFCCC}. This common goal and understanding of the necessity of decarbonization was a crucial step towards a more sustainable world, and provided a common base understanding of what needs to be done. It also provides a massively complicated technological challenge that must be solved in order for the agreement to be fulfilled.
 
 \medskip
-\noindent Somewhat unique to the issue of decarbonization in the European Union, is the fact that, although the Paris Climate Agreement signifies the common goal of decarbonization, The EU is still comprised of many different countries with many different political ideologies, laws, societal preferences and goals of their own. This means that although it has long been known that a shared and interconnected energy grid is the most efficient and economically preferable solution, as seen for example in paper \cite{rodriguezCostoptimalDesignSimplified2015a}, reality becomes a lot more complicated as the member nations also must have their own best interest in mind.
+\noindent Somewhat unique to the issue of decarbonization in the European Union is the fact that, although the Paris Climate Agreement signifies the common goal of decarbonization, the EU is still comprised of many different countries with many different political ideologies, laws, societal preferences, and goals of their own. This means that, although it has long been known that a shared and interconnected energy grid is the most efficient and economically preferable solution, as seen, for example, in paper \cite{rodriguezCostoptimalDesignSimplified2015a}, reality becomes a lot more complicated as the member nations also must have their own best interests in mind.
 
 \medskip
-\noindent Historically the impact of the union being made up of self-centered actors has often been discarded when trying to construct the electricity grid of the future, if for no other reason than the fact that implementing social preferences and societal paradigms in strict mathematical models of the European energy system is a challenging problem \cite{pfenningerEnergySystemsModeling2014}. These models that typically aim to reduce the overall cost of the system as the primary objective are often meant to be used used as the basis for developing the future energy network and legislation. However using this least-cost optimization approach without considering social paradigms in the European Union tends to produce system models that, although being economically efficient at achieving decarbonization targets, are intrinsically tied to the assumption that the EU has complete control over the member nations individual energy grids.
+\noindent Historically, the impact of the union being made up of self-centered actors has often been discarded when trying to construct the electricity grid of the future, if for no other reason than the fact that implementing social preferences and societal paradigms in strict mathematical models of the European energy system is a challenging problem \cite{pfenningerEnergySystemsModeling2014}. These models, that typically aim to reduce the overall cost of the system as the primary objective, are often meant to be used as the basis for developing the future energy network and legislation. However, using this least-cost optimization approach without considering social paradigms in the European Union tends to produce system models that, although being economically efficient at achieving decarbonization targets, are intrinsically tied to the assumption that the EU has complete control over the member nations' individual energy grids.
 
 \medskip
-\noindent This approach of reducing the optimization problems to purely techno-economic problems that prioritize cost reduction over feasibility has helped achieve significant insights into decarbonization strategies for the European Union \cite{henkeComparingEnergySystem2024}, but tends to lead to the energy system becoming heavily centralized \cite{eriksenOptimalHeterogeneitySimplified2017a}. Centralization in the context of energy systems refers to the majority of resources being pooled into a few areas that are favorable to the system in some way, be that installing a lot of wind turbines in a region with a lot of wind, maintaining energy production in regions close to where the energy is needed or any number of other mechanisms that result in a proportionally large investment into infrastructure in a single region. While centralization as a strategy is often the most cost efficient it leads to a suite of other challenges.
+\noindent This approach of reducing the optimization problems to purely techno-economic problems that prioritize cost reduction over feasibility has helped achieve significant insights into decarbonization strategies for the European Union \cite{henkeComparingEnergySystem2024}, but tends to lead to the energy system becoming heavily centralized \cite{eriksenOptimalHeterogeneitySimplified2017a}. Centralization, in the context of energy systems, refers to the majority of resources being pooled into a few areas that are favorable to the system in some way, be that installing a lot of wind turbines in a region with a lot of wind, maintaining energy production in regions close to where the energy is needed, or any number of other mechanisms that result in a proportionally large investment into infrastructure in a single region. While centralization as a strategy is often the most cost-efficient, it leads to a suite of other challenges.
 
 \medskip
-\noindent Two such challenges are those of physical security and and political feasibility. With the recent surge in so-called hybrid attacks on European energy infrastructure\cite{ScaleRussianSabotage}, the focus on physical security has increased. If a system is overly centralized it means that a large amount of critical infrastructure is installed on a relatively small area. This makes the infrastructure an obvious target for such hybrid attacks as a single hostile action can impact more infrastructure and more people. As for the political feasibility, nations who end up as net energy importers become less self sufficient and increasingly reliant on the net exporting regions. This shift in power-balance heavily favors the net exporters and as such may face resistance from net importing nations that wish to remain at a high degree of self sufficiency.    
+\noindent Two such challenges are those of physical security and political feasibility. With the recent surge in so-called hybrid attacks on European energy infrastructure\cite{ScaleRussianSabotage}, the focus on physical security has increased. If a system is overly centralized, it means that a large amount of critical infrastructure is installed in a relatively small area. This makes the infrastructure an obvious target for such hybrid attacks, as a single hostile action can impact more infrastructure and more people. As for political feasibility, nations who end up as net energy importers become less self-sufficient and increasingly reliant on the net exporting regions. This shift in power balance heavily favors the net exporters and, as such, may face resistance from net importing nations that wish to remain at a high degree of self-sufficiency.
 
 \medskip
-\noindent The objective of this masters thesis is to incorporate societal paradigms and priorities in the form of decentralization into a macro-scale energy network model of the EU, and to analyze and expose the mechanisms behind de-carbonization and its interactions with decentralization. The main research question is then: \textit{By incorporating decentralization, will the resulting networks illuminate the underlying mechanisms of said decentralization and help uncover alternative transition pathways?} This in turn may then help develop a workflow that by incorporating societal paradigms and reviewing their system impacts, will help close the gap between the models used to inform energy policy makers and the results of the proposed policies. Although this workflow and methodology may in time prove relevant for policy makers to understand, the target audience of this master's thesis remains peers in the field of energy system modeling who may draw inspiration from the intersection between societal paradigms and strict mathematic modeling that this work represents. It is also for this reason that all the data and code used to produce the results which can be seen in this paper is openly available in a public repository under an open science license\cite{GNUGeneralPublic}.
+\noindent The objective of this master's thesis is to incorporate societal paradigms and priorities in the form of decentralization into a macro-scale energy network model of the EU, and to analyze and expose the mechanisms behind decarbonization and its interactions with decentralization. The main research questions are then:
+\begin{itemize}
+\item How, if at all, does enforcing decentralization change the cost-optimal pathway to decarbonization in a European energy system?
+\item Which system mechanisms are responsible for the interactions between decarbonization and decentralization?
+\item What sacrifices must be made in terms of cost and system design in order to achieve a decentralized energy system?
+\end{itemize}
+This in turn may then help develop a workflow that, by incorporating societal paradigms and reviewing their system impacts, will help close the gap between the models used to inform energy policy makers and the results of the proposed policies. Although this workflow and methodology may in time prove relevant for policy makers to understand, the target audience of this master's thesis remains peers in the field of energy system modeling who may draw inspiration from the intersection between societal paradigms and strict mathematical modeling that this work represents. It is also for this reason that all the data and code used to produce the results which can be seen in this paper are openly available in a public repository under an open science license\cite{GNUGeneralPublic}.
+%This is changed
 
 \section{Nomenclature}
 
@@ -216,29 +215,28 @@ SDRCL & Standard Deviation of Nodal Renewable Capacity per Load \\
 \section{Methodology}
 \subsection{Modeling framework}
 \noindent
-For the purpose of structuring the modeling of the EU electricity system a Snakemake workflow was constructed. Snakemake is a workflow management system that allows for modular and reproducible data analysis \cite{SnakemakeSnakemake9140}. The workflow is divided into multiple steps or "rules" that when chained together ensures that the data is processed in the correct order. A workflow management system was implemented for two reasons. As documented later on in the thesis the large number of scenarios simulated with the workflow lends itself well to a standardized workflow that can handle small variations to construct different scenarios. Secondarily Snakemake is already used in many power system optimization workflows and was therefore the obvious candidate. The complete workflow used to produce the results in this master's thesis is openly available in a public repository \cite{hedegaardadenThesisworkflowFairnessDecarbonizing2025} under a GNU General Public License \cite{GNUGeneralPublica}. 
-
+For the purpose of structuring the modeling of the EU electricity system, a Snakemake workflow was constructed. Snakemake is a workflow management system that allows for modular and reproducible data analysis \cite{SnakemakeSnakemake9140}. The workflow is divided into multiple steps or "rules" that, when chained together, ensure that the data is processed in the correct order. A workflow management system was implemented for two reasons. As documented later on in the thesis, the large number of scenarios simulated with the workflow lends itself well to a standardized workflow that can handle small variations to construct different scenarios. Secondarily, Snakemake is already used in many power system optimization workflows and was therefore the obvious candidate. The complete workflow used to produce the results in this master's thesis is openly available in a public repository \cite{hedegaardadenThesisworkflowFairnessDecarbonizing2025} under a GNU General Public License \cite{GNUGeneralPublica}.
 \medskip
 \noindent
 
 \begin{figure}[H]
 \centering
-\adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/Snakemake_DAG.png}}
+\adjustbox{center}{\includegraphics[width=0.75\linewidth]{doc/Snakemake_DAG.png}}
 \caption{Map of Snakemake Workflow}
 \label{fig_workflow}
 \end{figure}
 
 \medskip
 \noindent
-Seen above in Figure \ref{fig_workflow} is a map of the rules and data-input used in the workflow divided into three main sections: Preprocessing, optimization and vizualization/postprocessing. The following sections will go further into detail on the different sections of the workflow, excluding the vizualizations and postprocessing which are primarily used for producing figures and tables for this master's thesis result section.
+Seen above in Figure \ref{fig_workflow} is a map of the rules and data input used in the workflow, divided into three main sections: preprocessing, optimization, and visualization/postprocessing. The following sections will go further into detail on the different sections of the workflow, excluding the visualizations and postprocessing, which are primarily used for producing figures and tables for this master's thesis results section.
 
 \medskip
 \subsection{Precompiled network model}
 \noindent
-Many energy modeling frameworks and pieces of commercially available software for optimizing nodal-networks exist. The work represented by this paper utilizes the open-source framework PyPSA (Python for power system analysis \cite{PyPSA}). The reasoning for this is twofold: Firstly PyPSA is completely free and open source to use. This encourages open and collaborative science as well as transparency in the philosophy behind the energy system modeling. Secondly PyPSA consists of two separate parts. A modeling workflow based in the Python programming language, and a large database containing relevant open source data for constructing models, particularly of the European Union. This dataset is referred to as PyPSA-Eur\cite{PyPSAEur} and is invaluable in its quality of data for building macro energy system models in the PyPSA workflow. This masters thesis utilizes both parts of the PyPSA environment. Acting as a baseline for all of the network topology for the European Union is a pre-compiled network developed with PyPSA-EUR using the default settings as published in the Zenodo repository \cite{horschPyPSAEurOpenOptimisation2023}.
+Many energy modeling frameworks and pieces of commercially available software for optimizing nodal networks exist. The work represented by this paper utilizes the open-source framework PyPSA (Python for Power System Analysis) \cite{PyPSA}. The reasoning for this is twofold: Firstly, PyPSA is completely free and open source to use. This encourages open and collaborative science, as well as transparency in the philosophy behind the energy system modeling. Secondly, PyPSA consists of two separate parts: a modeling workflow based in the Python programming language, and a large database containing relevant open-source data for constructing models, particularly of the European Union. This dataset is referred to as PyPSA-Eur\cite{PyPSAEur} and is invaluable in its quality of data for building macro energy system models in the PyPSA workflow. This master's thesis utilizes both parts of the PyPSA environment. Acting as a baseline for all of the network topology for the European Union is a pre-compiled network developed with PyPSA-EUR using the default settings as published in the Zenodo repository \cite{horschPyPSAEurOpenOptimisation2023}.
 
 \medskip
-\noindent The simple philosophy behind the PyPSA models is that a network is perceived as multiple interconnected nodes. These nodes and connections are then given a set of constraints that define the feasible solution space. Examples of constraints could be that each node is assigned an electrical load that must be serviced based on historical consumption, capacity factor time-series based on solar- and wind-patterns, or maximum or minimum capacity constraints like a maximum allowable power flow from one node to another representing the transmission infrastructure in the network. The network used in this master's thesis is a 37 node network representing the 25 (excluding the island states of Malta and Cyprus) member nations of the EU. Additionally Switzerland, Norway, Bosnia-Herzegovina, Albania, Montenegro, North Macedonia, The United Kingdom and Serbia are included as their electrical infrastructure is connected to that of the EU. The following nations are also represented by more than one node as they have large populations on islands: Denmark, Spain, Great Britain and Italy.
+\noindent The simple philosophy behind the PyPSA models is that a network is perceived as multiple interconnected nodes. These nodes and connections are then given a set of constraints that define the feasible solution space. Examples of constraints could be that each node is assigned an electrical load that must be serviced based on historical consumption, capacity factor time series based on solar and wind patterns, or maximum or minimum capacity constraints, like a maximum allowable power flow from one node to another representing the transmission infrastructure in the network. The network used in this master's thesis is a 37-node network representing the 25 (excluding the island states of Malta and Cyprus) member nations of the EU. Additionally, Switzerland, Norway, Bosnia-Herzegovina, Albania, Montenegro, North Macedonia, the United Kingdom, and Serbia are included as their electrical infrastructure is connected to that of the EU. The following nations are also represented by more than one node as they have large populations on islands: Denmark, Spain, Great Britain, and Italy.
 
 \medskip
 \noindent These nodes are then interconnected with HVDC and AC links and lines based on real-world connections. A graphical overview of the network can be seen below in Figure \ref{fig_network}:
@@ -254,12 +252,12 @@ Many energy modeling frameworks and pieces of commercially available software fo
 
 \medskip
 \noindent
-The 37- node network is in actuality a clustered version of the standard PyPSA-EUR network which contains 1024 nodes. This is incredibly computationally intensive to solve. The effects of the clustering process on the network have been analyzed in \cite{schyskaSensitivityPowerSystem2021b}, where it is found that similar power system models show relatively small sensitivity to increases and decreases in the number of nodes. In addition it was found that a time-scale of 1 hour resolution was sufficient to capture the majority of time dependent effects in the system.
+The 37-node network is in actuality a clustered version of the standard PyPSA-EUR network, which contains 1,024 nodes. This is incredibly computationally intensive to solve. The effects of the clustering process on the network have been analyzed in \cite{schyskaSensitivityPowerSystem2021b}, where it is found that similar power system models show relatively small sensitivity to increases and decreases in the number of nodes. In addition, it was found that a time scale of 1-hour resolution was sufficient to capture the majority of time-dependent effects in the system.
 
 
 \subsection{Load rescaling}
 \noindent
-The precompiled network models comes preloaded with electrical demand time series for each of the nodes from the ENTSOE-E transparency platform \cite{TransparencyPlatform}. These hourly demand time series are, however, in the case of the precompiled model from the year 2013. In order to ensure a more representative demand profile for the nodes the loads have been rescaled to projected values for 2050. Each node is assigned a target electricity consumption value based on figures from Carbon-Free Europe \cite{CarbonFreeEurope}. These are then used together with the load values from 2013 to calculate a nodal scaling factor for each node as seen in equation \eqref{load_scaling} below:
+The precompiled network models come preloaded with electrical demand time series for each of the nodes from the ENTSOE-E transparency platform \cite{TransparencyPlatform}. These hourly demand time series are, however, in the case of the precompiled model, from the year 2013. In order to ensure a more representative demand profile for the nodes, the loads have been rescaled to projected values for 2050. Each node is assigned a target electricity consumption value based on figures from Carbon-Free Europe \cite{CarbonFreeEurope}. These are then used together with the load values from 2013 to calculate a nodal scaling factor for each node, as seen in equation \eqref{load_scaling} below:
 
 \begin{equation}
 \text{scaling factor}_{n}
@@ -295,7 +293,7 @@ Where $t$ denotes the set of all time snapshots. This way the total load is scal
 
 \medskip
 \noindent
-Here it can be seen that the shape of the load time series has been preserved while the total load has been rescaled to match the projected values. This rescaling process assumes that while the total energy consu,ption will increase the pattern will remain constant. This is of couse a simplification as continuing electrification of different sectors such as heating and transport, as well as changing weather patterns due to climate change, may very well alter the consumption pattern in the future. However, sector coupling and synthetic climate change models are beyond the scope of this master's thesis and this simplification is therefore necessary.
+Here it can be seen that the shape of the load time series has been preserved while the total load has been rescaled to match the projected values. This rescaling process assumes that while the total energy consumption will increase the pattern will remain constant. This is of course a simplification as continuing electrification of different sectors such as heating and transport, as well as changing weather patterns due to climate change, may very well alter the consumption pattern in the future. However, sector coupling and synthetic climate change models are beyond the scope of this master's thesis and this simplification is therefore necessary.
 
 \subsection{Generator Cost Modeling} \label{generator_cost_modeling}
 \noindent
@@ -326,7 +324,7 @@ Nuclear & 5,870,000 & 60 & 0.07 & -- & 0.02 & NEA 2020 $\sim$2\% FOM \\
 
 \medskip
 \noindent
-PyPSA, stores generator cost paramaters as annualized total ownership costs. Due to differences in the way different sources report costs, some conversion is necessary in order to convert the reported costs into the format used by PyPSA. Firstly, for sources that report the FOM (Fixed Operation and Maintenance) costs as an absolute value the total annualized cost is calculated as:
+PyPSA, stores generator cost parameters as annualized total ownership costs. Due to differences in the way different sources report costs, some conversion is necessary in order to convert the reported costs into the format used by PyPSA. Firstly, for sources that report the FOM (Fixed Operation and Maintenance) costs as an absolute value the total annualized cost is calculated as:
 
 \begin{equation}
 \text{Annualized Cost}
@@ -367,7 +365,7 @@ An finally for sources that report neither FOM (abs) nor FOM (rate) the annualiz
 
 \medskip
 \noindent
-Performing these operations ensures that all the cost data is formatted the same when interfacing with the PyPSA model. The full cost assumptions for the different types of generators can be found in \nameref{Appendix_A}. It is also important to note that anuallization is in fact a specific case of scaling costs over time, and the yearly cost is simply utilized because the optimization timespan inclded in the pre-compiled model is a single year.
+Performing these operations ensures that all the cost data is formatted the same when interfacing with the PyPSA model. The full cost assumptions for the different types of generators can be found in \nameref{Appendix_A}. It is also important to note that annualization is in fact a specific case of scaling costs over time, and the yearly cost is simply utilized because the optimization timespan included in the pre-compiled model is a single year.
 
 \subsection{Transmission- and generator-expansion} \label{Transmission_and_generator_expansion}
 \noindent
@@ -380,11 +378,11 @@ p_{\text{existing}}\leq p_{\text{line}} \leq p_{\text{line, max}}
 
 \medskip
 \noindent
-Where $p_{\text{existing}}$ is the existing capacity of the line, $p_{\text{line}}$ is the optimized capacity of the line and $p_{\text{line, max}}$ is the maximum allowable capacity of the line. The minimum capacity is set to the pre-existing  capacity as it is assumed that the existing transmission infrastructure will not be decommissioneddue to the trouble of digging up existing lines. In order to avoid transmission bottlenecks, and find the optimal solution of installed generation capacity in the nodes, the maximum capacity was set to an arbitrarily high value (1 Billion MW).
+Where $p_{\text{existing}}$ is the existing capacity of the line, $p_{\text{line}}$ is the optimized capacity of the line and $p_{\text{line, max}}$ is the maximum allowable capacity of the line. The minimum capacity is set to the pre-existing  capacity as it is assumed that the existing transmission infrastructure will not be decommissioned due to the trouble of digging up existing lines. In order to avoid transmission bottlenecks, and find the optimal solution of installed generation capacity in the nodes, the maximum capacity was set to an arbitrarily high value (1 Billion MW).
 
 \medskip
 \noindent
-A similar approach was used for the \textit{fossil-based} generators in the system. These generators are allowed to decomission in order to meet the decarbonization targets, but are not allowed to expand their capacity beyond the existing existing capacity as can be seen in equation \eqref{fossil_constraint} below. This was done in orderto maintain a degree of realism in the model as it is unlikely that new fossil-based generators will be built in a decarbonizing energy system.
+A similar approach was used for the \textit{fossil-based} generators in the system. These generators are allowed to decommission in order to meet the decarbonization targets, but are not allowed to expand their capacity beyond the existing existing capacity as can be seen in equation \eqref{fossil_constraint} below. This was done in order to maintain a degree of realism in the model as it is unlikely that new fossil-based generators will be built in a decarbonizing energy system.
 
 \begin{equation}
 p_{\text{nom}} \leq p_{\text{existing}}
@@ -393,7 +391,7 @@ p_{\text{nom}} \leq p_{\text{existing}}
 
 \medskip
 \noindent
-Most of the renewable generators are allowed to expand their capacity between 0 and an arbitrarily high value (1 Billion MW) as these are the capacities that will later be constrained by the decentralization measures. However some renewable generators like nuclear, geothermal and biomass are, constrained to "only" expand a factor 100 beyond their existing capacity int the nodes where they are already present. This is primarily done as calculating the maximum installable capacity for these technologies is a large task in itself and is outside the scope of this master's thesis. The workaround was then to only allow the expansion up to a ertain limit and only in nodes that have already proven their capabillities in utilizing said technologies. The freely expandable renewable technologies in the system are therefore solar PV, onshore wind and offshore wind which are free to expand and contract with every optimization, as long as the capacity is positive as seen in equation \eqref{renewable_constraint} below:
+Most of the renewable generators are allowed to expand their capacity between 0 and an arbitrarily high value (1 Billion MW) as these are the capacities that will later be constrained by the decentralization measures. However some renewable generators like nuclear, geothermal and biomass are, constrained to "only" expand a factor 100 beyond their existing capacity int the nodes where they are already present. This is primarily done as calculating the maximum installable capacity for these technologies is a large task in itself and is outside the scope of this master's thesis. The workaround was then to only allow the expansion up to a certain limit and only in nodes that have already proven their capabilities in utilizing said technologies. The freely expandable renewable technologies in the system are therefore solar PV, onshore wind and offshore wind which are free to expand and contract with every optimization, as long as the capacity is positive as seen in equation \eqref{renewable_constraint} below:
 
 \begin{equation}
 0 \leq p_{\text{nom}}
@@ -407,7 +405,7 @@ In addition to the capacity constraints, the operation of the different generato
 
 \subsection{Energy storage infrastructure}
 \noindent
-Finally, the last step before the system is ready to be optimized, is to implement the energy storage infrastructure. The pre-compiled network comes with a few different types of storage already implemented: Pumped-Hydro Storage (PHS), and Regular (resovoir) hydro storage. Historically hydro based storage in the European Union has been the primary method of energy storage and as a result most areas capable having hydro based storage installed have already been utilized. As a result of this the hydro based storage technologies are not allowed to change their capacity in the optimization and are constrained as seen in equation \eqref{hydro_constraint} below. Again it is assumed that decommissioning existing hydro storage is not in the interest of the system.
+Finally, the last step before the system is ready to be optimized, is to implement the energy storage infrastructure. The pre-compiled network comes with a few different types of storage already implemented: Pumped-Hydro Storage (PHS), and Regular (reservoir) hydro storage. Historically hydro based storage in the European Union has been the primary method of energy storage and as a result most areas capable having hydro based storage installed have already been utilized. As a result of this the hydro based storage technologies are not allowed to change their capacity in the optimization and are constrained as seen in equation \eqref{hydro_constraint} below. Again it is assumed that decommissioning existing hydro storage is not in the interest of the system.
 
 \begin{equation}
 p_{\text{nom}} = p_{\text{existing}}
@@ -416,7 +414,7 @@ p_{\text{nom}} = p_{\text{existing}}
 
 \medskip
 \noindent
-However as the system decarbonizes and the amount of dispatchable fossil-based generation decreases it is increasingly necessary to have large amounts of energy storage capacity installed. In order to properly model this two additional storage technologies, namely battery storage and hydrogen storage has been added to the network. Battery stoage consists of battteries and inverters and hydrogen storage consists of a hydrogen tank, an electrolyzer as well as a fuel cell. When adding the additional storage technologies their costs have been calculated in a manner similar to that of the generators as seen in section \ref{generator_cost_modeling} above. The cost assumptions for battery and hydrogen storage can be seen below in Table \ref{tab:storage_costs}:
+However as the system decarbonizes and the amount of dispatchable fossil-based generation decreases it is increasingly necessary to have large amounts of energy storage capacity installed. In order to properly model this two additional storage technologies, namely battery storage and hydrogen storage has been added to the network. Battery storage consists of batteries and inverters and hydrogen storage consists of a hydrogen tank, an electrolyzer as well as a fuel cell. When adding the additional storage technologies their costs have been calculated in a manner similar to that of the generators as seen in section \ref{generator_cost_modeling} above. The cost assumptions for battery and hydrogen storage can be seen below in Table \ref{tab:storage_costs}:
 
 \begin{table}[H]
 \centering
@@ -431,7 +429,7 @@ However as the system decarbonizes and the amount of dispatchable fossil-based g
 Battery & Energy (Cells) & 142 kWh & 25 & --- & 12.2k MWh/yr \\
  & Power (Inverter) & 160 kW & 25 & 0.96 & 13.7k MW/yr \\
 Hydrogen & Energy (Tank) & 57 kWh & 25 & --- & 4.9k MWh/yr \\
- & Power (Electrolyser) & 600 kW & 30 & 0.66 & 48.4k MW/yr \\
+ & Power (Electrolyzer) & 600 kW & 30 & 0.66 & 48.4k MW/yr \\
  & Power (Fuel Cell) & 1100 kW & 10 & 0.50 & 156.6k MW/yr \\
 \bottomrule
 \end{tabular}}
@@ -439,7 +437,7 @@ Hydrogen & Energy (Tank) & 57 kWh & 25 & --- & 4.9k MWh/yr \\
 
 \medskip
 \noindent
-Here it is important to note that the storage units include effciencies for charging and dischaging. This efficiency is incoporated in optimization model as it has a large imnpact on system cost, which was annualized as per equations in section \ref{generator_cost_modeling} above. As for the complete cost assumptions for the different storage components these can be found in \nameref{Appendix_B}.
+Here it is important to note that the storage units include efficiencies for charging and discharging. This efficiency is incorporated in optimization model as it has a large impact on system cost, which was annualized as per equations in section \ref{generator_cost_modeling} above. As for the complete cost assumptions for the different storage components these can be found in \nameref{Appendix_B}.
 
 
 \subsection{Optimization strategy}
@@ -448,7 +446,7 @@ Optimizing complex energy networks with many variables and constraints is comput
 
 \subsection{Baseline system}
 \noindent
-As seen in Figure \ref{fig_workflow} above, in order to be able to analyze the impacts of varying decarbonization constraints and decentralization measures a baseline system that is subjected to neither decarbonization nor decentralization constraints must first be optimized. This system, which will be used for comparrison is referred to as the \textit{baseline} system. The optimization of this system is performed based on the objective function and load-balance, and is a \textit{least cost} system, meaning that the total system cost is minimized.
+As seen in Figure \ref{fig_workflow} above, in order to be able to analyze the impacts of varying decarbonization constraints and decentralization measures a baseline system that is subjected to neither decarbonization nor decentralization constraints must first be optimized. This system, which will be used for comparison is referred to as the \textit{baseline} system. The optimization of this system is performed based on the objective function and load-balance, and is a \textit{least cost} system, meaning that the total system cost is minimized.
 
 \medskip
 \noindent In order to optimize the networks first an objective function must be defined. An objective function is, as the name suggests, the function which when minimized or maximized leads to the objective of the optimization to be achieved. The objective function for finding the cheapest possible electrical system is defined as minimizing the sum of all the costs:
@@ -480,11 +478,11 @@ As seen in Figure \ref{fig_workflow} above, in order to be able to analyze the i
 
 \medskip
 \noindent
-Here $\lambda$ is known as the dual-variable or the Karush-Kuhn-Tucker (KKT) multipler associated wth the constraint. This variable can be interpreted as the shadow price, or marginal price of electricity in node $n$ at time $t$. This marginal price represents the cost of supplying one additional unit of electricity to a node and as such is set by the most expensive generator needed to meet demand in that node at that time\cite{EnergyBalanceDocumentation}.
+Here $\lambda$ is known as the dual-variable or the Karush-Kuhn-Tucker (KKT) multiplier associated wth the constraint. This variable can be interpreted as the shadow price, or marginal price of electricity in node $n$ at time $t$. This marginal price represents the cost of supplying one additional unit of electricity to a node and as such is set by the most expensive generator needed to meet demand in that node at that time\cite{EnergyBalanceDocumentation}.
 
 \medskip
 \noindent
-Finding the dual variable is done by formulating a Lagrangian function that relates the gradiant of the objective function (\ref{eq:cost_min}) to the gradients of the constraint (\ref{eq:load_balance}):
+Finding the dual variable is done by formulating a Lagrangian function that relates the gradient of the objective function (\ref{eq:cost_min}) to the gradients of the constraint (\ref{eq:load_balance}):
 
 \begin{equation}
 \mathcal{L}(x, \lambda)
@@ -496,7 +494,7 @@ f(x)
 
 \medskip
 \noindent
-Here $f(x)$ is the objective function, $g_{n,t}(x)$ is the constraint function and $x$ is the set of all optimization variables.The differnt KKT multipliers can then be found by optimizing the Lagrangian function with respect to both the optimization variables and the KKT multipliers and thus finding the minima where the gradients are zero as seen in equation \eqref{KKT_conditions} below:
+Here $f(x)$ is the objective function, $g_{n,t}(x)$ is the constraint function and $x$ is the set of all optimization variables.The different KKT multipliers can then be found by optimizing the Lagrangian function with respect to both the optimization variables and the KKT multipliers and thus finding the minima where the gradients are zero as seen in equation \eqref{KKT_conditions} below:
 
 \begin{equation}
 \nabla_x \mathcal{L}(x^*, \lambda^*) = 0
@@ -508,11 +506,11 @@ Here $f(x)$ is the objective function, $g_{n,t}(x)$ is the constraint function a
 
 \medskip
 \noindent
-Here the asterisk denotes the optimal values of the optimization variables and the KKT multipliers respectively.Optimizing the network without a decarbonisation constraint, is then used to produce a baseline system that will be used for comparrison in the following sections. As a final note it is very important that the constraits used in the optimization are linear as a non-linear constraint may lead to a non-convex solution space. The result of which may the formation of local minima that the optimizer can become trapped in, leading to sub-optimal solutions.
+Here the asterisk denotes the optimal values of the optimization variables and the KKT multipliers respectively.Optimizing the network without a decarbonization constraint, is then used to produce a baseline system that will be used for comparison in the following sections. As a final note it is very important that the constraints used in the optimization are linear as a non-linear constraint may lead to a non-convex solution space. The result of which may the formation of local minima that the optimizer can become trapped in, leading to sub-optimal solutions.
 
 \subsection{Decarbonized systems}
 \noindent
-Once the baseline system has been optimized the a set of new networks at different levels of decarbonization can be defined and optimzed. In addition to the objective function \eqref{eq:cost_min} and the load balance \eqref{eq:load_balance} these systems are also constrained by a decarbonization constraint as seen in equation \eqref{decarb_constraint} below:
+Once the baseline system has been optimized the a set of new networks at different levels of decarbonization can be defined and optimized. In addition to the objective function \eqref{eq:cost_min} and the load balance \eqref{eq:load_balance} these systems are also constrained by a decarbonization constraint as seen in equation \eqref{decarb_constraint} below:
 
 \begin{equation}
 \text{total emissions}_{C} \leq (1 - C \cdot \text{baseline emissions})
@@ -522,7 +520,7 @@ Once the baseline system has been optimized the a set of new networks at differe
 
 \medskip
 \noindent
-Where $C$ is the level of decarbonization as a fraction of the baseline emissions (the total emissions from the baseline system) and $\mu$ is the KKT multiplier and can be interpreted as the price of emitting an additional unit of CO$_2$ in the system at decarbonization level $C$. This is aditionally equal to setting the $CO_2$ price equal to the dual variable and optimizing.  The baseline emissions are calculated based on the emission factors of each generator technology and their respective power output as seen in equation \eqref{emissions_calc} below:
+Where $C$ is the level of decarbonization as a fraction of the baseline emissions (the total emissions from the baseline system) and $\mu$ is the KKT multiplier and can be interpreted as the price of emitting an additional unit of CO$_2$ in the system at decarbonization level $C$. This is additionally equal to setting the $CO_2$ price equal to the dual variable and optimizing.  The baseline emissions are calculated based on the emission factors of each generator technology and their respective power output as seen in equation \eqref{emissions_calc} below:
 
 \begin{equation}
 \text{total emissions}
@@ -556,7 +554,7 @@ oil & 0.2480 \\
 
 \medskip
 \noindent
-Based on previous experience with opimising energy systems the following levels of C were chosen for the decarbonizing systems:
+Based on previous experience with optimizing energy systems the following levels of C were chosen for the decarbonizing systems:
 
 \begin{equation}
 C \in \{0\%, 10\%, 20\%, 30\%, 40\%, 50\%, 60\%, 70\%, 80\%, 90\%, 93\%, 96\%, 99\%, 100\%\}
@@ -565,10 +563,10 @@ C \in \{0\%, 10\%, 20\%, 30\%, 40\%, 50\%, 60\%, 70\%, 80\%, 90\%, 93\%, 96\%, 9
 
 \medskip
 \noindent
-This was done in order to achive a wide range of decarbonization, while increasing resolution at higher levels of decarbonisation where the system tends to change more rapidly. The outcome of the the decarbonization workflow is therefore a set of 14 different networks (excluding the baseline), each at a different level of decarbonization defined as a fraction of the baseline emissions.
+This was done in order to achieve a wide range of decarbonization, while increasing resolution at higher levels of decarbonization where the system tends to change more rapidly. The outcome of the the decarbonization workflow is therefore a set of 14 different networks (excluding the baseline), each at a different level of decarbonization defined as a fraction of the baseline emissions.
 
 \subsection{Decentralized systems}
-As discussed in the introduction, decentralization is necesarry in order to ensure a fair and secure european energy system. The first step in creating a set of decentralized systems, at each level of decarbonization, is to define a measure of decentralization. Some papers like "Modeling all alternative solutions for highly renewable energy systems" by Pedersen et al. \cite{pedersenModelingAllAlternative2021a} use the \textit{Gini Coefficient} of inequality of installed renewable capacity as a measure of decentralization. Consider the following plot:
+As discussed in the introduction, decentralization is necessary in order to ensure a fair and secure european energy system. The first step in creating a set of decentralized systems, at each level of decarbonization, is to define a measure of decentralization. Some papers like "Modeling all alternative solutions for highly renewable energy systems" by Pedersen et al. \cite{pedersenModelingAllAlternative2021a} use the \textit{Gini Coefficient} of inequality of installed renewable capacity as a measure of decentralization. Consider the following plot:
 
 \begin{figure}[H]
 \centering
@@ -579,7 +577,7 @@ As discussed in the introduction, decentralization is necesarry in order to ensu
 
 \medskip
 \noindent
-Here the red line represents an equal distribution of renewable capacity where the cumullative share of renewable energy generation capacity is equal to the cumullative share of the load for the same nodes. The blue line is an example of a Lorentz-curve where some nodes have a higher share of the renewable capacity than their share of the load (further to the right on the x-axis) while other nodes have a lower share of the renewable capacity than their share of the load (further to the left on the x-axis). The total inequality in the system can then be quantified by calculating the Gini coefficient as seen in equation \eqref{gini_coefficient} below:
+Here the red line represents an equal distribution of renewable capacity where the cumulative share of renewable energy generation capacity is equal to the cumulative share of the load for the same nodes. The blue line is an example of a Lorentz-curve where some nodes have a higher share of the renewable capacity than their share of the load (further to the right on the x-axis) while other nodes have a lower share of the renewable capacity than their share of the load (further to the left on the x-axis). The total inequality in the system can then be quantified by calculating the Gini coefficient as seen in equation \eqref{gini_coefficient} below:
 
 \begin{equation}
 G
@@ -590,7 +588,7 @@ G
 
 \medskip
 \noindent
-Where A is the area-difference between the equality line and the Lorentz curve, and B is the area-differnce between the Lorentz curve and the x-axis. This way of defining system, however, inequality comes with a number of issues. Primary among these issues is that fact that the Gini coefficient is non-linear and as such cannot directly be used as a constraint as this will lead to non-convex solution spaces and local minima. While it is possible to work around this by using a sampling based approach and then calculating the Gini coefficient post optimization, this approach is difficult to understand and implement. As a result the decentralization of the systems was constrained using a novel approach based on \cite{eriksenOptimalHeterogeneitySimplified2017a} as seen in equation \eqref{eq:k_constraint} below:
+Where A is the area-difference between the equality line and the Lorentz curve, and B is the area-difference between the Lorentz curve and the x-axis. This way of defining system, however, inequality comes with a number of issues. Primary among these issues is that fact that the Gini coefficient is non-linear and as such cannot directly be used as a constraint as this will lead to non-convex solution spaces and local minima. While it is possible to work around this by using a sampling based approach and then calculating the Gini coefficient post optimization, this approach is difficult to understand and implement. As a result the decentralization of the systems was constrained using a novel approach based on \cite{eriksenOptimalHeterogeneitySimplified2017a} as seen in equation \eqref{eq:k_constraint} below:
 
 \begin{equation}
 \frac{1}{K} \cdot \omega_n \cdot R_{\text{total}} \leq R_{\text{cap},n} \leq K \cdot \omega_n \cdot R_{\text{total}}
@@ -600,7 +598,7 @@ Where A is the area-difference between the equality line and the Lorentz curve, 
 
 \medskip
 \noindent
-Where $\omega_n = \frac{L_n}{\sum_{n'} L_{n'}}$ is the normalized load-share weight for node $n$, $R_{\text{total}}$ is the total renewable capacity across all nodes, $R_{\text{cap},n}$ is the installed renewable capacity at node $n$, and $K$ is the decentralization parameter. This way each node is given a minimum renewable capacity as a fraction of the total renewable capacity in the system based on their share of the total load. Simultaniously each node is also assigned a maximum renewable capacity as a factor of the total renewable capacity in the system based on their share of the total load. If, for examle $K=3$ that means that each node is allowed to "outperform" their load-share weighted renewable capacity by a factor of 3, while also being required to install at least one third of their load-share weighted renewable capacity. By then gradually having $K$ approach 1 the system is foced to decentralized until at $K=1$ each node is required to install renewable capacity exactly equal to their load-share weighted renewable capacity, which leads to the system becoming increasingly decentralized.
+Where $\omega_n = \frac{L_n}{\sum_{n'} L_{n'}}$ is the normalized load-share weight for node $n$, $R_{\text{total}}$ is the total renewable capacity across all nodes, $R_{\text{cap},n}$ is the installed renewable capacity at node $n$, and $K$ is the decentralization parameter. This way each node is given a minimum renewable capacity as a fraction of the total renewable capacity in the system based on their share of the total load. Simultaneously each node is also assigned a maximum renewable capacity as a factor of the total renewable capacity in the system based on their share of the total load. If, for example $K=3$ that means that each node is allowed to "outperform" their load-share weighted renewable capacity by a factor of 3, while also being required to install at least one third of their load-share weighted renewable capacity. By then gradually having $K$ approach 1 the system is forced to decentralized until at $K=1$ each node is required to install renewable capacity exactly equal to their load-share weighted renewable capacity, which leads to the system becoming increasingly decentralized.
 
 \medskip
 \noindent
@@ -613,11 +611,11 @@ K \in \{8, 7, 6, 5, 4, 3, 2, 1\}
 
 \medskip
 \noindent
-This approach has the benifit of being linear, but also avoids another pitfall when implementing decenralization in systems that also are subjected to decarbonization constraints. Both constraints, in some way, interact with the amount of renewable capacity installed in the nodes of the network. If one was to simply constrain the amount of installed renewable capacity in each node without taking into account the total amount of renewable capacity in the system, it could lead to the system installing more renewable capacity than needed to meet the decarbonization constraint. This interaction would then lead to the system becoming overly decarbonized and difficult to compare to other systems. It is for this reason that the decentralization constraint is defined as a fraction of the total renewable capacity in the system, ensuring that the decentralization constraint scales with the amount of renewable capacity needed to meet the decarbonization constraint.  As a side note the upper bound on the nodal renewable capacity relative to the nodal load is defined as a fraction of the system wide-capacity to load ratio. This means that the upper bound, is not the same as K but K multipled by the system-wide load to generation capacity ratio.
+This approach has the benefit of being linear, but also avoids another pitfall when implementing decentralization in systems that also are subjected to decarbonization constraints. Both constraints, in some way, interact with the amount of renewable capacity installed in the nodes of the network. If one was to simply constrain the amount of installed renewable capacity in each node without taking into account the total amount of renewable capacity in the system, it could lead to the system installing more renewable capacity than needed to meet the decarbonization constraint. This interaction would then lead to the system becoming overly decarbonized and difficult to compare to other systems. It is for this reason that the decentralization constraint is defined as a fraction of the total renewable capacity in the system, ensuring that the decentralization constraint scales with the amount of renewable capacity needed to meet the decarbonization constraint.  As a side note the upper bound on the nodal renewable capacity relative to the nodal load is defined as a fraction of the system wide-capacity to load ratio. This means that the upper bound, is not the same as K but K multiplied by the system-wide load to generation capacity ratio.
 
 \medskip
 \noindent
-The final outcome of the decentralization workflow is therefore a set of 105 different networks, each at a different level of decarbonization and decentralization. Before proceeding to the results of the optimization workflow it is usefull to introduce a more intuitive measure of the decentralization of a given system as the K parameter is somewhat abstract. A more intuitive measure of decentralization is the \textit{Standard Deviation of Nodal Renewable Capacity per Load} defined as:
+The final outcome of the decentralization workflow is therefore a set of 105 different networks, each at a different level of decarbonization and decentralization. Before proceeding to the results of the optimization workflow it is useful to introduce a more intuitive measure of the decentralization of a given system as the K parameter is somewhat abstract. A more intuitive measure of decentralization is the \textit{Standard Deviation of Nodal Renewable Capacity per Load} defined as:
 
 \begin{equation}
 \text{SDRCL}
@@ -630,7 +628,7 @@ The final outcome of the decentralization workflow is therefore a set of 105 dif
 
 \medskip
 \noindent
-Here $R_{\text{cap},n}$ is the installed renewable capacity at node $n$, $L_n$ is the load at node $n$ and $n$ is the number of nodes. This measure represents the standard deviation of the ratio between installed renewable capacity and load at each node. A low value of SDRCL indicates that the renewable capacity is more evenly distributed across the nodes relative to their load, while a high value indicates a more uneven distribution. By then comparing the SDRCL values for each of the decentralized systems to the network at the same level of decarbonization but without decentralization constraints, it is possible to get a more intuitive measure of how decentralized a given system is and how succesfull the decentralization constraints were.
+Here $R_{\text{cap},n}$ is the installed renewable capacity at node $n$, $L_n$ is the load at node $n$ and $n$ is the number of nodes. This measure represents the standard deviation of the ratio between installed renewable capacity and load at each node. A low value of SDRCL indicates that the renewable capacity is more evenly distributed across the nodes relative to their load, while a high value indicates a more uneven distribution. By then comparing the SDRCL values for each of the decentralized systems to the network at the same level of decarbonization but without decentralization constraints, it is possible to get a more intuitive measure of how decentralized a given system is and how successful the decentralization constraints were.
 
 \newpage
 \section{Results}
@@ -674,7 +672,7 @@ Here it can be seen that the mismatch between the load and the fossil generation
 
 \medskip
 \noindent
-The transmission infrastructure in the baseline system conntains $490.2 \text{ } GW$ HVDC capacity and $232.4 \text{ }GW$ AC capacity. Since a large amount of the load is now serviced by renewable generation, whose capacity factor time series do not necessarily line up with the load time series, storage infrastructure and transmission is used to de-couple supply and demand temporally. The installed storage capacities totalling $650 \text{ } GW$ in the baseline system can be seen below in figure \ref{baseline_storage_capacity_breakdown}:
+The transmission infrastructure in the baseline system contains $490.2 \text{ } GW$ HVDC capacity and $232.4 \text{ }GW$ AC capacity. Since a large amount of the load is now serviced by renewable generation, whose capacity factor time series do not necessarily line up with the load time series, storage infrastructure and transmission is used to de-couple supply and demand temporally. The installed storage capacities totalling $650 \text{ } GW$ in the baseline system can be seen below in figure \ref{baseline_storage_capacity_breakdown}:
 
 \medskip
 \noindent
@@ -743,7 +741,7 @@ For time \textit{t}, Nodes \textit{n}, Loads \textit{L} and marginal price \text
 
 \medskip
 \noindent
-Finally, the system is, visually, as seen in figure \ref{baseline_capacity_map} above quite centralized. This can be quantified by calculating the Standard Deviation of Nodal Renewable Capacity per Load (SDRCL) as defined in equation \eqref{SDRCL}. For the baseline system the SDRCL is calculated to be $11.84 \text{ MW}_{\text{renewable}}/\text{MW}_{\text{load}}$. This figure is difficult to quantify in isolation as its intended use is as a comparrision metric. However by visualizing the nodal renewable capacity per load in figure \ref{baseline_renewable_capacity_per_load_map} below it is possible to get an idea of how for centralized ohe baseline system is.
+Finally, the system is, visually, as seen in figure \ref{baseline_capacity_map} above quite centralized. This can be quantified by calculating the Standard Deviation of Nodal Renewable Capacity per Load (SDRCL) as defined in equation \eqref{SDRCL}. For the baseline system the SDRCL is calculated to be $11.84 \text{ MW}_{\text{renewable}}/\text{MW}_{\text{load}}$. This figure is difficult to quantify in isolation as its intended use is as a comparison metric. However by visualizing the nodal renewable capacity per load in figure \ref{baseline_renewable_capacity_per_load_map} below it is possible to get an idea of how for centralized ohe baseline system is.
 
 \begin{figure}[H]
 \centering
@@ -780,7 +778,7 @@ Lower Bound ($\mu - \sigma$) & -8.10 \\
 
 \subsection{Baseline mechanisms and interactions}
 \noindent
-The baseline system behaviour is, as can be seen above, fairly intuitive. As the pre-compiled network is a \textit{Brownfield} system that contains existing fossil-based generation capacity but no renewable based generation capacity, the optimizer services the load with the renewables as the fossil based generators are not allowed to expand their capacity.  The large capacity builout is domnated by solar PV in the south of Europe and off-shore and on-shore wind in the northern regions. As for the actual generation, as can be seen in figure \ref{baseline_generation_capacity_breakdown} above, the massive solar buildout has not converted into a similarly large generation contrbution. This is primarily caused by the fact that solar PV is more limited by its capacity factor time series than wind based generation. The largets contributor to the generation ends up becoming nuclear power, which has a high capacity factor time series and is not limited by weather conditions. In addition nuclear, is dispatchable and therefor does not require storage to the same extent as weather dependent generation.
+The baseline system behavior is, as can be seen above, fairly intuitive. As the pre-compiled network is a \textit{Brownfield} system that contains existing fossil-based generation capacity but no renewable based generation capacity, the optimizer services the load with the renewables as the fossil based generators are not allowed to expand their capacity.  The large capacity buildout is dominated by solar PV in the south of Europe and off-shore and on-shore wind in the northern regions. As for the actual generation, as can be seen in figure \ref{baseline_generation_capacity_breakdown} above, the massive solar buildout has not converted into a similarly large generation contribution. This is primarily caused by the fact that solar PV is more limited by its capacity factor time series than wind based generation. The largest contributor to the generation ends up becoming nuclear power, which has a high capacity factor time series and is not limited by weather conditions. In addition nuclear, is dispatchable and therefor does not require storage to the same extent as weather dependent generation.
 
 \medskip
 \noindent
@@ -797,7 +795,7 @@ Finally the baseline system as seen both visually in figure \ref{baseline_renewa
 \newpage
 \subsection{Decarbonized systems}
 \noindent
-Since the outcome of the decarbonization worklow is the baseline plus 13 systems, each for a different level of decarbonization, it is more useful to vizualize the evolution for the key metrics, rather than go through them one by one. Seen below is the mix of installed generation capacity for the different levels of decarbonization in figure \ref{decarbonized_generation_capacity_breakdown}:
+Since the outcome of the decarbonization workflow is the baseline plus 13 systems, each for a different level of decarbonization, it is more useful to visualize the evolution for the key metrics, rather than go through them one by one. Seen below is the mix of installed generation capacity for the different levels of decarbonization in figure \ref{decarbonized_generation_capacity_breakdown}:
 
 \begin{figure}[H]
 \centering
@@ -808,7 +806,7 @@ Since the outcome of the decarbonization worklow is the baseline plus 13 systems
 
 \medskip
 \noindent
-Here it can be seen that in order to decarbonise the system completely the total installed generation capacity increases from around $1400 \text{ } GW$ in the baseline system to around $2500 \text{ } GW$ in the fully decarbonized system, or a around a 78\% increase. As expected the fossil based generation capacity does not dissapear as the system is not forced to decomission existing capacity, but rather to replace the actual generation from fossil based generators with renewable generation. The actual generation breakdown for the different levels of decarbonization can be seen below in figure \ref{decarbonized_generation_breakdown}:
+Here it can be seen that in order to decarbonize the system completely the total installed generation capacity increases from around $1400 \text{ } GW$ in the baseline system to around $2500 \text{ } GW$ in the fully decarbonized system, or a around a 78\% increase. As expected the fossil based generation capacity does not disappear as the system is not forced to decommission existing capacity, but rather to replace the actual generation from fossil based generators with renewable generation. The actual generation breakdown for the different levels of decarbonization can be seen below in figure \ref{decarbonized_generation_breakdown}:
 
 \begin{figure}[H]
 \centering
@@ -819,7 +817,7 @@ Here it can be seen that in order to decarbonise the system completely the total
 
 \medskip
 \noindent
-As seen above when the system decarbonizes the fossil fuel based elecetricity generation goes to zero and is replaced primarily with offshore wind and solar PV generation. In order to better vizualize the evolution of the generation of the diffrent technolgies as the system decarbonizes, seen below in figure \ref{decarbonized_generation_line} is a line plot of the generation by technology:
+As seen above when the system decarbonizes the fossil fuel based electricity generation goes to zero and is replaced primarily with offshore wind and solar PV generation. In order to better visualize the evolution of the generation of the different technologies as the system decarbonizes, seen below in figure \ref{decarbonized_generation_line} is a line plot of the generation by technology:
 
 \begin{figure}[H]
 \centering
@@ -830,7 +828,7 @@ As seen above when the system decarbonizes the fossil fuel based elecetricity ge
 
 \medskip
 \noindent
-Here the generation dominance of off-shore wind at high levels of decarbonization is clearly visible. Interestingly at very high levels of decarbonization nuclear generation, as well as wind and biomass declines. In figure \ref{decarbonized_generation_line} above there seems to be a trade-off at around 90\% decarbonization where the system suddenly priorities DC-offshore wind instead of AC-offshore generation. Then at even higher levels of decarbonisation this tradeoff then gradually disappears, and the levels at 100\% decarbonization end up being fairly consistent with the rest of the trend-line. This seems to be an artifact of the discrete steps taken in the modelling of the decarboinization results. As the $CO_2$ constraint tightens the viable solution space shrinks which can lead to sudden shifts in the optimal solution as seen here. On the other hand the sudden decline in the amount of nuclear generation at high levels of decarbonization is not an artifact but an interesting mechanism. The sudden decline in nuclear generation coincides with the large buildout of the storage capacity and seems to indicate that the syztem transitions from being dominated by one paradigme to being ominated by another paradigm. Nuclear generation is dispatchable and such has primarily acted as a way of balancing the system when the non-dispatchable renewables are not producing enough generation. As the system is forced to build storage by some other mechanism at high levels of decarbonisation less nuclear generation is needed for balancing, which leads to the decline. As will be illustrated later this is caused by the substantial buildout of storage infrastructure at very high levels of decarbonization. In regards to the the transmission infrastructure in the decarbonized systems the toal transmission capacity seen below in figure \ref{decarbonized_transmission_capacity_map}:
+Here the generation dominance of off-shore wind at high levels of decarbonization is clearly visible. Interestingly at very high levels of decarbonization nuclear generation, as well as wind and biomass declines. In figure \ref{decarbonized_generation_line} above there seems to be a trade-off at around 90\% decarbonization where the system suddenly priorities DC-offshore wind instead of AC-offshore generation. Then at even higher levels of decarbonization this tradeoff then gradually disappears, and the levels at 100\% decarbonization end up being fairly consistent with the rest of the trend-line. This seems to be an artifact of the discrete steps taken in the modelling of the decarbonization results. As the $CO_2$ constraint tightens the viable solution space shrinks which can lead to sudden shifts in the optimal solution as seen here. On the other hand the sudden decline in the amount of nuclear generation at high levels of decarbonization is not an artifact but an interesting mechanism. The sudden decline in nuclear generation coincides with the large buildout of the storage capacity and seems to indicate that the system transitions from being dominated by one paradigm to being dominated by another paradigm. Nuclear generation is dispatchable and such has primarily acted as a way of balancing the system when the non-dispatchable renewables are not producing enough generation. As the system is forced to build storage by some other mechanism at high levels of decarbonization less nuclear generation is needed for balancing, which leads to the decline. As will be illustrated later this is caused by the substantial buildout of storage infrastructure at very high levels of decarbonization. In regards to the the transmission infrastructure in the decarbonized systems the total transmission capacity seen below in figure \ref{decarbonized_transmission_capacity_map}:
 
 \begin{figure}[H]
 \centering
@@ -841,7 +839,7 @@ Here the generation dominance of off-shore wind at high levels of decarbonizatio
 
 \medskip
 \noindent
-The contribution to the total transmission capacity from the HVDC links remains fairly constant as the system decarbonizes, while the AC transmission capacity increases substantially. This is due to the fact that HVDC links are mainly used for long-distance or cross-ocean transmission. while the AC lines are mainly used in mainland Europe  as a part of the main contenental mesh Network. As the system decarbonizes the optimizer prioritizes the expansion of the AC part of the network as this is what benifits more nodes in the system. This then in turn provides more flexibility in the location of storage and generation  compared to expanding the HVDC network. However at the very extreme of 100\% decarbonization the HVDC capacity does see a small increase as the system now needs to use the renewables in the best resource locations regardless if this in mainland Europe or, for example, in the UK where offshore wind resources are very good. As expected the total transmission capacity sees a large increase at very high levels of decarbonization as the system relies more and more on non-dispatchable renewable generation which must be transported from the generation sites to the load centers or stored. The storage capacity evolution for the decarbonized systems can be seen below in figure \ref{decarbonized_storage_capacity_breakdown}:
+The contribution to the total transmission capacity from the HVDC links remains fairly constant as the system decarbonizes, while the AC transmission capacity increases substantially. This is due to the fact that HVDC links are mainly used for long-distance or cross-ocean transmission. while the AC lines are mainly used in mainland Europe  as a part of the main continental mesh Network. As the system decarbonizes the optimizer prioritizes the expansion of the AC part of the network as this is what benefits more nodes in the system. This then in turn provides more flexibility in the location of storage and generation  compared to expanding the HVDC network. However at the very extreme of 100\% decarbonization the HVDC capacity does see a small increase as the system now needs to use the renewables in the best resource locations regardless if this in mainland Europe or, for example, in the UK where offshore wind resources are very good. As expected the total transmission capacity sees a large increase at very high levels of decarbonization as the system relies more and more on non-dispatchable renewable generation which must be transported from the generation sites to the load centers or stored. The storage capacity evolution for the decarbonized systems can be seen below in figure \ref{decarbonized_storage_capacity_breakdown}:
 
 \begin{figure}[H]
 \centering
@@ -852,12 +850,12 @@ The contribution to the total transmission capacity from the HVDC links remains 
 
 \medskip
 \noindent
-As alluded to above a massive increase in storage capacity is seen at at the very highest levels of decarbonisation. This is caused by the decommisioning of the last dispatchable generation technologies which forces the system to use storage for nodal balancing where it has previously been able to rely on dispatchable fossil fuel based generation. Again the complete absence of hydrogen sstorage is notable, especially as the generation share of wind based generation is very high. This is not very intuitive as one typically associates hydrogen storage with long-term storage and wind based generation which is more seasonal in nature. However it seems that the poor round-trip effeciency of the hydrogen storage means that it is not cost competetive with battery storage even at high levels of wind based generation. The rate of which wind based generation is built out trends towards wind-based generation being prioritized increasingly at higher levels of decarbonization. As will be explained later in this section, this also coincides with the sharp increase in scarcity rent of hydro storage as seen in figure \ref{fig2} below. This can be interpreted as the fact that, if unconstrained, the optimizer would have increase water-based storage capacity which is a form of long-term storage and as such is better suited to balance wind based generation.
+As alluded to above a massive increase in storage capacity is seen at at the very highest levels of decarbonization. This is caused by the decommissioning of the last dispatchable generation technologies which forces the system to use storage for nodal balancing where it has previously been able to rely on dispatchable fossil fuel based generation. Again the complete absence of hydrogen storage is notable, especially as the generation share of wind based generation is very high. This is not very intuitive as one typically associates hydrogen storage with long-term storage and wind based generation which is more seasonal in nature. However it seems that the poor round-trip efficiency of the hydrogen storage means that it is not cost competitive with battery storage even at high levels of wind based generation. The rate of which wind based generation is built out trends towards wind-based generation being prioritized increasingly at higher levels of decarbonization. As will be explained later in this section, this also coincides with the sharp increase in scarcity rent of hydro storage as seen in figure \ref{fig2} below. This can be interpreted as the fact that, if unconstrained, the optimizer would have increase water-based storage capacity which is a form of long-term storage and as such is better suited to balance wind based generation.
 
 
 \medskip
 \noindent
-The emissions of the decarbonising systems are of course fractions of the baseline emissions as constrained by equation \eqref{decarb_constraint}. The mean marginal demand-weighted price as defined by equation \eqref{mean_marginal_price} can be seen in figure \ref{decarbonized_economic_metrics} below and the total system cost evolution for the decarbonized systems can be seen below in figure \ref{fig18}:
+The emissions of the decarbonizing systems are of course fractions of the baseline emissions as constrained by equation \eqref{decarb_constraint}. The mean marginal demand-weighted price as defined by equation \eqref{mean_marginal_price} can be seen in figure \ref{decarbonized_economic_metrics} below and the total system cost evolution for the decarbonized systems can be seen below in figure \ref{fig18}:
 
 \begin{figure}[H]
 \centering
@@ -1000,7 +998,7 @@ Finally the decentralization of the decarbonized systems can be quantified by th
 
 \medskip
 \noindent
-Here it can be seen that as the system decarbonizes the equity initially \textit{increases}, meaning that the system becomes less centralized. However at high levels of decarbonization the equity begins to collapse as the system becomes highly centralized. The expectation would be that since renewable generation buildout is enforced through decarbonization measures these would be installed in the nodes with the best renewable resources and that the system would, as a result of this, see a continuos decrease in equity, which is obviously not the case. In order to uncover the underlying mechanism that leads to the inital decentralization when decarbonising the system, a spatial correlation is defined as seen in equation \eqref{spatial_correlation} below:
+Here it can be seen that as the system decarbonizes the equity initially \textit{increases}, meaning that the system becomes less centralized. However at high levels of decarbonization the equity begins to collapse as the system becomes highly centralized. The expectation would be that since renewable generation buildout is enforced through decarbonization measures these would be installed in the nodes with the best renewable resources and that the system would, as a result of this, see a continuos decrease in equity, which is obviously not the case. In order to uncover the underlying mechanism that leads to the initial decentralization when decarbonizing the system, a spatial correlation is defined as seen in equation \eqref{spatial_correlation} below:
 
 \begin{equation}
 \rho = \frac{\sum_n (C_n^R - \langle C^R \rangle) \cdot (L_n - \langle L \rangle)}{\sqrt{\sum_n (C_n^R - \langle C^R \rangle)^2} \cdot \sqrt{\sum_n (L_n - \langle L \rangle)^2}}
@@ -1019,7 +1017,7 @@ Here $C_n^R$ is the installed renewable capacity at node $n$, $L_n$ is the load 
 
 \medskip
 \noindent
-As the system decarbonizes the spatial correlation between the load and the installed renewable capacity increases up untill 80\% decarbonization where it suddenly decreases to below the orginal level. This seems to indicate that there are two separate mechanisms or paradigmes at play here. At lower levels of decarbonization the new installed renewable generation capacity is following the load centers in the network. When compared to the baseline system this leads to more capacity being installed in more diverse location and therefore increasing equity. However as seen in figure \ref{decarbonized_SDRCL} above, at very high levels of decarbonization where renewables dominate the system and backup from dispatchable based generation decreases, the system begins to increasingly optimize for the best renewable resources in order to minimize costs. This centralization of renewable capacity can also be seen directly when observing the capacity maps for the two extremes at 80\% and 100\% decarbonization seen below in figures \ref{fig6} and \ref{fig7} respectively:
+As the system decarbonizes the spatial correlation between the load and the installed renewable capacity increases up until 80\% decarbonization where it suddenly decreases to below the original level. This seems to indicate that there are two separate mechanisms or paradigms at play here. At lower levels of decarbonization the new installed renewable generation capacity is following the load centers in the network. When compared to the baseline system this leads to more capacity being installed in more diverse location and therefore increasing equity. However as seen in figure \ref{decarbonized_SDRCL} above, at very high levels of decarbonization where renewables dominate the system and backup from dispatchable based generation decreases, the system begins to increasingly optimize for the best renewable resources in order to minimize costs. This centralization of renewable capacity can also be seen directly when observing the capacity maps for the two extremes at 80\% and 100\% decarbonization seen below in figures \ref{fig6} and \ref{fig7} respectively:
 
 
 \medskip
@@ -1046,11 +1044,11 @@ When observing regions with good renewable resources such as offshore wind in No
 
 \subsection{Decarbonization mechanisms and interactions}
 \noindent
-The decarbonization process as seen above behaves mostly as one would expect. In general there seems to be a compunding effect in the system which means that as the system approaches 100\% dearbonisation, changes between each iteration become more and more pronounced. A pronounced point of transition  in paradigme for many of the metrics shown above seems to be at 80-90\% decarbonization where many of the metrics begin to change more rapidly. The generation mix of electricity by different technologies favors wind-based generation as these typially have a capacity factor time series (and thus generation) that lines up better with the load time series compared to the solar-based generation. This is caused by the fact that the load pattern in Europe tends to peak during winter when there are fewer hours of sunlight available to produce electricity. Transmission and storage infrastructure seems to be servicable up to around 90\% decarbonization, after which a massive buildout is required in order to service the load with non-dispatchable renewable generation, which leads to a large increase in system cost. The system also overall becomes more centralized as the system decentralizes as expected, as the most optimal locations for renewable generation are utilized to a higher degree in order to meet the decarbonization constraints.
+The decarbonization process as seen above behaves mostly as one would expect. In general there seems to be a compounding effect in the system which means that as the system approaches 100\% decarbonization, changes between each iteration become more and more pronounced. A pronounced point of transition  in paradigm for many of the metrics shown above seems to be at 80-90\% decarbonization where many of the metrics begin to change more rapidly. The generation mix of electricity by different technologies favors wind-based generation as these typically have a capacity factor time series (and thus generation) that lines up better with the load time series compared to the solar-based generation. This is caused by the fact that the load pattern in Europe tends to peak during winter when there are fewer hours of sunlight available to produce electricity. Transmission and storage infrastructure seems to be serviceable up to around 90\% decarbonization, after which a massive buildout is required in order to service the load with non-dispatchable renewable generation, which leads to a large increase in system cost. The system also overall becomes more centralized as the system decentralizes as expected, as the most optimal locations for renewable generation are utilized to a higher degree in order to meet the decarbonization constraints.
 
 \subsection{Decentralized systems}
 \noindent
-Having performed pertubations of both the level of decarbonization and the decentralization constraint K yields a total of 105 networks, which means that in order to summarize the results some initial screening is required. For the capacity results this has been done by performing a coefficient of variation (CV) analysis of installed capacity across the different K-constraints for each decarbonization level. This coefficient of variance is defined as $CV = \frac{\sigma}{\mu} \times 100\%$, where $\sigma$ is the standard deviation and $\mu$ is the mean value across the different K-constraints. The results of which can be found in appendix \nameref{Appendix_C}. Unsurprisingly the generation capacity CV analysis shows that the freely extendable renewable generation technologies solar and wind are impacted the most. Pictured in figure \ref{fig4} below the evolution of the total installed renewable generation capacity for the different levels o decentralization and decarbonization. 
+Having performed perturbations of both the level of decarbonization and the decentralization constraint K yields a total of 105 networks, which means that in order to summarize the results some initial screening is required. For the capacity results this has been done by performing a coefficient of variation (CV) analysis of installed capacity across the different K-constraints for each decarbonization level. This coefficient of variance is defined as $CV = \frac{\sigma}{\mu} \times 100\%$, where $\sigma$ is the standard deviation and $\mu$ is the mean value across the different K-constraints. The results of which can be found in appendix \nameref{Appendix_C}. Unsurprisingly the generation capacity CV analysis shows that the freely extendable renewable generation technologies solar and wind are impacted the most. Pictured in figure \ref{fig4} below the evolution of the total installed renewable generation capacity for the different levels o decentralization and decarbonization. 
 
 \newpage
 
@@ -1063,11 +1061,11 @@ Having performed pertubations of both the level of decarbonization and the decen
 
 \newpage
 \noindent
-Interstingly, it can be observed that the extreme scenario of complete decentrralization (K=1) is not consistant with the trends of decentralization. Take for example the installed capacity of offshore wind (DC). Here a more decentralized system will in general trend towards a decrease in capacity. However below 70\% decarbonization this is not true for $K=1$ where it actually results in \textit{more} capacity. The color of the background indicates if the capacity for the fully decentralized system (K=1) is consistant with the general trend when decentralizing or not.  This may indicate that the highly resstrictive nature of the K=1 constraint leads to rapid changes in optimal decarbonisation straegies depending on the level of decarbonisation. The main observations for the four different technologies are listed below:
+Interestingly, it can be observed that the extreme scenario of complete decentralization (K=1) is not consistent with the trends of decentralization. Take for example the installed capacity of offshore wind (DC). Here a more decentralized system will in general trend towards a decrease in capacity. However below 70\% decarbonization this is not true for $K=1$ where it actually results in \textit{more} capacity. The color of the background indicates if the capacity for the fully decentralized system (K=1) is consistent with the general trend when decentralizing or not.  This may indicate that the highly restrictive nature of the K=1 constraint leads to rapid changes in optimal decarbonization strategies depending on the level of decarbonization. The main observations for the four different technologies are listed below:
 
 \begin{itemize}
   \item \textbf{Solar PV:} When decentralizing the system, in general a more decentralized system leads to an increase in solar capacity, regardless of decarbonization level. However the K=1 scenario diverges from this trend at decarbonization levels below 80\% while at higher levels of decarbonization it becomes consistent with the trend.
-  \item \textbf{Onshore Wind:} When increasing decentralization, installed capacity decreases. This effect is particularly pronounced at high levels of decarbonization. At low levels of decarbonization the K=1 is consistant but amplified before diverging from 50\% to 80\% before finally becoming consistant again at higher levels of decarbonization.
+  \item \textbf{Onshore Wind:} When increasing decentralization, installed capacity decreases. This effect is particularly pronounced at high levels of decarbonization. At low levels of decarbonization the K=1 is consistent but amplified before diverging from 50\% to 80\% before finally becoming consistent again at higher levels of decarbonization.
   \item \textbf{Offshore Wind (AC):} A more decentralized system leads to more installed capacity across all levels of decarbonization with a significant increase at low levels of decarbonization and a huge increase at high levels of decarbonization. The extreme K=1 scenario is consistent with this trend at all levels of decarbonization.
   \item \textbf{Offshore Wind (DC):} In general a decentralizing system will lead to an decrease in installed capacity, particularly at high levels of decarbonization. At low levels of decarbonization the K=1 scenario is inconsistent with this trend but at high levels of decarbonization it becomes consistent.
 \end{itemize}
@@ -1089,24 +1087,24 @@ Here it is evident that as the system decarbonizes, for decentralization levels 
 
 \medskip
 \noindent
-At lower levels of decarbonization the $K=1$ scenario esentially says: \textit{ Meet at modest $CO_2$ constraint at minumum cost, while spreading extra renewables proportionally across all nodes (bad solar and bad wind alike)}. This means that in order to keep costs low the optimizer installs additional renewable capacity that produces the most MWh per forced system-wide GW and has a low degree of curtailment. This punishes solar PV capacity as solar has the largest decrease in capacity factor when decentralizing as seen above. The optimizer therefore ends up surpressing solar capacity buildut at low levels of decarbonization. This trend however reverses at high levels of decarbonization. Here the question changes from \textit{ How do we meet a modest $CO_2$ constraint at minimum cost while spreading renewables proportionally across all nodes?} to \textit{How do i meet the load with all renewable energy despite correlation and curtailment?}. Here, as he system is forced to decarbonize completely, the increase in necessary wind capacity to meet the load leads to very large amounts of curtailment as wind generation is highly correlated across the network. at 100\% decarbonization and $K=1$ the wind curtailment reaches 12\%-16\% across all wind technologies while solar remains around 2\%. This seems to indicate that wind deplayment has reached economic saturation in the system. Solar PV capacity then becomes the escape valve as solar generation is better suited for storage and balancing with the prevalent technology (batteries) and produces energy in diferent hours than wind. This forced diversification then leads to a massive solar buildout at very high levels of decarbonization despite the poor performance relative to wind.
+At lower levels of decarbonization the $K=1$ scenario essentially says: \textit{ Meet at modest $CO_2$ constraint at minimum cost, while spreading extra renewables proportionally across all nodes (bad solar and bad wind alike)}. This means that in order to keep costs low the optimizer installs additional renewable capacity that produces the most MWh per forced system-wide GW and has a low degree of curtailment. This punishes solar PV capacity as solar has the largest decrease in capacity factor when decentralizing as seen above. The optimizer therefore ends up suppressing solar capacity buildout at low levels of decarbonization. This trend however reverses at high levels of decarbonization. Here the question changes from \textit{ How do we meet a modest $CO_2$ constraint at minimum cost while spreading renewables proportionally across all nodes?} to \textit{How do i meet the load with all renewable energy despite correlation and curtailment?}. Here, as he system is forced to decarbonize completely, the increase in necessary wind capacity to meet the load leads to very large amounts of curtailment as wind generation is highly correlated across the network. at 100\% decarbonization and $K=1$ the wind curtailment reaches 12\%-16\% across all wind technologies while solar remains around 2\%. This seems to indicate that wind deployment has reached economic saturation in the system. Solar PV capacity then becomes the escape valve as solar generation is better suited for storage and balancing with the prevalent technology (batteries) and produces energy in different hours than wind. This forced diversification then leads to a massive solar buildout at very high levels of decarbonization despite the poor performance relative to wind.
 
 \medskip
 \noindent
-However the most important takeaway from this discussion is the fact that the extreme decentralization scenario of K=1 behaves fundamentally different from the other decentralization levels due to the highly restrictive nature of the constraint and the system wide heterogenity becoming a efficiency bottleneck. This happens as $K=1$ represents a fudamentally diffrent plannning paradigme. Here the problem changes from a spatial and technological optimization, to a purely technological optimization. What follows is then a system where every additional GW capacity must be replicated system wide due to the decentralization constraint. This explains the sudden changes in decarbonization strategy  and leads to changes in dominating technologies when compared to the other decentralization levels even at the same level of decarbonization.
+However the most important takeaway from this discussion is the fact that the extreme decentralization scenario of K=1 behaves fundamentally different from the other decentralization levels due to the highly restrictive nature of the constraint and the system wide heterogeneity becoming a efficiency bottleneck. This happens as $K=1$ represents a fundamentally different planning paradigm. Here the problem changes from a spatial and technological optimization, to a purely technological optimization. What follows is then a system where every additional GW capacity must be replicated system wide due to the decentralization constraint. This explains the sudden changes in decarbonization strategy  and leads to changes in dominating technologies when compared to the other decentralization levels even at the same level of decarbonization.
 
 \medskip
 \noindent
-It is known that, due to the variance in capacity factor time-series for diffrent generating technologies, the installed capacity and the annnual generation do generally follow the same trends and ar therefor not depicted here. This has been confirmed by reviewing the generation results across the different K-constraints and decarbonization levels, which can be found in the supplementary material under Appendix \nameref{Appendix_D}. As for the transmission capacity results, these can be seen in \nameref{Appendix_I }below in figure \ref{transmission}:
+It is known that, due to the variance in capacity factor time-series for different generating technologies, the installed capacity and the annual generation do generally follow the same trends and ar therefor not depicted here. This has been confirmed by reviewing the generation results across the different K-constraints and decarbonization levels, which can be found in the supplementary material under Appendix \nameref{Appendix_D}. As for the transmission capacity results, these can be seen in \nameref{Appendix_I} below in figure \ref{transmission}:
 
 \medskip
 \noindent
-Unsurprisingly as the system is forced to decentralize the total transmission capacity decreases, a trend that is increasingly pronounced at low and high levels of decarbonization where the system is known to already be increasingly centralized leading to a higher sensitivity to decentralization measures. Transmission of course works in congruence with storage as parts of the nodal balancing. In order to analyze the interactions between the different tyes of storage capacity, the decentralization measure and the level of decarbonization initially a coefficient of variance analysis was performed in order to determine which storage technologies are the most sensitive tot the decentralization process. The results of this analysis can be found in Appendix \nameref{Appendix_E}. Here it can be seen that the maximum capacity limited nature of the water-based storage technologies means that these are not sensitive to decentralization measures. While hydrogen based storage is sensitive to decentralization overall installed capacity remains negligable. Pictured below in \nameref{Appendix_I} figure \ref{fig8} is the installed storage capacities of batteries for all levels of decarboinization and decentralization.
-As the system decarbonizaes and decentralizes the installed battery capacity initially decreases a little due to the load following mechanism discussed above before increasing dramatically at high levels of decarbonization and decentralization. This aligns well with the idea that as the system is forced to decentralize the need for local nodal balancing increases. It also aligns with the fact that the decrease in transmission capacity when decentralizing means that less remote balancing can be performed through the transmission network and as such more localized storage is needed.
+Unsurprisingly as the system is forced to decentralize the total transmission capacity decreases, a trend that is increasingly pronounced at low and high levels of decarbonization where the system is known to already be increasingly centralized leading to a higher sensitivity to decentralization measures. Transmission of course works in congruence with storage as parts of the nodal balancing. In order to analyze the interactions between the different types of storage capacity, the decentralization measure and the level of decarbonization initially a coefficient of variance analysis was performed in order to determine which storage technologies are the most sensitive tot the decentralization process. The results of this analysis can be found in Appendix \nameref{Appendix_E}. Here it can be seen that the maximum capacity limited nature of the water-based storage technologies means that these are not sensitive to decentralization measures. While hydrogen based storage is sensitive to decentralization overall installed capacity remains negligible. Pictured below in \nameref{Appendix_I} figure \ref{fig8} is the installed storage capacities of batteries for all levels of decarbonization and decentralization.
+As the system decarbonizes and decentralizes the installed battery capacity initially decreases a little due to the load following mechanism discussed above before increasing dramatically at high levels of decarbonization and decentralization. This aligns well with the idea that as the system is forced to decentralize the need for local nodal balancing increases. It also aligns with the fact that the decrease in transmission capacity when decentralizing means that less remote balancing can be performed through the transmission network and as such more localized storage is needed.
 
 \medskip
 \noindent
-Regarding the economic metrics of the decentralized system the mean marginal demand-weighted price evolution and the total scarcity rent evolution can be seen below in \nameref{Appendix_I} figure \ref{fig9} and \ref{fig10} respectively. As expected the mean marginal demand weighted price follows the same trend when as seen in the decarbozing system above. The price increase when enforcing decentralization is also as expected due to the fact that as the system is forced to decentralize it can no longer fully utilize the best renewable resources and must instead rely on more expensive local resources. This can also be seen in the fact that at very high levels of decarbonization the price increase when decentralizing is more pronounced as the system is more reliant on renewable generation and is solidly within the resource--quality paradigme. As for the evolution of the total scarcity rent across the different K-constraints and decarbonization level scarcity rents also interact with decentralization as the system becomes increasingly constrained which develops scarcity rents as explained previously. Total sytem cost behaves in an intuitive manner with an increase in decentralization leading to a higher total system cost, especially at high levels of decarbonization where the resurce quality paradigme is in full effect. A cost increase whn decentralizing is to be expexted as the system, especially at higher levels of decarbonization are heavily reliant on generation capacity installed in nodes with good renewable resources. Forcing decentralization then means that the system can no longer fully utilize these best resources and must instead rely on less efficient and more expensive local resources.
+Regarding the economic metrics of the decentralized system the mean marginal demand-weighted price evolution and the total scarcity rent evolution can be seen below in \nameref{Appendix_I} figure \ref{fig9} and \ref{fig10} respectively. As expected the mean marginal demand weighted price follows the same trend when as seen in the decarbonizing system above. The price increase when enforcing decentralization is also as expected due to the fact that as the system is forced to decentralize it can no longer fully utilize the best renewable resources and must instead rely on more expensive local resources. This can also be seen in the fact that at very high levels of decarbonization the price increase when decentralizing is more pronounced as the system is more reliant on renewable generation and is solidly within the resource--quality paradigm. As for the evolution of the total scarcity rent across the different K-constraints and decarbonization level scarcity rents also interact with decentralization as the system becomes increasingly constrained which develops scarcity rents as explained previously. Total system cost behaves in an intuitive manner with an increase in decentralization leading to a higher total system cost, especially at high levels of decarbonization where the resource quality paradigm is in full effect. A cost increase whn decentralizing is to be expected as the system, especially at higher levels of decarbonization are heavily reliant on generation capacity installed in nodes with good renewable resources. Forcing decentralization then means that the system can no longer fully utilize these best resources and must instead rely on less efficient and more expensive local resources.
 \begin{figure}[H]
 \centering
 \adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/tottalsystemcost_line_decent.png}}
@@ -1127,7 +1125,7 @@ Finally it is of great interest to observe how the SDRCL behaves when both decen
 
 \medskip
 \noindent
-As evident from the graph the k-constraint measure has succesully decentralized the system across all levels of decarbonization. Interstingly as seen in figure \ref{fig12} above it appears that the decentralization constraint tightens, the system becomes less sensitive to the decarbonization level. The main takeaway from this figure however, is that the K-constrained networks all achieve significant reduction in centralization, while having similar cost premiums as seen in figure \ref{fig11} above. This would indicate that the solution space in regards to cost optimizing while reducing centralization is actually quite flat. This is a very significant result and migh indicate that decentralizing systems is not as cost prohibitive as previously thought. A full breakdown of cost and equity tradeoff can be found in \nameref{Appendix_G}. The best performing constraint ($K=7$) is seen for a few select levels of decarbonization below in table \ref{tab:cost_equity_tradeoff} below which summarizes the cost-equity trade-off between the decentralization scenario of K=7 and the extreme decentralization scenario of K=1, as well as the scenario not subject to decentralization constraints ($K=\infty$):
+As evident from the graph the k-constraint measure has successfully decentralized the system across all levels of decarbonization. Interestingly as seen in figure \ref{fig12} above it appears that the decentralization constraint tightens, the system becomes less sensitive to the decarbonization level. The main takeaway from this figure however, is that the K-constrained networks all achieve significant reduction in centralization, while having similar cost premiums as seen in figure \ref{fig11} above. This would indicate that the solution space in regards to cost optimizing while reducing centralization is actually quite flat. This is a very significant result and might indicate that decentralizing systems is not as cost prohibitive as previously thought. A full breakdown of cost and equity tradeoff can be found in \nameref{Appendix_G}. The best performing constraint ($K=7$) is seen for a few select levels of decarbonization below in table \ref{tab:cost_equity_tradeoff} below which summarizes the cost-equity trade-off between the decentralization scenario of K=7 and the extreme decentralization scenario of K=1, as well as the scenario not subject to decentralization constraints ($K=\infty$):
 
 \medskip
 \begin{table}[htbp]
@@ -1152,7 +1150,7 @@ As evident from the graph the k-constraint measure has succesully decentralized 
 
 \medskip
 \noindent
-Here it can be seen that $K=7$ seems to capyure a very large percentage of the equity gains of $K=1$ but for a fraction of the cost premium.   Critically, moderate decentralization (K=7) achieves 62-76\% of K=1's equity benefits at only 3-9\% of the cost penalty across all decarbonization levels, demonstrating a 7-34$\times$ superior cost-equity trade-off. This suggests partial decentralization is far more economically viable than complete spatial equity. In order to better ilustrate how the decentralization measure has impacted the equity of the system, Pictured below is the distribution of the renewable capacity to load ratio used to calculate the SDRCL for 100\% decarbonisation for $K=\infty$ (free to centralize) and $K=7 \text{ } \wedge K=1$ constained scenarios.
+Here it can be seen that $K=7$ seems to capture a very large percentage of the equity gains of $K=1$ but for a fraction of the cost premium.   Critically, moderate decentralization (K=7) achieves 62-76\% of K=1's equity benefits at only 3-9\% of the cost penalty across all decarbonization levels, demonstrating a 7-34$\times$ superior cost-equity trade-off. This suggests partial decentralization is far more economically viable than complete spatial equity. In order to better illustrate how the decentralization measure has impacted the equity of the system, Pictured below is the distribution of the renewable capacity to load ratio used to calculate the SDRCL for 100\% decarbonization for $K=\infty$ (free to centralize) and $K=7 \text{ } \wedge K=1$ constrained scenarios.
 
 \newpage
 
@@ -1165,11 +1163,11 @@ Here it can be seen that $K=7$ seems to capyure a very large percentage of the e
 
 \medskip
 \noindent
-Here it is clearly illustrated that as K approachs 1 the distribution is forced to "flatten" meaning that all nodes must have similar renewable capacity to load ratios. However even at $K=1$ there is still a little variance in the distribution as this is necessary in order to meet the load with the available renewable resources and create a solvable optimization problem. The statistics for the distributions can be found in \nameref{Appendix_H}.
+Here it is clearly illustrated that as K approaches 1 the distribution is forced to "flatten" meaning that all nodes must have similar renewable capacity to load ratios. However even at $K=1$ there is still a little variance in the distribution as this is necessary in order to meet the load with the available renewable resources and create a solvable optimization problem. The statistics for the distributions can be found in \nameref{Appendix_H}.
 
 \subsection{Decentralization mechanisms and interactions}
 \noindent
-While there seems to be a significant overlap between the mechanisms governing the network struture of the decarbonized and decentralized systems, some interactions change key characteristics depending on the level of decarbonization. These changes are however mostly to the extreme decentralization scenario of $K=1$. While the key transition region of the decarbonization sweep at around 80-90\% decarbonization is still present, the underlying mechanisms driving the decarbonization strategy change depending on the level of decarbonization.
+While there seems to be a significant overlap between the mechanisms governing the network structure of the decarbonized and decentralized systems, some interactions change key characteristics depending on the level of decarbonization. These changes are however mostly to the extreme decentralization scenario of $K=1$. While the key transition region of the decarbonization sweep at around 80-90\% decarbonization is still present, the underlying mechanisms driving the decarbonization strategy change depending on the level of decarbonization.
 
 \medskip
 \noindent
@@ -1177,7 +1175,7 @@ A secondary transition from paradigm to paradigm occurs when decentralizing the 
 \begin{itemize}
   \item \textbf{Low to moderate decarbonization (0-80\%):} Here the system is primarily driven by the load following mechanism where renewable capacity is installed in order to meet the decarbonization constraint while following the load centers in the network. This leads to a more decentralized system as renewable capacity is installed in more diverse locations.
   \item \textbf{High to total decarbonization (80-100\%):} Here the system is primarily driven by the resource quality mechanism where renewable capacity is installed in order to meet the decarbonization constraint while prioritizing the best renewable resources in the network. This leads to a more centralized system as renewable capacity is installed in the locations with the best renewable resources
-  \item  \textbf{Moderate decentralization ($K_\text{inf} \text{ to } K=2$):} Here the system is forced to decentralize which maintains the interactions as seen from the decarbonization but tends to become increasingly extreme at high levels of decarbonisation.
+  \item  \textbf{Moderate decentralization ($K_\text{inf} \text{ to } K=2$):} Here the system is forced to decentralize which maintains the interactions as seen from the decarbonization but tends to become increasingly extreme at high levels of decarbonization.
   \item \textbf{Extreme decentralization (K=1):} Here the system is forced to decentralize completely regardless of the level of decarbonization. This leads to unique decarbonization strategies when compared to the other decentralization levels.
   \end{itemize}
 
@@ -1185,19 +1183,19 @@ A secondary transition from paradigm to paradigm occurs when decentralizing the 
 \noindent
 \section{Discussion}
 \noindent
-Having throughly reviewed and analyzed the results from the workflow it is now imporant to consider the results and trends in a broader context. In real-world applications energy system modelling does not stand alone but is a tool to be used to make informed decisions and guide policy makers.  It is therefor of utmost importance to take a step back and review the results of this master's thesis in such a broader context.
+Having thoroughly reviewed and analyzed the results from the workflow it is now important to consider the results and trends in a broader context. In real-world applications energy system modelling does not stand alone but is a tool to be used to make informed decisions and guide policy makers.  It is therefor of utmost importance to take a step back and review the results of this master's thesis in such a broader context.
 
 \medskip
 \noindent
-Decarbonization and centralization are both very complex issues with many interactions and mechanisms at play. The main takeaway from the analysis performed in this thesis' is however that of the interacting paradigmes that govern the two processes. Understanding these paradigmes are key to making informed decisions and developing a comprehensive understanding of the energy system transition.
+Decarbonization and centralization are both very complex issues with many interactions and mechanisms at play. The main takeaway from the analysis performed in this thesis' is however that of the interacting paradigms that govern the two processes. Understanding these paradigms are key to making informed decisions and developing a comprehensive understanding of the energy system transition.
 
 \medskip
 \noindent
-When considering the decarbonzing system it is governed by two main planning-paradigmes: The load-following paradigme and the resource-quality paradigme. Given the current state of the European energy system, it seems that the transition towards a decarbonized system will initially, in a collaborative least-cost system, increase the equity in the system relative to the baseline. This occurs as renewable capacity will see substantial buildout in countries with large shares of the european load, that may not up untill now have investe significantly in renewable generation. However at a certain inflection point, estimated to be around 80-90\% decarbonization, the system will transition from one planning paradigme (load following) to another (resource quality). Here it becomes necessary in order to service the load and keep costs as low as possible to begin to centralize renewable capacity in a few regions with the best renewable resources. This could for example be Spain having a larger share of solar capacity buildout than their share of the european load, and the UK and Ireland having a larger share of offshore wind capacity buildout than their share of the european load. Thus, when removing the last remanants of fossil fuel generation from the system the system will become increasingly centralized. This also causes a large buildout of transmission and storage infrastructure needed to balance the highly renewable system and as such large cost increases. This is supported by the analysis of the infra-marginal rent which reveals how system bottlenecks evolve during the decarbonization process. At low levels of decarbonization the scarcity rents are driven by fossil fuel generation capacity while at high levels of decarbonization, when the paradigme shifts, the scarcity rents are driven by renewable generation capacity, transmission capacity and storage capacity. The shift in scarcity rent drivers further supports the idea of two separate planning-paradigmes governing the decarbonization process and shows the fundemental change in which system constraints are dominant.
+When considering the decarbonizing system it is governed by two main planning-paradigms: The load-following paradigm and the resource-quality paradigm. Given the current state of the European energy system, it seems that the transition towards a decarbonized system will initially, in a collaborative least-cost system, increase the equity in the system relative to the baseline. This occurs as renewable capacity will see substantial buildout in countries with large shares of the european load, that may not up until now have invested significantly in renewable generation. However at a certain inflection point, estimated to be around 80-90\% decarbonization, the system will transition from one planning paradigm (load following) to another (resource quality). Here it becomes necessary in order to service the load and keep costs as low as possible to begin to centralize renewable capacity in a few regions with the best renewable resources. This could for example be Spain having a larger share of solar capacity buildout than their share of the european load, and the UK and Ireland having a larger share of offshore wind capacity buildout than their share of the european load. Thus, when removing the last remnants of fossil fuel generation from the system the system will become increasingly centralized. This also causes a large buildout of transmission and storage infrastructure needed to balance the highly renewable system and as such large cost increases. This is supported by the analysis of the infra-marginal rent which reveals how system bottlenecks evolve during the decarbonization process. At low levels of decarbonization the scarcity rents are driven by fossil fuel generation capacity while at high levels of decarbonization, when the paradigm shifts, the scarcity rents are driven by renewable generation capacity, transmission capacity and storage capacity. The shift in scarcity rent drivers further supports the idea of two separate planning-paradigms governing the decarbonization process and shows the fundamental change in which system constraints are dominant.
 
 \medskip
 \noindent
-If a system planner then wishes to combat this natural centralization that stems from the resource-quality paradigme, say forexample due to security concerns or political reasons, then decentralization measures can be enforced. Firstly it is very imporatnt that this is done with care. As described in the methodology of this thesis' if decentralization is enforced as a hard limit and not normalized by some other system measure, it can lead to the decentralization constarint becoming the dominant limit in the system instead of the decarbonization constraint. This then leads to the system overshooting decarbonization targets and large cost premiums. The worrk done in this thesis' has shown that decentralization can be successfully enforced through the K-constraint method while still allowing the system to decarbonize in a least-cost manner. This process, like that of decentralization, is also governed by two main planning-paradigmes: One for increasing equity at low to moderate levels of decentralization ($K\neq1$), and one for extreme decentralization ($K=1$). For both paradigmes the system can succesfully increase equity by a sgnificant amount for relatively low cost premiums. This is extremely important as it indicates that decentralization is not as cost prohibitive as previously thought. However the two planning-paradigmes, while achieving similar results, differ wildly in their underlying mechanisms and strategies.
+If a system planner then wishes to combat this natural centralization that stems from the resource-quality paradigm, say for example due to security concerns or political reasons, then decentralization measures can be enforced. Firstly it is very important that this is done with care. As described in the methodology of this thesis' if decentralization is enforced as a hard limit and not normalized by some other system measure, it can lead to the decentralization constraint becoming the dominant limit in the system instead of the decarbonization constraint. This then leads to the system overshooting decarbonization targets and large cost premiums. The work done in this thesis' has shown that decentralization can be successfully enforced through the K-constraint method while still allowing the system to decarbonize in a least-cost manner. This process, like that of decentralization, is also governed by two main planning-paradigms: One for increasing equity at low to moderate levels of decentralization ($K\neq1$), and one for extreme decentralization ($K=1$). For both paradigms the system can successfully increase equity by a significant amount for relatively low cost premiums. This is extremely important as it indicates that decentralization is not as cost prohibitive as previously thought. However the two planning-paradigms, while achieving similar results, differ wildly in their underlying mechanisms and strategies.
 
 \medskip
 \noindent
@@ -1205,15 +1203,15 @@ At low to moderate levels of decentralization the system primarily follows the s
 
 \medskip
 \noindent
-However at extreme decentralization the system is forced to decentralize completely regardless of the level of decarbonization. This leads to unique decarbonization strategies when compared to the other decentralization levels. Here at low levels of decarbonization the system primarily prioritizes cost minimization while spreading renewable capacity proportionally across all nodes, leading to suppression of solar capacity buildout. This happens due to the extreme decentralization paradigme forcing renewable deployment in suboptimal locations. This then in return lowers the capacity the mean capacity factor of solar by upwards of 20\% and wind 5\% offshore and 20\% onshore. The degredation if capacity factor is the root cause of the extreme decentralization paradigmes unique behaviour at low levels of decarbonization. At high levels of decarbonization the system primarily prioritizes meeting the load with all renewable energy. This means that the level of curtailment for wind reaches upwards of 16\% while solar curtailment remains around 2\%. This is a symptom of the economic saturation of wind generation in the system and leads to solar capacity becoming the escape valve as additional wind deployment would simply lead to more curtailment due to the high correlation of wind generation across the network. This forced diversification then leads to a massive solar buildout at very high levels of decarbonization. In addition the extreme decentralization paradigme leads to large increases in battery storage capacity as the system is forced to balance more locally due to the decrease in transmission capacity which constitues a large cost increase.
+However at extreme decentralization the system is forced to decentralize completely regardless of the level of decarbonization. This leads to unique decarbonization strategies when compared to the other decentralization levels. Here at low levels of decarbonization the system primarily prioritizes cost minimization while spreading renewable capacity proportionally across all nodes, leading to suppression of solar capacity buildout. This happens due to the extreme decentralization paradigm forcing renewable deployment in suboptimal locations. This then in return lowers the capacity the mean capacity factor of solar by upwards of 20\% and wind 5\% offshore and 20\% onshore. The degradation if capacity factor is the root cause of the extreme decentralization paradigms unique behavior at low levels of decarbonization. At high levels of decarbonization the system primarily prioritizes meeting the load with all renewable energy. This means that the level of curtailment for wind reaches upwards of 16\% while solar curtailment remains around 2\%. This is a symptom of the economic saturation of wind generation in the system and leads to solar capacity becoming the escape valve as additional wind deployment would simply lead to more curtailment due to the high correlation of wind generation across the network. This forced diversification then leads to a massive solar buildout at very high levels of decarbonization. In addition the extreme decentralization paradigm leads to large increases in battery storage capacity as the system is forced to balance more locally due to the decrease in transmission capacity which constitutes a large cost increase.
 
 \medskip
 \noindent
-While overall the results from this thesis' indicate that both decarbonization and decentralization can be successfully achieved together, the volatility of the extreme decentralization paradigme indicates that this approach may not be suited for real-world applications. The highly restrictive nature of the extreme decentralization constraint means that small changes in the system can lead to large changes in the decarbonization strategy. This could lead to unforeseen consequences and instability in the energy system transition if applied in real-world scenarios. econimically the extreme decentralization paradigme also lacks support as the cost of spatial equity varies wildly depending on the level of decarbonization. Therefore it is recommended that if decentralization measures are to be enforced in real-world applications, that this is done through low to moderate levels of decentralization where the system can still follow least-cost decarbonization strategies with more predictable cost premiums. The cost of spatial equity varies dramatically with decarbonization ambition. At 30-50\% decarbonization, K=1 imposes modest cost premiums (2.5-2.8\%) as distributed renewables can still meet most requirements. However, at 100\% decarbonization, K=1 cost premiums reach 18.1\% due to forced solar over-building and capacity factor degradation.
+While overall the results from this thesis' indicate that both decarbonization and decentralization can be successfully achieved together, the volatility of the extreme decentralization paradigm indicates that this approach may not be suited for real-world applications. The highly restrictive nature of the extreme decentralization constraint means that small changes in the system can lead to large changes in the decarbonization strategy. This could lead to unforeseen consequences and instability in the energy system transition if applied in real-world scenarios. economically the extreme decentralization paradigm also lacks support as the cost of spatial equity varies wildly depending on the level of decarbonization. Therefore it is recommended that if decentralization measures are to be enforced in real-world applications, that this is done through low to moderate levels of decentralization where the system can still follow least-cost decarbonization strategies with more predictable cost premiums. The cost of spatial equity varies dramatically with decarbonization ambition. At 30-50\% decarbonization, K=1 imposes modest cost premiums (2.5-2.8\%) as distributed renewables can still meet most requirements. However, at 100\% decarbonization, K=1 cost premiums reach 18.1\% due to forced solar over-building and capacity factor degradation.
 
 \medskip
 \noindent
-Although the results and analysis presented in this thesis' is comprehensive there are of course many different avenues of research that could be persued. In order to do so it would be of interest to consider some of the more novel approaches deveoped for this thesis. Firstly the K-constraint method for enforcing decentralization in the system without over-decarbonizing seems to be a promising and efficient solution to modelling decentralization. Having previosly worked with the Gini coefficient as a measure of decentralization and using it to define decentralization constraints, this K-approach seems more intuitive and easier to implement. Aditionally the use of the SDRCL as an equity measure seems promising as it is easy to calculate and understand while providing crucial insight into the system distribution of renewable capacity relative to load. Further research into these two methods and their applications in different contexts would be of great interest. Furthermore the decarbonisation paradigmes of load-following and resource-quality would be intersting topics to investigate further in order to uncover if these are fundemental mechanisms governing the decarbonization process in general or if they are specific to this model and context. Finally the role of the extreme decentralization paradigme and its fundemental differences from the moderate decentralization paradigme would be an interesting topic to investigate further.
+Although the results and analysis presented in this thesis' is comprehensive there are of course many different avenues of research that could be pursued. In order to do so it would be of interest to consider some of the more novel approaches developed for this thesis. Firstly the K-constraint method for enforcing decentralization in the system without over-decarbonizing seems to be a promising and efficient solution to modelling decentralization. Having previously worked with the Gini coefficient as a measure of decentralization and using it to define decentralization constraints, this K-approach seems more intuitive and easier to implement. Additionally the use of the SDRCL as an equity measure seems promising as it is easy to calculate and understand while providing crucial insight into the system distribution of renewable capacity relative to load. Further research into these two methods and their applications in different contexts would be of great interest. Furthermore the decarbonization paradigms of load-following and resource-quality would be interesting topics to investigate further in order to uncover if these are fundamental mechanisms governing the decarbonization process in general or if they are specific to this model and context. Finally the role of the extreme decentralization paradigm and its fundamental differences from the moderate decentralization paradigm would be an interesting topic to investigate further.
 
 \medskip
 \noindent
@@ -1378,7 +1376,7 @@ Biomass & 9.9 (0\%) & 9.9 (0\%) & 9.9 (0\%) & 9.9 (0\%) \\
 
 \subsection{Appendix D: Annual generation evolution for decentralization and decarbonization} \label{Appendix_D}
 \noindent
-The total annual generation from the four freely expanable renewable sources, across the different levels of decentralization and decarbonization can be seen below in Figure \ref{fig5}. In order to de-clutter the vizualization each technology is represented by its k=1 scenario and the mean across the remaining K-constraints.
+The total annual generation from the four freely expandable renewable sources, across the different levels of decentralization and decarbonization can be seen below in Figure \ref{fig5}. In order to de-clutter the visualization each technology is represented by its k=1 scenario and the mean across the remaining K-constraints.
 
 \begin{figure}[H]
 \centering
@@ -1390,7 +1388,7 @@ The total annual generation from the four freely expanable renewable sources, ac
 
 \newpage
 
-\subsection{Appendix E: Coefficient of Variance analysis for Storage capaciy} \label{Appendix_E}
+\subsection{Appendix E: Coefficient of Variance analysis for Storage capacity} \label{Appendix_E}
 \begin{table}[htbp]
 \centering
 \caption{Sensitivity of Storage Capacity to K-Constraint Levels}
@@ -1445,7 +1443,7 @@ Statistics calculated across all K-constraint levels (K=1 through K=$\infty$).
 
 \begin{table}[htbp]
 \centering
-\caption{Cost-Equity Trade-off Across All K-Constraint Levels (Part 1: 10-50\% Decarbonization)}
+\caption{Cost-Equity Trade-off Across All K-Constraint Levels (Part 1: 10-40\% Decarbonization)}
 \label{tab:cost_equity_all_k_part1}
 \small
 \begin{tabular}{ccccccc}
@@ -1484,6 +1482,19 @@ Statistics calculated across all K-constraint levels (K=1 through K=$\infty$).
  & K=5 & 0.19 & 69.6 & 7.2 & 9.9x & 373.6x \\
  & K=6 & 0.16 & 65.4 & 6.1 & 11.0x & 414.4x \\
  & K=7 & 0.14 & 61.6 & 5.2 & 12.1x & 456.0x \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Cost-Equity Trade-off Across All K-Constraint Levels (Part 2: 50-80\% Decarbonization)}
+\label{tab:cost_equity_all_k_part2}
+\small
+\begin{tabular}{ccccccc}
+\toprule
+\textbf{Decarb} & \textbf{K} & \textbf{Cost} & \textbf{Equity} & \textbf{Cost} & \textbf{Efficiency} & \textbf{Efficiency} \\
+\textbf{Level} & \textbf{Value} & \textbf{Premium (\%)} & \textbf{Benefit (\%)} & \textbf{(\% of K=1)} & \textbf{vs K=1} & \textbf{vs K=$\infty$} \\
 \midrule
 50\% & K=1 & 2.51 & 98.1 & 100.0 & 1.0x & 39.1x \\
  & K=2 & 0.49 & 85.0 & 19.6 & 4.4x & 173.4x \\
@@ -1492,19 +1503,6 @@ Statistics calculated across all K-constraint levels (K=1 through K=$\infty$).
  & K=5 & 0.12 & 69.1 & 4.9 & 14.4x & 561.3x \\
  & K=6 & 0.10 & 65.6 & 4.1 & 16.3x & 637.5x \\
  & K=7 & 0.09 & 61.8 & 3.4 & 18.3x & 716.0x \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}[htbp]
-\centering
-\caption{Cost-Equity Trade-off Across All K-Constraint Levels (Part 2: 60-96\% Decarbonization)}
-\label{tab:cost_equity_all_k_part2}
-\small
-\begin{tabular}{ccccccc}
-\toprule
-\textbf{Decarb} & \textbf{K} & \textbf{Cost} & \textbf{Equity} & \textbf{Cost} & \textbf{Efficiency} & \textbf{Efficiency} \\
-\textbf{Level} & \textbf{Value} & \textbf{Premium (\%)} & \textbf{Benefit (\%)} & \textbf{(\% of K=1)} & \textbf{vs K=1} & \textbf{vs K=$\infty$} \\
 \midrule
 60\% & K=1 & 2.44 & 98.1 & 100.0 & 1.0x & 40.3x \\
  & K=2 & 0.46 & 85.5 & 18.9 & 4.6x & 186.0x \\
@@ -1529,6 +1527,19 @@ Statistics calculated across all K-constraint levels (K=1 through K=$\infty$).
  & K=5 & 0.07 & 57.5 & 3.1 & 19.3x & 810.3x \\
  & K=6 & 0.06 & 52.5 & 2.5 & 21.9x & 922.2x \\
  & K=7 & 0.05 & 47.0 & 2.0 & 24.5x & 1029.3x \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Cost-Equity Trade-off Across All K-Constraint Levels (Part 3: 90-99\% Decarbonization)}
+\label{tab:cost_equity_all_k_part3}
+\small
+\begin{tabular}{ccccccc}
+\toprule
+\textbf{Decarb} & \textbf{K} & \textbf{Cost} & \textbf{Equity} & \textbf{Cost} & \textbf{Efficiency} & \textbf{Efficiency} \\
+\textbf{Level} & \textbf{Value} & \textbf{Premium (\%)} & \textbf{Benefit (\%)} & \textbf{(\% of K=1)} & \textbf{vs K=1} & \textbf{vs K=$\infty$} \\
 \midrule
 90\% & K=1 & 2.77 & 98.3 & 100.0 & 1.0x & 35.5x \\
  & K=2 & 0.39 & 84.3 & 14.1 & 6.1x & 215.9x \\
@@ -1553,20 +1564,6 @@ Statistics calculated across all K-constraint levels (K=1 through K=$\infty$).
  & K=5 & 0.38 & 76.6 & 6.9 & 11.2x & 199.8x \\
  & K=6 & 0.22 & 72.2 & 3.9 & 18.6x & 330.6x \\
  & K=7 & 0.16 & 68.4 & 2.8 & 24.7x & 439.8x \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\begin{table}[htbp]
-\centering
-\caption{Cost-Equity Trade-off Across All K-Constraint Levels (Part 3: 99-100\% Decarbonization)}
-\label{tab:cost_equity_all_k_part3}
-\small
-\begin{tabular}{ccccccc}
-\toprule
-\textbf{Decarb} & \textbf{K} & \textbf{Cost} & \textbf{Equity} & \textbf{Cost} & \textbf{Efficiency} & \textbf{Efficiency} \\
-\textbf{Level} & \textbf{Value} & \textbf{Premium (\%)} & \textbf{Benefit (\%)} & \textbf{(\% of K=1)} & \textbf{vs K=1} & \textbf{vs K=$\infty$} \\
-\midrule
 99\% & K=1 & 9.90 & 99.4 & 100.0 & 1.0x & 10.0x \\
  & K=2 & 3.98 & 91.6 & 40.2 & 2.3x & 23.0x \\
  & K=3 & 2.30 & 87.3 & 23.2 & 3.8x & 38.0x \\
@@ -1574,6 +1571,23 @@ Statistics calculated across all K-constraint levels (K=1 through K=$\infty$).
  & K=5 & 1.15 & 81.3 & 11.6 & 7.1x & 70.8x \\
  & K=6 & 0.94 & 78.3 & 9.5 & 8.3x & 83.4x \\
  & K=7 & 0.84 & 75.7 & 8.5 & 9.0x & 90.2x \\
+\bottomrule
+\end{tabular}
+\begin{tablenotes}
+\small
+\item \textit{Note:} Cost premium and equity benefit calculated relative to K=$\infty$.
+\end{tablenotes}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Cost-Equity Trade-off Across All K-Constraint Levels (Part 4: 100\% Decarbonization)}
+\label{tab:cost_equity_all_k_part4}
+\small
+\begin{tabular}{ccccccc}
+\toprule
+\textbf{Decarb} & \textbf{K} & \textbf{Cost} & \textbf{Equity} & \textbf{Cost} & \textbf{Efficiency} & \textbf{Efficiency} \\
+\textbf{Level} & \textbf{Value} & \textbf{Premium (\%)} & \textbf{Benefit (\%)} & \textbf{(\% of K=1)} & \textbf{vs K=1} & \textbf{vs K=$\infty$} \\
 \midrule
 100\% & K=1 & 18.11 & 99.4 & 100.0 & 1.0x & 5.5x \\
  & K=2 & 7.99 & 91.8 & 44.1 & 2.1x & 11.5x \\
@@ -1589,7 +1603,6 @@ Statistics calculated across all K-constraint levels (K=1 through K=$\infty$).
 \item \textit{Note:} Cost premium and equity benefit calculated relative to K=$\infty$.
 \end{tablenotes}
 \end{table}
-
 \newpage
 
 \subsection{Appendix H: Distribution statistics} \label{Appendix_H}
