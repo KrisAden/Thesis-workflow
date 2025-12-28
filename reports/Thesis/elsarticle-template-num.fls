@@ -181,8 +181,6 @@ INPUT ./elsarticle-template-num.out
 INPUT ./elsarticle-template-num.out
 OUTPUT elsarticle-template-num.out
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/jknappen/ec/ecbx1200.tfm
-INPUT c:/texlive/2025/texmf-dist/fonts/tfm/jknappen/ec/ecti1200.tfm
-INPUT c:/texlive/2025/texmf-dist/fonts/tfm/jknappen/ec/ecrm1728.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmr12.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmr8.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/cm/cmr6.tfm
@@ -207,6 +205,8 @@ INPUT c:/texlive/2025/texmf-dist/tex/latex/amsfonts/umsb.fd
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm10.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/public/amsfonts/symbols/msbm7.tfm
+INPUT c:/texlive/2025/texmf-dist/fonts/tfm/jknappen/ec/ecti1200.tfm
+INPUT c:/texlive/2025/texmf-dist/fonts/tfm/jknappen/ec/ecrm1728.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/jknappen/ec/ecrm0800.tfm
 INPUT c:/texlive/2025/texmf-dist/fonts/tfm/jknappen/ec/ecti1000.tfm
 INPUT c:/texlive/2025/texmf-var/fonts/map/pdftex/updmap/pdftex.map
