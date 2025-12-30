@@ -17,147 +17,149 @@
 \citation{GNUGeneralPublica}
 \@writefile{toc}{\contentsline {section}{\numberline {3}Methodology}{9}{section.3}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Modeling framework}{9}{subsection.3.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Map of Snakemake Workflow}}{10}{figure.1}\protected@file@percent }
-\newlabel{fig_workflow}{{1}{10}{Map of Snakemake Workflow}{figure.1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces Map of Snakemake Workflow showing preprocessing, optimization, and postprocessing/visualization steps.}}{10}{figure.1}\protected@file@percent }
+\newlabel{fig_workflow}{{1}{10}{Map of Snakemake Workflow showing preprocessing, optimization, and postprocessing/visualization steps}{figure.1}{}}
 \citation{PyPSA}
 \citation{PyPSAEur}
 \citation{horschPyPSAEurOpenOptimisation2023}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Precompiled network model}{11}{subsection.3.2}\protected@file@percent }
 \citation{schyskaSensitivityPowerSystem2021b}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Overview of the 37-node European energy network, showing nodes and interconnecting transmission lines and links.}}{12}{figure.2}\protected@file@percent }
+\newlabel{fig_network}{{3.2}{12}{Precompiled network model}{figure.2}{}}
 \citation{TransparencyPlatform}
 \citation{CarbonFreeEurope}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Overview of the 37-node European energy network.}}{12}{figure.2}\protected@file@percent }
-\newlabel{fig_network}{{3.2}{12}{Precompiled network model}{figure.2}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Load rescaling}{13}{subsection.3.3}\protected@file@percent }
 \newlabel{load_scaling}{{1}{13}{Load rescaling}{equation.1}{}}
 \newlabel{load_rescaled}{{2}{13}{Load rescaling}{equation.2}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Example of load rescaling for node representing Denmark.}}{13}{figure.3}\protected@file@percent }
-\newlabel{fig_load_rescale}{{3}{13}{Example of load rescaling for node representing Denmark}{figure.3}{}}
 \citation{TechnologyDataGeneration2024}
 \citation{FutureGeothermalEnergy2024}
 \citation{ProjectedCostsGenerating}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Example of load rescaling for node representing Denmark. Original 2013 load in blue, rescaled 2050 load in orange.}}{14}{figure.3}\protected@file@percent }
+\newlabel{fig_load_rescale}{{3}{14}{Example of load rescaling for node representing Denmark. Original 2013 load in blue, rescaled 2050 load in orange}{figure.3}{}}
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Generator Cost Modeling}{14}{subsection.3.4}\protected@file@percent }
 \newlabel{generator_cost_modeling}{{3.4}{14}{Generator Cost Modeling}{subsection.3.4}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Cost assumptions for generation technologies \cite  {TechnologyDataGeneration2024} \cite  {FutureGeothermalEnergy2024} \cite  {ProjectedCostsGenerating}}}{14}{table.1}\protected@file@percent }
-\newlabel{tab:costs}{{1}{14}{Cost assumptions for generation technologies \cite {TechnologyDataGeneration2024} \cite {FutureGeothermalEnergy2024} \cite {ProjectedCostsGenerating}}{table.1}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Transmission- and generator-expansion}{15}{subsection.3.5}\protected@file@percent }
-\newlabel{Transmission_and_generator_expansion}{{3.5}{15}{Transmission- and generator-expansion}{subsection.3.5}{}}
-\newlabel{transmission_constraint}{{7}{15}{Transmission- and generator-expansion}{equation.7}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Cost assumptions for generation technologies \cite  {TechnologyDataGeneration2024} \cite  {FutureGeothermalEnergy2024} \cite  {ProjectedCostsGenerating}}}{15}{table.1}\protected@file@percent }
+\newlabel{tab:costs}{{1}{15}{Cost assumptions for generation technologies \cite {TechnologyDataGeneration2024} \cite {FutureGeothermalEnergy2024} \cite {ProjectedCostsGenerating}}{table.1}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Transmission- and generator-expansion}{16}{subsection.3.5}\protected@file@percent }
+\newlabel{Transmission_and_generator_expansion}{{3.5}{16}{Transmission- and generator-expansion}{subsection.3.5}{}}
+\newlabel{transmission_constraint}{{7}{16}{Transmission- and generator-expansion}{equation.7}{}}
 \newlabel{fossil_constraint}{{8}{16}{Transmission- and generator-expansion}{equation.8}{}}
-\newlabel{renewable_constraint}{{9}{16}{Transmission- and generator-expansion}{equation.9}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.6}Energy storage infrastructure}{16}{subsection.3.6}\protected@file@percent }
 \citation{TechnologyDataEnergy2024}
+\newlabel{renewable_constraint}{{9}{17}{Transmission- and generator-expansion}{equation.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.6}Energy storage infrastructure}{17}{subsection.3.6}\protected@file@percent }
+\newlabel{hydro_constraint}{{10}{17}{Energy storage infrastructure}{equation.10}{}}
 \citation{UCloudUserGuide}
 \citation{BarrierLoggingGurobi}
-\newlabel{hydro_constraint}{{10}{17}{Energy storage infrastructure}{equation.10}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Storage technology cost assumptions used in the optimization model \cite  {TechnologyDataEnergy2024}.}}{17}{table.2}\protected@file@percent }
-\newlabel{tab:storage_costs}{{2}{17}{Storage technology cost assumptions used in the optimization model \cite {TechnologyDataEnergy2024}}{table.2}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.7}Optimization strategy}{17}{subsection.3.7}\protected@file@percent }
-\citation{EnergyBalanceDocumentation}
+\@writefile{lot}{\contentsline {table}{\numberline {2}{\ignorespaces Storage technology cost assumptions used in the optimization model \cite  {TechnologyDataEnergy2024}.}}{18}{table.2}\protected@file@percent }
+\newlabel{tab:storage_costs}{{2}{18}{Storage technology cost assumptions used in the optimization model \cite {TechnologyDataEnergy2024}}{table.2}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.7}Optimization strategy}{18}{subsection.3.7}\protected@file@percent }
 \@writefile{toc}{\contentsline {subsection}{\numberline {3.8}Baseline system}{18}{subsection.3.8}\protected@file@percent }
-\newlabel{eq:cost_min}{{11}{18}{Baseline system}{equation.11}{}}
-\newlabel{eq:load_balance}{{12}{18}{Baseline system}{equation.12}{}}
-\newlabel{Lagrangian}{{13}{18}{Baseline system}{equation.13}{}}
+\citation{EnergyBalanceDocumentation}
+\newlabel{eq:cost_min}{{11}{19}{Baseline system}{equation.11}{}}
+\newlabel{eq:load_balance}{{12}{19}{Baseline system}{equation.12}{}}
+\newlabel{Lagrangian}{{13}{19}{Baseline system}{equation.13}{}}
 \newlabel{KKT_conditions}{{14}{19}{Baseline system}{equation.14}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.9}Decarbonized systems}{19}{subsection.3.9}\protected@file@percent }
-\newlabel{decarb_constraint}{{15}{19}{Decarbonized systems}{equation.15}{}}
-\newlabel{emissions_calc}{{16}{19}{Decarbonized systems}{equation.16}{}}
-\citation{pedersenModelingAllAlternative2021a}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.9}Decarbonized systems}{20}{subsection.3.9}\protected@file@percent }
+\newlabel{decarb_constraint}{{15}{20}{Decarbonized systems}{equation.15}{}}
+\newlabel{emissions_calc}{{16}{20}{Decarbonized systems}{equation.16}{}}
 \@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces Emission factors by carrier technology}}{20}{table.3}\protected@file@percent }
 \newlabel{tab:emission_factors}{{3}{20}{Emission factors by carrier technology}{table.3}{}}
-\newlabel{decarb_levels}{{17}{20}{Decarbonized systems}{equation.17}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.10}Decentralized systems}{20}{subsection.3.10}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Example of Gini coefficient calculation for installed renewable capacity.}}{21}{figure.4}\protected@file@percent }
-\newlabel{fig_gini_example}{{4}{21}{Example of Gini coefficient calculation for installed renewable capacity}{figure.4}{}}
+\citation{pedersenModelingAllAlternative2021a}
+\citation{pedersenModelingAllAlternative2021a}
+\citation{pedersenModelingAllAlternative2021a}
+\newlabel{decarb_levels}{{17}{21}{Decarbonized systems}{equation.17}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.10}Decentralized systems}{21}{subsection.3.10}\protected@file@percent }
 \citation{eriksenOptimalHeterogeneitySimplified2017a}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces Example of Gini coefficient calculation for installed renewable capacity, based on \cite  {pedersenModelingAllAlternative2021a}.}}{22}{figure.4}\protected@file@percent }
+\newlabel{fig_gini_example}{{4}{22}{Example of Gini coefficient calculation for installed renewable capacity, based on \cite {pedersenModelingAllAlternative2021a}}{figure.4}{}}
 \newlabel{gini_coefficient}{{18}{22}{Decentralized systems}{equation.18}{}}
-\newlabel{eq:k_constraint}{{19}{22}{Decentralized systems}{equation.19}{}}
-\newlabel{K_levels}{{20}{22}{Decentralized systems}{equation.20}{}}
-\newlabel{SDRCL}{{21}{23}{Decentralized systems}{equation.21}{}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Results}{24}{section.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Baseline system}{24}{subsection.4.1}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Baseline generator capacity map.}}{24}{figure.5}\protected@file@percent }
-\newlabel{baseline_capacity_map}{{5}{24}{Baseline generator capacity map}{figure.5}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Baseline generator capacity and annual generation by technology.}}{25}{figure.6}\protected@file@percent }
-\newlabel{baseline_generation_capacity_breakdown}{{6}{25}{Baseline generator capacity and annual generation by technology}{figure.6}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Baseline transmission capacity map.}}{26}{figure.7}\protected@file@percent }
-\newlabel{baseline_transmission_capacity_map}{{7}{26}{Baseline transmission capacity map}{figure.7}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Baseline storage capacity map.}}{27}{figure.8}\protected@file@percent }
-\newlabel{baseline_storage_capacity_breakdown}{{8}{27}{Baseline storage capacity map}{figure.8}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Baseline emissions by technology.}}{28}{figure.9}\protected@file@percent }
-\newlabel{baseline_emissions_breakdown}{{9}{28}{Baseline emissions by technology}{figure.9}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Baseline System Economic Metrics (System Cost vs Market Price)}}{28}{table.4}\protected@file@percent }
-\newlabel{tab:baseline_metrics}{{4}{28}{Baseline System Economic Metrics (System Cost vs Market Price)}{table.4}{}}
-\newlabel{mean_marginal_price}{{22}{29}{Baseline system}{equation.22}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Baseline renewable capacity per load map.}}{29}{figure.10}\protected@file@percent }
-\newlabel{baseline_renewable_capacity_per_load_map}{{10}{29}{Baseline renewable capacity per load map}{figure.10}{}}
+\newlabel{eq:k_constraint}{{19}{23}{Decentralized systems}{equation.19}{}}
+\newlabel{K_levels}{{20}{23}{Decentralized systems}{equation.20}{}}
+\newlabel{SDRCL}{{21}{24}{Decentralized systems}{equation.21}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Results}{25}{section.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.1}Baseline system}{25}{subsection.4.1}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces Baseline generator capacity map, showing installed generation capacity by technology and node.}}{25}{figure.5}\protected@file@percent }
+\newlabel{baseline_capacity_map}{{5}{25}{Baseline generator capacity map, showing installed generation capacity by technology and node}{figure.5}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Baseline generator capacity and annual generation by technology, showing annual generation hatched and installed capacity solid.}}{26}{figure.6}\protected@file@percent }
+\newlabel{baseline_generation_capacity_breakdown}{{6}{26}{Baseline generator capacity and annual generation by technology, showing annual generation hatched and installed capacity solid}{figure.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Baseline transmission capacity map, showing installed transmission capacity by AC lines and HVDC links.}}{27}{figure.7}\protected@file@percent }
+\newlabel{baseline_transmission_capacity_map}{{7}{27}{Baseline transmission capacity map, showing installed transmission capacity by AC lines and HVDC links}{figure.7}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Baseline storage capacity map, showing installed storage capacity by technology and node.}}{28}{figure.8}\protected@file@percent }
+\newlabel{baseline_storage_capacity_breakdown}{{8}{28}{Baseline storage capacity map, showing installed storage capacity by technology and node}{figure.8}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces Baseline emissions by technology in MtCO$_2$.}}{29}{figure.9}\protected@file@percent }
+\newlabel{baseline_emissions_breakdown}{{9}{29}{Baseline emissions by technology in MtCO$_2$}{figure.9}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces Baseline System Economic Metrics (System Cost vs Market Price)}}{30}{table.4}\protected@file@percent }
+\newlabel{tab:baseline_metrics}{{4}{30}{Baseline System Economic Metrics (System Cost vs Market Price)}{table.4}{}}
+\newlabel{mean_marginal_price}{{22}{30}{Baseline system}{equation.22}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces Baseline renewable capacity per load distribution with standard deviation bounds.}}{31}{figure.10}\protected@file@percent }
+\newlabel{baseline_renewable_capacity_per_load_map}{{10}{31}{Baseline renewable capacity per load distribution with standard deviation bounds}{figure.10}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Baseline mechanisms and interactions}{31}{subsection.4.2}\protected@file@percent }
 \citation{eriksenOptimalHeterogeneitySimplified2017a}
-\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Baseline System: Renewable Capacity per Load Distribution Statistics}}{30}{table.5}\protected@file@percent }
-\newlabel{tab:capacity_load_distribution}{{5}{30}{Baseline System: Renewable Capacity per Load Distribution Statistics}{table.5}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.2}Baseline mechanisms and interactions}{30}{subsection.4.2}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Decarbonized systems}{32}{subsection.4.3}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Decarbonized generator capacity by technology.}}{32}{figure.11}\protected@file@percent }
-\newlabel{decarbonized_generation_capacity_breakdown}{{11}{32}{Decarbonized generator capacity by technology}{figure.11}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Decarbonized generator output by technology.}}{33}{figure.12}\protected@file@percent }
-\newlabel{decarbonized_generation_breakdown}{{12}{33}{Decarbonized generator output by technology}{figure.12}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Decarbonized generator output by technology (line plot).}}{34}{figure.13}\protected@file@percent }
-\newlabel{decarbonized_generation_line}{{13}{34}{Decarbonized generator output by technology (line plot)}{figure.13}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Decarbonized transmission capacity by technology.}}{35}{figure.14}\protected@file@percent }
-\newlabel{decarbonized_transmission_capacity_map}{{14}{35}{Decarbonized transmission capacity by technology}{figure.14}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Decarbonized storage capacity by technology.}}{36}{figure.15}\protected@file@percent }
-\newlabel{decarbonized_storage_capacity_breakdown}{{15}{36}{Decarbonized storage capacity by technology}{figure.15}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces Decarbonized system economic metrics.}}{37}{figure.16}\protected@file@percent }
-\newlabel{decarbonized_economic_metrics}{{16}{37}{Decarbonized system economic metrics}{figure.16}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces Comparison of mean LCOE and mean marginal price}}{38}{figure.17}\protected@file@percent }
-\newlabel{fig1}{{17}{38}{Comparison of mean LCOE and mean marginal price}{figure.17}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {5}{\ignorespaces Baseline System: Renewable Capacity per Load Distribution Statistics}}{32}{table.5}\protected@file@percent }
+\newlabel{tab:capacity_load_distribution}{{5}{32}{Baseline System: Renewable Capacity per Load Distribution Statistics}{table.5}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.3}Decarbonized systems}{33}{subsection.4.3}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces Decarbonized generator capacity by technology as bar chart by level of decarbonization.}}{33}{figure.11}\protected@file@percent }
+\newlabel{decarbonized_generation_capacity_breakdown}{{11}{33}{Decarbonized generator capacity by technology as bar chart by level of decarbonization}{figure.11}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces Decarbonized generator output by technology as bar chart by level of decarbonization.}}{34}{figure.12}\protected@file@percent }
+\newlabel{decarbonized_generation_breakdown}{{12}{34}{Decarbonized generator output by technology as bar chart by level of decarbonization}{figure.12}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces Decarbonized generator output by technology (line plot).}}{35}{figure.13}\protected@file@percent }
+\newlabel{decarbonized_generation_line}{{13}{35}{Decarbonized generator output by technology (line plot)}{figure.13}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces Decarbonized transmission capacity by technology as stacked line plot.}}{36}{figure.14}\protected@file@percent }
+\newlabel{decarbonized_transmission_capacity_map}{{14}{36}{Decarbonized transmission capacity by technology as stacked line plot}{figure.14}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces Decarbonized storage capacity by technology as stacked line plot}}{37}{figure.15}\protected@file@percent }
+\newlabel{decarbonized_storage_capacity_breakdown}{{15}{37}{Decarbonized storage capacity by technology as stacked line plot}{figure.15}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces Decarbonized system mean marginal price as line plot by level of decarbonization.}}{38}{figure.16}\protected@file@percent }
+\newlabel{decarbonized_economic_metrics}{{16}{38}{Decarbonized system mean marginal price as line plot by level of decarbonization}{figure.16}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces Comparison of mean LCOE and mean marginal price}}{39}{figure.17}\protected@file@percent }
+\newlabel{fig1}{{17}{39}{Comparison of mean LCOE and mean marginal price}{figure.17}{}}
 \citation{kies_noprofit_pypsa}
-\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces Scarcity rent contributions by technology}}{40}{figure.18}\protected@file@percent }
-\newlabel{fig2}{{18}{40}{Scarcity rent contributions by technology}{figure.18}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {19}{\ignorespaces Transition between main scarcity rent contributors}}{41}{figure.19}\protected@file@percent }
-\newlabel{fig3}{{19}{41}{Transition between main scarcity rent contributors}{figure.19}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {20}{\ignorespaces Total system cost in least-cost systems}}{42}{figure.20}\protected@file@percent }
-\newlabel{fig18}{{20}{42}{Total system cost in least-cost systems}{figure.20}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {21}{\ignorespaces Decarbonized system cost share breakdown by category.}}{43}{figure.21}\protected@file@percent }
-\newlabel{price_mix_decarb}{{21}{43}{Decarbonized system cost share breakdown by category}{figure.21}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {22}{\ignorespaces Decarbonized system equity change compared to baseline.}}{44}{figure.22}\protected@file@percent }
-\newlabel{decarbonized_SDRCL}{{22}{44}{Decarbonized system equity change compared to baseline}{figure.22}{}}
-\newlabel{spatial_correlation}{{26}{44}{Decarbonized systems}{equation.26}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {23}{\ignorespaces Spatial correlation between renewable capacity and load as the system decarbonizes}}{45}{figure.23}\protected@file@percent }
-\newlabel{spatial_correlation_decarb}{{23}{45}{Spatial correlation between renewable capacity and load as the system decarbonizes}{figure.23}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {24}{\ignorespaces Generation capacity map at 80\% decarbonization}}{46}{figure.24}\protected@file@percent }
-\newlabel{fig6}{{24}{46}{Generation capacity map at 80\% decarbonization}{figure.24}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {25}{\ignorespaces Generation capacity map at 100\% decarbonization}}{47}{figure.25}\protected@file@percent }
-\newlabel{fig7}{{25}{47}{Generation capacity map at 100\% decarbonization}{figure.25}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Decarbonization mechanisms and interactions}{47}{subsection.4.4}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Decentralized systems}{48}{subsection.4.5}\protected@file@percent }
-\@writefile{lof}{\contentsline {figure}{\numberline {26}{\ignorespaces Total installed renewable generation capacity across K-constraints and decarbonization levels.}}{49}{figure.26}\protected@file@percent }
-\newlabel{fig4}{{26}{49}{Total installed renewable generation capacity across K-constraints and decarbonization levels}{figure.26}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {27}{\ignorespaces Mean capacity factor for solar PV across K-constraints and decarbonization levels.}}{51}{figure.27}\protected@file@percent }
-\newlabel{fig15}{{27}{51}{Mean capacity factor for solar PV across K-constraints and decarbonization levels}{figure.27}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {28}{\ignorespaces Total system cost across K-constraints and decarbonization levels.}}{54}{figure.28}\protected@file@percent }
-\newlabel{fig11}{{28}{54}{Total system cost across K-constraints and decarbonization levels}{figure.28}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {29}{\ignorespaces Equity measure across K-constraints and decarbonization levels.}}{55}{figure.29}\protected@file@percent }
-\newlabel{fig12}{{29}{55}{Equity measure across K-constraints and decarbonization levels}{figure.29}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Cost-Equity Trade-off Analysis: Optimal Decentralization (K=7) vs Complete Decentralization (K=1)}}{56}{table.6}\protected@file@percent }
-\newlabel{tab:cost_equity_tradeoff}{{6}{56}{Cost-Equity Trade-off Analysis: Optimal Decentralization (K=7) vs Complete Decentralization (K=1)}{table.6}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {30}{\ignorespaces Distribution of renewable capacity to load ratio at 100\% decarbonization for different K-constraints.}}{57}{figure.30}\protected@file@percent }
-\newlabel{fig13}{{30}{57}{Distribution of renewable capacity to load ratio at 100\% decarbonization for different K-constraints}{figure.30}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Decentralization mechanisms and interactions}{58}{subsection.4.6}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {5}Discussion}{59}{section.5}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusion}{63}{section.6}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces Scarcity rent contributions by technology shown as line chart by technology and level of decarbonization.}}{41}{figure.18}\protected@file@percent }
+\newlabel{fig2}{{18}{41}{Scarcity rent contributions by technology shown as line chart by technology and level of decarbonization}{figure.18}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {19}{\ignorespaces Transition between main scarcity rent contributors}}{42}{figure.19}\protected@file@percent }
+\newlabel{fig3}{{19}{42}{Transition between main scarcity rent contributors}{figure.19}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {20}{\ignorespaces Total system cost in least-cost systems by level of decarbonization.}}{43}{figure.20}\protected@file@percent }
+\newlabel{fig18}{{20}{43}{Total system cost in least-cost systems by level of decarbonization}{figure.20}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {21}{\ignorespaces Decarbonized system cost share breakdown by category.}}{44}{figure.21}\protected@file@percent }
+\newlabel{price_mix_decarb}{{21}{44}{Decarbonized system cost share breakdown by category}{figure.21}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {22}{\ignorespaces Decarbonized system equity change compared to baseline.}}{45}{figure.22}\protected@file@percent }
+\newlabel{decarbonized_SDRCL}{{22}{45}{Decarbonized system equity change compared to baseline}{figure.22}{}}
+\newlabel{spatial_correlation}{{26}{45}{Decarbonized systems}{equation.26}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {23}{\ignorespaces Spatial correlation between renewable capacity and load as the system decarbonizes}}{46}{figure.23}\protected@file@percent }
+\newlabel{spatial_correlation_decarb}{{23}{46}{Spatial correlation between renewable capacity and load as the system decarbonizes}{figure.23}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {24}{\ignorespaces Generation capacity map at 80\% decarbonization, with pie charts showing generation mix by node.}}{47}{figure.24}\protected@file@percent }
+\newlabel{fig6}{{24}{47}{Generation capacity map at 80\% decarbonization, with pie charts showing generation mix by node}{figure.24}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {25}{\ignorespaces Generation capacity map at 100\% decarbonization with pie charts showing generation mix by node.}}{48}{figure.25}\protected@file@percent }
+\newlabel{fig7}{{25}{48}{Generation capacity map at 100\% decarbonization with pie charts showing generation mix by node}{figure.25}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.4}Decarbonization mechanisms and interactions}{48}{subsection.4.4}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.5}Decentralized systems}{49}{subsection.4.5}\protected@file@percent }
+\@writefile{lof}{\contentsline {figure}{\numberline {26}{\ignorespaces Total installed renewable generation capacity across K-constraints and decarbonization levels.}}{50}{figure.26}\protected@file@percent }
+\newlabel{fig4}{{26}{50}{Total installed renewable generation capacity across K-constraints and decarbonization levels}{figure.26}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {27}{\ignorespaces Mean capacity factor for solar PV across K-constraints and decarbonization levels.}}{52}{figure.27}\protected@file@percent }
+\newlabel{fig15}{{27}{52}{Mean capacity factor for solar PV across K-constraints and decarbonization levels}{figure.27}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {28}{\ignorespaces Total system cost across K-constraints and decarbonization levels.}}{55}{figure.28}\protected@file@percent }
+\newlabel{fig11}{{28}{55}{Total system cost across K-constraints and decarbonization levels}{figure.28}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {29}{\ignorespaces Equity measure across K-constraints and decarbonization levels.}}{56}{figure.29}\protected@file@percent }
+\newlabel{fig12}{{29}{56}{Equity measure across K-constraints and decarbonization levels}{figure.29}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {6}{\ignorespaces Cost-Equity Trade-off Analysis: Optimal Decentralization (K=7) vs Complete Decentralization (K=1)}}{57}{table.6}\protected@file@percent }
+\newlabel{tab:cost_equity_tradeoff}{{6}{57}{Cost-Equity Trade-off Analysis: Optimal Decentralization (K=7) vs Complete Decentralization (K=1)}{table.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {30}{\ignorespaces Distribution of renewable capacity to load ratio at 100\% decarbonization for different K-constraints.}}{58}{figure.30}\protected@file@percent }
+\newlabel{fig13}{{30}{58}{Distribution of renewable capacity to load ratio at 100\% decarbonization for different K-constraints}{figure.30}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {4.6}Decentralization mechanisms and interactions}{59}{subsection.4.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {5}Discussion}{60}{section.5}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {6}Conclusion}{64}{section.6}\protected@file@percent }
+\@writefile{toc}{\contentsline {section}{\numberline {7}Acknowledgments}{65}{section.7}\protected@file@percent }
 \bibstyle{elsarticle-num}
 \bibdata{Sources}
 \bibcite{ParisAgreementUNFCCC}{{1}{}{{}}{{}}}
 \bibcite{rodriguezCostoptimalDesignSimplified2015a}{{2}{}{{}}{{}}}
 \bibcite{pfenningerEnergySystemsModeling2014}{{3}{}{{}}{{}}}
 \bibcite{henkeComparingEnergySystem2024}{{4}{}{{}}{{}}}
-\@writefile{toc}{\contentsline {section}{\numberline {7}Acknowledgments}{64}{section.7}\protected@file@percent }
-\@writefile{toc}{\contentsline {section}{\numberline {8}References}{64}{section.8}\protected@file@percent }
 \bibcite{eriksenOptimalHeterogeneitySimplified2017a}{{5}{}{{}}{{}}}
 \bibcite{ScaleRussianSabotage}{{6}{}{{}}{{}}}
 \bibcite{GNUGeneralPublic}{{7}{}{{}}{{}}}
 \bibcite{SnakemakeSnakemake9140}{{8}{}{{}}{{}}}
 \bibcite{hedegaardadenThesisworkflowFairnessDecarbonizing2025}{{9}{}{{}}{{}}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}References}{66}{section.8}\protected@file@percent }
 \bibcite{GNUGeneralPublica}{{10}{}{{}}{{}}}
 \bibcite{PyPSA}{{11}{}{{}}{{}}}
 \bibcite{PyPSAEur}{{12}{}{{}}{{}}}
@@ -174,62 +176,62 @@
 \bibcite{EnergyBalanceDocumentation}{{23}{}{{}}{{}}}
 \bibcite{pedersenModelingAllAlternative2021a}{{24}{}{{}}{{}}}
 \bibcite{kies_noprofit_pypsa}{{25}{}{{}}{{}}}
-\@writefile{toc}{\contentsline {section}{\numberline {9}Appendices}{68}{section.9}\protected@file@percent }
-\@writefile{toc}{\contentsline {subsection}{\numberline {9.1}Appendix A: Generator cost assumptions}{68}{subsection.9.1}\protected@file@percent }
-\newlabel{Appendix_A}{{9.1}{68}{Appendix A: Generator cost assumptions}{subsection.9.1}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Generator technology cost assumptions used in the optimization model.}}{68}{table.7}\protected@file@percent }
-\newlabel{tab:generator_costs_appendix}{{7}{68}{Generator technology cost assumptions used in the optimization model}{table.7}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {9.2}Appendix B: Storage cost assumptions}{69}{subsection.9.2}\protected@file@percent }
-\newlabel{Appendix_B}{{9.2}{69}{Appendix B: Storage cost assumptions}{subsection.9.2}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Storage technology cost assumptions extracted from the optimized network.}}{69}{table.8}\protected@file@percent }
-\newlabel{tab:storage_costs_appendix}{{8}{69}{Storage technology cost assumptions extracted from the optimized network}{table.8}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {9.3}Appendix C: Capacity sensitivity}{70}{subsection.9.3}\protected@file@percent }
-\newlabel{Appendix_C}{{9.3}{70}{Appendix C: Capacity sensitivity}{subsection.9.3}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Installed generation capacity across decarbonization levels. Mean capacity (GW) with coefficient of variation (\%) in parentheses. Cell shading shows K-sensitivity: \colorbox {green!50}{~~green~~} = capacity increases with K (favored by decentralization), \colorbox {red!50}{~~red~~} = capacity decreases with K (disfavored by decentralization), unshaded = insensitive to K-constraint.}}{70}{table.9}\protected@file@percent }
-\newlabel{tab:generation_capacity_summary}{{9}{70}{Installed generation capacity across decarbonization levels. Mean capacity (GW) with coefficient of variation (\%) in parentheses. Cell shading shows K-sensitivity: \colorbox {green!50}{~~green~~} = capacity increases with K (favored by decentralization), \colorbox {red!50}{~~red~~} = capacity decreases with K (disfavored by decentralization), unshaded = insensitive to K-constraint}{table.9}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {9.4}Appendix D: Annual generation evolution for decentralization and decarbonization}{71}{subsection.9.4}\protected@file@percent }
-\newlabel{Appendix_D}{{9.4}{71}{Appendix D: Annual generation evolution for decentralization and decarbonization}{subsection.9.4}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {31}{\ignorespaces Total annual generation from renewable sources across K-constraints and decarbonization levels .}}{71}{figure.31}\protected@file@percent }
-\newlabel{fig5}{{31}{71}{Total annual generation from renewable sources across K-constraints and decarbonization levels }{figure.31}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {9.5}Appendix E: Coefficient of Variance analysis for Storage capacity}{72}{subsection.9.5}\protected@file@percent }
-\newlabel{Appendix_E}{{9.5}{72}{Appendix E: Coefficient of Variance analysis for Storage capacity}{subsection.9.5}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Sensitivity of Storage Capacity to K-Constraint Levels}}{72}{table.10}\protected@file@percent }
-\newlabel{tab:storage_sensitivity}{{10}{72}{Sensitivity of Storage Capacity to K-Constraint Levels}{table.10}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {9.6}Appendix F: Mean capacity factors}{73}{subsection.9.6}\protected@file@percent }
-\newlabel{Appendix_F}{{9.6}{73}{Appendix F: Mean capacity factors}{subsection.9.6}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {32}{\ignorespaces Mean capacity factor for onshore wind across K-constraints and decarbonization levels.}}{73}{figure.32}\protected@file@percent }
-\newlabel{fig16}{{32}{73}{Mean capacity factor for onshore wind across K-constraints and decarbonization levels}{figure.32}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {33}{\ignorespaces Mean capacity factor for offshore wind (AC) across K-constraints and decarbonization levels.}}{74}{figure.33}\protected@file@percent }
-\newlabel{fig17}{{33}{74}{Mean capacity factor for offshore wind (AC) across K-constraints and decarbonization levels}{figure.33}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {34}{\ignorespaces Mean capacity factor for offshore wind (DC) across K-constraints and decarbonization levels.}}{75}{figure.34}\protected@file@percent }
-\newlabel{offshoredcCF_line_decent}{{34}{75}{Mean capacity factor for offshore wind (DC) across K-constraints and decarbonization levels}{figure.34}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {9.7}Appendix G: Cost-Equity tradeoff}{76}{subsection.9.7}\protected@file@percent }
-\newlabel{Appendix_G}{{9.7}{76}{Appendix G: Cost-Equity tradeoff}{subsection.9.7}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces Cost-Equity Trade-off Across All K-Constraint Levels (Part 1: 10-40\% Decarbonization)}}{77}{table.11}\protected@file@percent }
-\newlabel{tab:cost_equity_all_k_part1}{{11}{77}{Cost-Equity Trade-off Across All K-Constraint Levels (Part 1: 10-40\% Decarbonization)}{table.11}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {12}{\ignorespaces Cost-Equity Trade-off Across All K-Constraint Levels (Part 2: 50-80\% Decarbonization)}}{78}{table.12}\protected@file@percent }
-\newlabel{tab:cost_equity_all_k_part2}{{12}{78}{Cost-Equity Trade-off Across All K-Constraint Levels (Part 2: 50-80\% Decarbonization)}{table.12}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {13}{\ignorespaces Cost-Equity Trade-off Across All K-Constraint Levels (Part 3: 90-99\% Decarbonization)}}{79}{table.13}\protected@file@percent }
-\newlabel{tab:cost_equity_all_k_part3}{{13}{79}{Cost-Equity Trade-off Across All K-Constraint Levels (Part 3: 90-99\% Decarbonization)}{table.13}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {14}{\ignorespaces Cost-Equity Trade-off Across All K-Constraint Levels (Part 4: 100\% Decarbonization)}}{80}{table.14}\protected@file@percent }
-\newlabel{tab:cost_equity_all_k_part4}{{14}{80}{Cost-Equity Trade-off Across All K-Constraint Levels (Part 4: 100\% Decarbonization)}{table.14}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {15}{\ignorespaces $K = \infty $ (No Constraint): Renewable Capacity per Load Distribution Statistics at 100\% Decarbonization}}{81}{table.15}\protected@file@percent }
-\newlabel{tab:capacity_load_distribution_kinf}{{15}{81}{$K = \infty $ (No Constraint): Renewable Capacity per Load Distribution Statistics at 100\% Decarbonization}{table.15}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {16}{\ignorespaces $K = 7$: Renewable Capacity per Load Distribution Statistics at 100\% Decarbonization}}{81}{table.16}\protected@file@percent }
-\newlabel{tab:capacity_load_distribution_k7}{{16}{81}{$K = 7$: Renewable Capacity per Load Distribution Statistics at 100\% Decarbonization}{table.16}{}}
-\@writefile{lot}{\contentsline {table}{\numberline {17}{\ignorespaces $K = 1$: Renewable Capacity per Load Distribution Statistics at 100\% Decarbonization}}{82}{table.17}\protected@file@percent }
-\newlabel{tab:capacity_load_distribution_k1}{{17}{82}{$K = 1$: Renewable Capacity per Load Distribution Statistics at 100\% Decarbonization}{table.17}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {9.8}Appendix H: Distribution statistics}{82}{subsection.9.8}\protected@file@percent }
-\newlabel{Appendix_H}{{9.8}{82}{Appendix H: Distribution statistics}{subsection.9.8}{}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {9.9}Appendix I: Figures for decentralization evolution}{82}{subsection.9.9}\protected@file@percent }
-\newlabel{Appendix_I}{{9.9}{82}{Appendix I: Figures for decentralization evolution}{subsection.9.9}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {35}{\ignorespaces Total installed transmission capacity across K-constraints and decarbonization levels.}}{82}{figure.35}\protected@file@percent }
-\newlabel{transmission}{{35}{82}{Total installed transmission capacity across K-constraints and decarbonization levels}{figure.35}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {36}{\ignorespaces Installed battery and hydrogen storage capacity across K-constraints and decarbonization levels.}}{83}{figure.36}\protected@file@percent }
-\newlabel{fig8}{{36}{83}{Installed battery and hydrogen storage capacity across K-constraints and decarbonization levels}{figure.36}{}}
-\@writefile{lof}{\contentsline {figure}{\numberline {37}{\ignorespaces Mean marginal demand-weighted price across K-constraints and decarbonization levels.}}{84}{figure.37}\protected@file@percent }
-\newlabel{fig9}{{37}{84}{Mean marginal demand-weighted price across K-constraints and decarbonization levels}{figure.37}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {9}Appendices}{69}{section.9}\protected@file@percent }
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.1}Appendix A: Generator cost assumptions}{69}{subsection.9.1}\protected@file@percent }
+\newlabel{Appendix_A}{{9.1}{69}{Appendix A: Generator cost assumptions}{subsection.9.1}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {7}{\ignorespaces Generator technology cost assumptions used in the optimization model.}}{69}{table.7}\protected@file@percent }
+\newlabel{tab:generator_costs_appendix}{{7}{69}{Generator technology cost assumptions used in the optimization model}{table.7}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.2}Appendix B: Storage cost assumptions}{70}{subsection.9.2}\protected@file@percent }
+\newlabel{Appendix_B}{{9.2}{70}{Appendix B: Storage cost assumptions}{subsection.9.2}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {8}{\ignorespaces Storage technology cost assumptions extracted from the optimized network.}}{70}{table.8}\protected@file@percent }
+\newlabel{tab:storage_costs_appendix}{{8}{70}{Storage technology cost assumptions extracted from the optimized network}{table.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.3}Appendix C: Capacity sensitivity}{71}{subsection.9.3}\protected@file@percent }
+\newlabel{Appendix_C}{{9.3}{71}{Appendix C: Capacity sensitivity}{subsection.9.3}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {9}{\ignorespaces Installed generation capacity across decarbonization levels. Mean capacity (GW) with coefficient of variation (\%) in parentheses. Cell shading shows K-sensitivity: \colorbox {green!50}{~~green~~} = capacity increases with K (favored by decentralization), \colorbox {red!50}{~~red~~} = capacity decreases with K (disfavored by decentralization), unshaded = insensitive to K-constraint.}}{71}{table.9}\protected@file@percent }
+\newlabel{tab:generation_capacity_summary}{{9}{71}{Installed generation capacity across decarbonization levels. Mean capacity (GW) with coefficient of variation (\%) in parentheses. Cell shading shows K-sensitivity: \colorbox {green!50}{~~green~~} = capacity increases with K (favored by decentralization), \colorbox {red!50}{~~red~~} = capacity decreases with K (disfavored by decentralization), unshaded = insensitive to K-constraint}{table.9}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.4}Appendix D: Annual generation evolution for decentralization and decarbonization}{72}{subsection.9.4}\protected@file@percent }
+\newlabel{Appendix_D}{{9.4}{72}{Appendix D: Annual generation evolution for decentralization and decarbonization}{subsection.9.4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {31}{\ignorespaces Total annual generation from renewable sources across K-constraints and decarbonization levels .}}{72}{figure.31}\protected@file@percent }
+\newlabel{fig5}{{31}{72}{Total annual generation from renewable sources across K-constraints and decarbonization levels }{figure.31}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.5}Appendix E: Coefficient of Variance analysis for Storage capacity}{73}{subsection.9.5}\protected@file@percent }
+\newlabel{Appendix_E}{{9.5}{73}{Appendix E: Coefficient of Variance analysis for Storage capacity}{subsection.9.5}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {10}{\ignorespaces Sensitivity of Storage Capacity to K-Constraint Levels}}{73}{table.10}\protected@file@percent }
+\newlabel{tab:storage_sensitivity}{{10}{73}{Sensitivity of Storage Capacity to K-Constraint Levels}{table.10}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.6}Appendix F: Mean capacity factors}{74}{subsection.9.6}\protected@file@percent }
+\newlabel{Appendix_F}{{9.6}{74}{Appendix F: Mean capacity factors}{subsection.9.6}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {32}{\ignorespaces Mean capacity factor for onshore wind across K-constraints and decarbonization levels.}}{74}{figure.32}\protected@file@percent }
+\newlabel{fig16}{{32}{74}{Mean capacity factor for onshore wind across K-constraints and decarbonization levels}{figure.32}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {33}{\ignorespaces Mean capacity factor for offshore wind (AC) across K-constraints and decarbonization levels.}}{75}{figure.33}\protected@file@percent }
+\newlabel{fig17}{{33}{75}{Mean capacity factor for offshore wind (AC) across K-constraints and decarbonization levels}{figure.33}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {34}{\ignorespaces Mean capacity factor for offshore wind (DC) across K-constraints and decarbonization levels.}}{76}{figure.34}\protected@file@percent }
+\newlabel{offshoredcCF_line_decent}{{34}{76}{Mean capacity factor for offshore wind (DC) across K-constraints and decarbonization levels}{figure.34}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.7}Appendix G: Cost-Equity tradeoff}{77}{subsection.9.7}\protected@file@percent }
+\newlabel{Appendix_G}{{9.7}{77}{Appendix G: Cost-Equity tradeoff}{subsection.9.7}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {11}{\ignorespaces Cost-Equity Trade-off Across All K-Constraint Levels (Part 1: 10-40\% Decarbonization)}}{78}{table.11}\protected@file@percent }
+\newlabel{tab:cost_equity_all_k_part1}{{11}{78}{Cost-Equity Trade-off Across All K-Constraint Levels (Part 1: 10-40\% Decarbonization)}{table.11}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {12}{\ignorespaces Cost-Equity Trade-off Across All K-Constraint Levels (Part 2: 50-80\% Decarbonization)}}{79}{table.12}\protected@file@percent }
+\newlabel{tab:cost_equity_all_k_part2}{{12}{79}{Cost-Equity Trade-off Across All K-Constraint Levels (Part 2: 50-80\% Decarbonization)}{table.12}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {13}{\ignorespaces Cost-Equity Trade-off Across All K-Constraint Levels (Part 3: 90-99\% Decarbonization)}}{80}{table.13}\protected@file@percent }
+\newlabel{tab:cost_equity_all_k_part3}{{13}{80}{Cost-Equity Trade-off Across All K-Constraint Levels (Part 3: 90-99\% Decarbonization)}{table.13}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {14}{\ignorespaces Cost-Equity Trade-off Across All K-Constraint Levels (Part 4: 100\% Decarbonization)}}{81}{table.14}\protected@file@percent }
+\newlabel{tab:cost_equity_all_k_part4}{{14}{81}{Cost-Equity Trade-off Across All K-Constraint Levels (Part 4: 100\% Decarbonization)}{table.14}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {15}{\ignorespaces $K = \infty $ (No Constraint): Renewable Capacity per Load Distribution Statistics at 100\% Decarbonization}}{82}{table.15}\protected@file@percent }
+\newlabel{tab:capacity_load_distribution_kinf}{{15}{82}{$K = \infty $ (No Constraint): Renewable Capacity per Load Distribution Statistics at 100\% Decarbonization}{table.15}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {16}{\ignorespaces $K = 7$: Renewable Capacity per Load Distribution Statistics at 100\% Decarbonization}}{82}{table.16}\protected@file@percent }
+\newlabel{tab:capacity_load_distribution_k7}{{16}{82}{$K = 7$: Renewable Capacity per Load Distribution Statistics at 100\% Decarbonization}{table.16}{}}
+\@writefile{lot}{\contentsline {table}{\numberline {17}{\ignorespaces $K = 1$: Renewable Capacity per Load Distribution Statistics at 100\% Decarbonization}}{83}{table.17}\protected@file@percent }
+\newlabel{tab:capacity_load_distribution_k1}{{17}{83}{$K = 1$: Renewable Capacity per Load Distribution Statistics at 100\% Decarbonization}{table.17}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.8}Appendix H: Distribution statistics}{83}{subsection.9.8}\protected@file@percent }
+\newlabel{Appendix_H}{{9.8}{83}{Appendix H: Distribution statistics}{subsection.9.8}{}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.9}Appendix I: Figures for decentralization evolution}{83}{subsection.9.9}\protected@file@percent }
+\newlabel{Appendix_I}{{9.9}{83}{Appendix I: Figures for decentralization evolution}{subsection.9.9}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {35}{\ignorespaces Total installed transmission capacity across K-constraints and decarbonization levels.}}{83}{figure.35}\protected@file@percent }
+\newlabel{transmission}{{35}{83}{Total installed transmission capacity across K-constraints and decarbonization levels}{figure.35}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {36}{\ignorespaces Installed battery and hydrogen storage capacity across K-constraints and decarbonization levels.}}{84}{figure.36}\protected@file@percent }
+\newlabel{fig8}{{36}{84}{Installed battery and hydrogen storage capacity across K-constraints and decarbonization levels}{figure.36}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {37}{\ignorespaces Mean marginal demand-weighted price across K-constraints and decarbonization levels.}}{85}{figure.37}\protected@file@percent }
+\newlabel{fig9}{{37}{85}{Mean marginal demand-weighted price across K-constraints and decarbonization levels}{figure.37}{}}
 \providecommand\NAT@force@numbers{}\NAT@force@numbers
-\@writefile{lof}{\contentsline {figure}{\numberline {38}{\ignorespaces Total scarcity rent across K-constraints and decarbonization levels.}}{85}{figure.38}\protected@file@percent }
-\newlabel{fig10}{{38}{85}{Total scarcity rent across K-constraints and decarbonization levels}{figure.38}{}}
-\gdef \@abspage@last{85}
+\@writefile{lof}{\contentsline {figure}{\numberline {38}{\ignorespaces Total scarcity rent across K-constraints and decarbonization levels.}}{86}{figure.38}\protected@file@percent }
+\newlabel{fig10}{{38}{86}{Total scarcity rent across K-constraints and decarbonization levels}{figure.38}{}}
+\gdef \@abspage@last{86}

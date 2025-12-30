@@ -219,7 +219,7 @@ For the purpose of structuring the modeling of the EU electricity system, a Snak
 \begin{figure}[H]
 \centering
 \adjustbox{center}{\includegraphics[width=0.75\linewidth]{doc/Snakemake_DAG.png}}
-\caption{Map of Snakemake Workflow}
+\caption{Map of Snakemake Workflow showing preprocessing, optimization, and postprocessing/visualization steps.}
 \label{fig_workflow}
 \end{figure}
 
@@ -241,7 +241,7 @@ Many energy modeling frameworks and pieces of commercially available software fo
 \begin{figure}[H]
 \centering
 \adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/NetworkMap.png}}
-\caption{Overview of the 37-node European energy network.}
+\caption{Overview of the 37-node European energy network, showing nodes and interconnecting transmission lines and links.}
 \end{figure}
 \label{fig_network}
 \medskip
@@ -284,7 +284,7 @@ Where $t$ denotes the set of all time snapshots. This way the total load is scal
 \begin{figure}[H]
 \centering
 \adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/Load_Rescaling_Example.png}}
-\caption{Example of load rescaling for node representing Denmark.}
+\caption{Example of load rescaling for node representing Denmark. Original 2013 load in blue, rescaled 2050 load in orange.}
 \label{fig_load_rescale}
 \end{figure}
 
@@ -568,8 +568,8 @@ As discussed in the introduction, decentralization is necessary in order to ensu
 
 \begin{figure}[H]
 \centering
-\adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/lorentz.png}}
-\caption{Example of Gini coefficient calculation for installed renewable capacity.}
+\adjustbox{center}{\includegraphics[width=0.8\linewidth]{doc/lorentz.png}}
+\caption{Example of Gini coefficient calculation for installed renewable capacity, based on \cite{pedersenModelingAllAlternative2021a}.}
 \label{fig_gini_example}
 \end{figure}
 
@@ -640,7 +640,7 @@ As a reminder the baseline system is purely constrained by the objective functio
 \begin{figure}[H]
 \centering
 \adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/CapacityMap_C0_K0.png}}
-\caption{Baseline generator capacity map.}
+\caption{Baseline generator capacity map, showing installed generation capacity by technology and node.}
 \label{baseline_capacity_map}
 \end{figure}
 
@@ -652,7 +652,7 @@ Here it can be seen that the mismatch between the load and the fossil generation
 \begin{figure}[H]
 \centering
 \adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/baseline_generation_capacity_breakdown.png}}
-\caption{Baseline generator capacity and annual generation by technology.}
+\caption{Baseline generator capacity and annual generation by technology, showing annual generation hatched and installed capacity solid.}
 \label{baseline_generation_capacity_breakdown}
 \end{figure}
 
@@ -668,7 +668,7 @@ Here it can be seen that the mismatch between the load and the fossil generation
 \begin{figure}[H]
 \centering
 \adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/baseline_transmission_capacity.png}}
-\caption{Baseline transmission capacity map.}
+\caption{Baseline transmission capacity map, showing installed transmission capacity by  AC lines and HVDC links.}
 \label{baseline_transmission_capacity_map}
 \end{figure}
 
@@ -681,7 +681,7 @@ The transmission infrastructure in the baseline system contains $490.2 \text{ } 
 \begin{figure}[H]
 \centering
 \adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/StorageCapacityMap_C0_K0.png}}
-\caption{Baseline storage capacity map.}
+\caption{Baseline storage capacity map, showing installed storage capacity by technology and node.}
 \label{baseline_storage_capacity_breakdown}
 \end{figure}
 
@@ -697,7 +697,7 @@ The total emissions from the baseline system as calculated by equation \eqref{em
 \begin{figure}[H]
 \centering
 \adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/baseline_emission_breakdown.png}}
-\caption{Baseline emissions by technology.}
+\caption{Baseline emissions by technology in MtCO$_2$.}
 \label{baseline_emissions_breakdown}
 \end{figure}
 
@@ -722,6 +722,8 @@ Mean Marginal Price (Demand-Weighted) & 68.56 \text{€/MWh} \\
 Total System Cost & 208.99 \text{B€/year} \\
 \end{tabular}
 \end{table}
+
+\newpage
 
 \medskip
 \noindent
@@ -748,7 +750,7 @@ Finally, the system is, visually, as seen in figure \ref{baseline_capacity_map} 
 \begin{figure}[H]
 \centering
 \adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/centralization_bellcurve_baseline.png}}
-\caption{Baseline renewable capacity per load map.}
+\caption{Baseline renewable capacity per load distribution with standard deviation bounds.}
 \label{baseline_renewable_capacity_per_load_map}
 \end{figure}
 
@@ -802,7 +804,7 @@ Since the outcome of the decarbonization workflow is the baseline plus 13 system
 \begin{figure}[H]
 \centering
 \adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/generation_capacity_bar_decarb.png}}
-\caption{Decarbonized generator capacity by technology.}
+\caption{Decarbonized generator capacity by technology as bar chart by level of decarbonization.}
 \label{decarbonized_generation_capacity_breakdown}
 \end{figure}
 
@@ -813,7 +815,7 @@ Here it can be seen that in order to decarbonize the system completely the total
 \begin{figure}[H]
 \centering
 \adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/generation_bar_decarb.png}}
-\caption{Decarbonized generator output by technology.}
+\caption{Decarbonized generator output by technology as bar chart by level of decarbonization.}
 \label{decarbonized_generation_breakdown}
 \end{figure}
 
@@ -835,7 +837,7 @@ Here the generation dominance of off-shore wind at high levels of decarbonizatio
 \begin{figure}[H]
 \centering
 \adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/transmission_capacity_stackedline_decarb.png}}
-\caption{Decarbonized transmission capacity by technology.}
+\caption{Decarbonized transmission capacity by technology as stacked line plot.}
 \label{decarbonized_transmission_capacity_map}
 \end{figure}
 
@@ -846,7 +848,7 @@ The contribution to the total transmission capacity from the HVDC links remains 
 \begin{figure}[H]
 \centering
 \adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/storage_capacity_stacked_line_decarb.png}}
-\caption{Decarbonized storage capacity by technology.}
+\caption{Decarbonized storage capacity by technology as stacked line plot}
 \label{decarbonized_storage_capacity_breakdown}
 \end{figure}
 
@@ -862,7 +864,7 @@ The emissions of the decarbonizing systems are of course fractions of the baseli
 \begin{figure}[H]
 \centering
 \adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/mean_marginal_line_decarb.png}}
-\caption{Decarbonized system economic metrics.}
+\caption{Decarbonized system mean marginal price as line plot by level of decarbonization.}
 \label{decarbonized_economic_metrics}
 \end{figure}
 
@@ -941,7 +943,7 @@ Pictured below, in Figure \ref{fig2} is the evolution of the contribution to the
 \begin{figure}[H]
 \centering
 \adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/scarcity_rent_evolution_contributions.png}}
-\caption{Scarcity rent contributions by technology}
+\caption{Scarcity rent contributions by technology shown as line chart by technology and level of decarbonization.}
 \label{fig2}
 \end{figure}
 
@@ -970,7 +972,7 @@ As for the initial decrease in mean marginal demand weighted price. This can be 
 \begin{figure}[H]
 \centering
 \adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/SystemCost_K_infs.png}}
-\caption{Total system cost in least-cost systems}
+\caption{Total system cost in least-cost systems by level of decarbonization.}
 \label{fig18}
 \end{figure}
 
@@ -1027,7 +1029,7 @@ As the system decarbonizes the spatial correlation between the load and the inst
 \begin{figure}[H]
 \centering
 \adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/CapacityMap_C80_K0.png}}
-\caption{Generation capacity map at 80\% decarbonization}
+\caption{Generation capacity map at 80\% decarbonization, with pie charts showing generation mix by node.}
 \label{fig6}
 \end{figure}
 
@@ -1036,7 +1038,7 @@ As the system decarbonizes the spatial correlation between the load and the inst
 \begin{figure}[H]
 \centering
 \adjustbox{center}{\includegraphics[width=1.2\linewidth]{doc/CapacityMap_C100_K0.png}}
-\caption{Generation capacity map at 100\% decarbonization}
+\caption{Generation capacity map at 100\% decarbonization with pie charts showing generation mix by node.}
 \label{fig7}
 \end{figure}
 
@@ -1159,7 +1161,7 @@ Here it can be seen that $K=7$ seems to capture a very large percentage of the e
 
 \begin{figure}[H]
 \centering
-\adjustbox{center}{\includegraphics[width=1.15\linewidth]{doc/caploadratio_bellcurve_decent.png}}
+\adjustbox{center}{\includegraphics[width=1.05\linewidth]{doc/caploadratio_bellcurve_decent.png}}
 \caption{Distribution of renewable capacity to load ratio at 100\% decarbonization for different K-constraints.}
 \label{fig13}
 \end{figure}
@@ -1301,6 +1303,8 @@ For at være på min side.
 \medskip
 \noindent
 For at tænde nok bål.
+
+\newpage
 
 \section{References}
 
