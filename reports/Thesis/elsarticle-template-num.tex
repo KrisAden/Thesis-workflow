@@ -646,7 +646,7 @@ As a reminder the baseline system is purely constrained by the objective functio
 
 \medskip
 \noindent
-Here it can be seen that the mismatch between the load and the fossil generation has been filled with renewable generation as the fossil based generation technologies are not allowed to expand their capacity. The total installed generation capacities in the baseline system, as well as the annual generation can be seen in figure \ref{baseline_generation_capacity_breakdown} below:
+Here it can be seen that the mismatch between the load and the fossil generation has been filled with renewable generation, as the fossil based generation technologies are not allowed to expand their capacity. The total installed generation capacities in the baseline system, as well as the annual generation can be seen in figure \ref{baseline_generation_capacity_breakdown} below:
 
 \medskip
 \begin{figure}[H]
@@ -658,7 +658,11 @@ Here it can be seen that the mismatch between the load and the fossil generation
 
 \medskip
 \noindent
- A seen in the figure above the installed generation capacity is dominated by solar PV, which makes up almost a third of the total generation capacity. However as technologies differ in capacity factor time series and utilization the actual generation by technology follows a different pattern.The generation mix still has a large fraction provided by fossil based technologies and the largest contributor is nuclear power. This is caused by its dispatchable nature which does not require storage to the same extent as weather dependent generation. Renewable generation ends up providing a bit over half of the total electricity. As for the transmission capacities these can be seen for the baseline scenario in figure \ref{baseline_transmission_capacity_map} below:
+ As seen in figure \ref{baseline_generation_capacity_breakdown} above the installed generation capacity is dominated by solar PV, which makes up almost a third of the total generation capacity. However as technologies differ in capacity factor time series and utilization, the actual generation by technology follows a different pattern.
+
+\medskip
+\noindent
+ The generation mix still has a large fraction provided by fossil based technologies and the largest contributor is nuclear power. This is caused by its dispatchable nature, which does not require storage to the same extent as weather dependent generation. Renewable generation ends up providing a bit over half of the total electricity. As for the transmission capacities these can be seen for the baseline scenario in figure \ref{baseline_transmission_capacity_map} below:
 
 \medskip
 \begin{figure}[H]
@@ -683,7 +687,7 @@ The transmission infrastructure in the baseline system contains $490.2 \text{ } 
 
 \medskip
 \noindent
-Here it can be seen that the optimization resulted in a very substantial buildout of battery storage capacity while the hydrogen storage capacity is absent. This is primarily caused by the high round trip efficiency loss as seen in table \ref{tab:storage_costs} above. This large loss leeds to hydrogen based storage becoming prohibitively expensive compared to battery storage. The lack of hydrogen based storage also means that the system is less likely to utilize wind-based renewable generation compared to solar based generation as wind generation tends to be more seasonal better served by hydrogen storage.
+Here it can be seen that the optimization resulted in a very substantial buildout of battery storage capacity, while the hydrogen storage capacity is absent. This is primarily caused by the high round trip efficiency loss as seen in table \ref{tab:storage_costs} above. This large loss leads to hydrogen based storage becoming prohibitively expensive compared to battery storage. The lack of hydrogen based storage also means that the system is less likely to utilize wind-based renewable generation compared to solar based generation as wind generation tends to be more seasonal, and therefore better served by hydrogen storage.
 
 \medskip
 \noindent
@@ -715,7 +719,7 @@ For the economic side of the baseline system the mean marginal demand-weighted p
 \textbf{Metric} & \textbf{Value} \\
 \midrule
 Mean Marginal Price (Demand-Weighted) & 68.56 \text{€/MWh} \\
-Total System Cost & 348.18 \text{B€/year} \\
+Total System Cost & 208.99 \text{B€/year} \\
 \end{tabular}
 \end{table}
 
@@ -735,11 +739,11 @@ Here The mean marginal demand-weighted price is defined as seen in equation \eqr
 
 \medskip
 \noindent
-For time \textit{t}, Nodes \textit{n}, Loads \textit{L} and marginal price \textit{$\lambda$}. This cost measure represents the average price that consumers pay for electricity over the entire time period, weighted by their demand. The total system cost is simply the sum of all costs as minimized by the objective function \eqref{eq:cost_min}. The total system cost represents the planner's perspective on the cost of operating the system while the mean marginal demand-weighted price represents the consumer's perspective on the cost of electricity.
+For time \textit{t}, Nodes \textit{n}, Loads \textit{L} and marginal price \textit{$\lambda$}. This cost measure represents the average price that consumers pay for electricity over the entire time period, weighted by their demand. The total system cost is simply the sum of all costs as minimized by the objective function \eqref{eq:cost_min}. The total system cost represents the planner's perspective on the cost of operating the system, while the mean marginal demand-weighted price represents the consumer's perspective on the cost of electricity.
 
 \medskip
 \noindent
-Finally, the system is, visually, as seen in figure \ref{baseline_capacity_map} above quite centralized. This can be quantified by calculating the Standard Deviation of Nodal Renewable Capacity per Load (SDRCL) as defined in equation \eqref{SDRCL}. For the baseline system the SDRCL is calculated to be $11.84 \text{ MW}_{\text{renewable}}/\text{MW}_{\text{load}}$. This figure is difficult to quantify in isolation as its intended use is as a comparison metric. However by visualizing the nodal renewable capacity per load in figure \ref{baseline_renewable_capacity_per_load_map} below it is possible to get an idea of how for centralized ohe baseline system is.
+Finally, the system is, visually, as seen in figure \ref{baseline_capacity_map} above quite centralized. This can be quantified by calculating the Standard Deviation of Nodal Renewable Capacity per Load (SDRCL) as defined in equation \eqref{SDRCL}. For the baseline system the SDRCL is calculated to be $11.84 \text{ MW}_{\text{renewable}}/\text{MW}_{\text{load}}$. This figure is difficult to quantify in isolation as its intended use is as a comparison metric. However by visualizing the nodal renewable capacity per load in figure \ref{baseline_renewable_capacity_per_load_map} below it is possible to get an idea of how for centralized the baseline system is.
 
 \begin{figure}[H]
 \centering
@@ -776,7 +780,7 @@ Lower Bound ($\mu - \sigma$) & -8.10 \\
 
 \subsection{Baseline mechanisms and interactions}
 \noindent
-The baseline system behavior is, as can be seen above, fairly intuitive. As the pre-compiled network is a \textit{Brownfield} system that contains existing fossil-based generation capacity but no renewable based generation capacity, the optimizer services the load with the renewables as the fossil based generators are not allowed to expand their capacity.  The large capacity buildout is dominated by solar PV in the south of Europe and off-shore and on-shore wind in the northern regions. As for the actual generation, as can be seen in figure \ref{baseline_generation_capacity_breakdown} above, the massive solar buildout has not converted into a similarly large generation contribution. This is primarily caused by the fact that solar PV is more limited by its capacity factor time series than wind based generation. The largest contributor to the generation ends up becoming nuclear power, which has a high capacity factor time series and is not limited by weather conditions. In addition nuclear, is dispatchable and therefor does not require storage to the same extent as weather dependent generation.
+The baseline system behavior is, as can be seen above, fairly intuitive. As the pre-compiled network is a \textit{Brownfield} system that contains existing fossil-based generation capacity, but no renewable based generation capacity, the optimizer services the load with the renewables, as the fossil based generators are not allowed to expand their capacity.  The large capacity buildout is dominated by solar PV in the south of Europe and off-shore and on-shore wind in the northern regions. As for the actual generation, as can be seen in figure \ref{baseline_generation_capacity_breakdown} above, the massive solar buildout has not converted into a similarly large generation contribution. This is primarily caused by the fact that solar PV is more limited by its capacity factor time series than wind based generation. The largest contributor to the generation ends up becoming nuclear power, which has a high capacity factor time series and is not limited by weather conditions. In addition nuclear, is dispatchable and therefore does not require storage to the same extent as weather dependent generation.
 
 \medskip
 \noindent
@@ -788,7 +792,7 @@ The baseline emissions, are as explained above, dominated by solid fuel based fo
 
 \medskip
 \noindent
-Finally the baseline system as seen both visually in figure \ref{baseline_renewable_capacity_per_load_map} perfectly encapsulates the need for decentralization measures. While the heavily centralized nature of the system is optimal from a simple least-cost perspective, it is likely to lead to issues with public acceptance, political feasibility and security.
+Finally the baseline system as seen both visually in figure \ref{baseline_renewable_capacity_per_load_map} perfectly encapsulates the need for decentralization measures. While the heavily centralized nature of the system is optimal from a simple least-cost perspective, it will likely to lead to issues with public acceptance, political feasibility and security.
 
 \newpage
 \subsection{Decarbonized systems}
@@ -804,7 +808,7 @@ Since the outcome of the decarbonization workflow is the baseline plus 13 system
 
 \medskip
 \noindent
-Here it can be seen that in order to decarbonize the system completely the total installed generation capacity increases from around $1400 \text{ } GW$ in the baseline system to around $2500 \text{ } GW$ in the fully decarbonized system, or a around a 78\% increase. As expected the fossil based generation capacity does not disappear as the system is not forced to decommission existing capacity, but rather to replace the actual generation from fossil based generators with renewable generation. The actual generation breakdown for the different levels of decarbonization can be seen below in figure \ref{decarbonized_generation_breakdown}:
+Here it can be seen that in order to decarbonize the system completely the total installed generation capacity increases from around $1400 \text{ } GW$ at the baseline, to around $2500 \text{ } GW$ in the fully decarbonized system, or a around a 78\% increase. As expected the fossil based generation capacity does not disappear as the system is not forced to decommission existing capacity, but rather to replace the actual generation from fossil based generators with renewable generation. The actual generation breakdown for the different levels of decarbonization can be seen below in figure \ref{decarbonized_generation_breakdown}:
 
 \begin{figure}[H]
 \centering
@@ -815,7 +819,7 @@ Here it can be seen that in order to decarbonize the system completely the total
 
 \medskip
 \noindent
-As seen above when the system decarbonizes the fossil fuel based electricity generation goes to zero and is replaced primarily with offshore wind and solar PV generation. In order to better visualize the evolution of the generation of the different technologies as the system decarbonizes, seen below in figure \ref{decarbonized_generation_line} is a line plot of the generation by technology:
+As seen in figure \ref{decarbonized_generation_breakdown} above when the system decarbonizes the fossil fuel based electricity generation goes to zero and is replaced primarily with offshore wind and solar PV generation. In order to better visualize the evolution of the generation of the different technologies as the system decarbonizes, see  figure \ref{decarbonized_generation_line} below.
 
 \begin{figure}[H]
 \centering
@@ -826,7 +830,7 @@ As seen above when the system decarbonizes the fossil fuel based electricity gen
 
 \medskip
 \noindent
-Here the generation dominance of off-shore wind at high levels of decarbonization is clearly visible. Interestingly at very high levels of decarbonization nuclear generation, as well as wind and biomass declines. In figure \ref{decarbonized_generation_line} above there seems to be a trade-off at around 90\% decarbonization where the system suddenly priorities DC-offshore wind instead of AC-offshore generation. Then at even higher levels of decarbonization this tradeoff then gradually disappears, and the levels at 100\% decarbonization end up being fairly consistent with the rest of the trend-line. This seems to be an artifact of the discrete steps taken in the modelling of the decarbonization results. As the $CO_2$ constraint tightens the viable solution space shrinks which can lead to sudden shifts in the optimal solution as seen here. On the other hand the sudden decline in the amount of nuclear generation at high levels of decarbonization is not an artifact but an interesting mechanism. The sudden decline in nuclear generation coincides with the large buildout of the storage capacity and seems to indicate that the system transitions from being dominated by one paradigm to being dominated by another paradigm. Nuclear generation is dispatchable and such has primarily acted as a way of balancing the system when the non-dispatchable renewables are not producing enough generation. As the system is forced to build storage by some other mechanism at high levels of decarbonization less nuclear generation is needed for balancing, which leads to the decline. As will be illustrated later this is caused by the substantial buildout of storage infrastructure at very high levels of decarbonization. In regards to the the transmission infrastructure in the decarbonized systems the total transmission capacity seen below in figure \ref{decarbonized_transmission_capacity_map}:
+Here the generation dominance of off-shore wind at high levels of decarbonization is clearly visible. Interestingly at very high levels of decarbonization nuclear generation, as well as wind and biomass declines. In figure \ref{decarbonized_generation_line} above there seems to be a trade-off at around 96\% decarbonization where the system suddenly priorities DC-offshore wind instead of AC-offshore generation. Then at even higher levels of decarbonization this tradeoff then gradually disappears, and the levels at 100\% decarbonization end up being fairly consistent with the rest of the trend-line. This seems to be an artifact of the discrete steps taken in the modelling of the decarbonization results. As the $CO_2$ constraint tightens the viable solution space shrinks which can lead to sudden shifts in the optimal solution as seen here. On the other hand the sudden decline in the amount of nuclear generation at high levels of decarbonization is not an artifact, but an interesting mechanism. The sudden decline in nuclear generation coincides with the large buildout of the storage capacity and seems to indicate that the system transitions from being dominated by one paradigm to being dominated by another paradigm. Nuclear generation is dispatchable and such has primarily acted as a way of balancing the system when the non-dispatchable renewables are not producing enough electricity. As the system is forced to build storage by some other mechanism at high levels of decarbonization less nuclear generation is needed for balancing, which leads to the decline. In regards to the the transmission infrastructure, in the decarbonized systems, the total transmission capacity seen below in figure \ref{decarbonized_transmission_capacity_map}:
 
 \begin{figure}[H]
 \centering
@@ -837,7 +841,7 @@ Here the generation dominance of off-shore wind at high levels of decarbonizatio
 
 \medskip
 \noindent
-The contribution to the total transmission capacity from the HVDC links remains fairly constant as the system decarbonizes, while the AC transmission capacity increases substantially. This is due to the fact that HVDC links are mainly used for long-distance or cross-ocean transmission. while the AC lines are mainly used in mainland Europe  as a part of the main continental mesh Network. As the system decarbonizes the optimizer prioritizes the expansion of the AC part of the network as this is what benefits more nodes in the system. This then in turn provides more flexibility in the location of storage and generation  compared to expanding the HVDC network. However at the very extreme of 100\% decarbonization the HVDC capacity does see a small increase as the system now needs to use the renewables in the best resource locations regardless if this in mainland Europe or, for example, in the UK where offshore wind resources are very good. As expected the total transmission capacity sees a large increase at very high levels of decarbonization as the system relies more and more on non-dispatchable renewable generation which must be transported from the generation sites to the load centers or stored. The storage capacity evolution for the decarbonized systems can be seen below in figure \ref{decarbonized_storage_capacity_breakdown}:
+The contribution to the total transmission capacity from the HVDC links remains fairly constant as the system decarbonizes, while the AC transmission capacity increases substantially. This is due to the fact that HVDC links are mainly used for long-distance or cross-ocean transmission, while the AC lines are mainly used in mainland Europe as a part of the main continental mesh Network. As the system decarbonizes the optimizer prioritizes the expansion of the AC part of the network, as this is what benefits more nodes in the system. This then in turn provides more flexibility in the location of storage and generation  compared to expanding the HVDC network. However at the very extreme of 100\% decarbonization the HVDC capacity does see a small increase as the system now needs to use the renewables in the best resource locations regardless if this in mainland Europe or, for example, in the UK where offshore wind resources are very good. As expected the total transmission capacity sees a large increase at very high levels of decarbonization as the system relies more and more on non-dispatchable renewable generation which must be transported from the generation sites to the load centers or stored. The storage capacity evolution for the decarbonized systems can be seen below in figure \ref{decarbonized_storage_capacity_breakdown}:
 
 \begin{figure}[H]
 \centering
@@ -897,7 +901,7 @@ Secondly it can be seen that for a majority of decarbonization levels a signific
 
 \medskip
 \noindent
-Traditionally optimized energy system models such as the ones produced by PyPSA must adhere to the zero-profit condition \cite{kies_noprofit_pypsa}:
+Traditionally, optimized energy system models such as the ones produced by PyPSA, must adhere to the zero-profit condition \cite{kies_noprofit_pypsa}:
 
 \begin{equation}
 \sum_{t \in T} \sum_{n} \left( L_{n,t} \times \lambda_t \right)
@@ -927,7 +931,7 @@ This means that the zero profit condition does not apply to optimization perform
 
 \medskip
 \noindent
-Imagine for example that a fossil fuel-based generator is producing electricity at a lower marginal cost than the current market price. If the fossil based generator was allowed to expand, this would naturally attract additional fossil based generation to the market, until it becomes saturated and the mean marginal demand weighted price decreases to the point where the fossil generator is no longer profitable. However, as the fossil generator is not allowed to expand capacity, it can continue to produce electricity at a profit, leading to the scarcity rents seen in the system. This is the primary driving mechanism behind the gap between LCOE and mean marginal demand weighted prices seen in Figure \ref{fig1}.
+Imagine for example that a fossil fuel-based generator is producing electricity at a lower marginal cost than the current market price. If the fossil based generator was allowed to expand, this would naturally attract additional fossil based generation to the market, until it becomes saturated and the mean marginal demand weighted price decreases to the point, where the fossil generator is no longer profitable. However, as the fossil generator is not allowed to expand capacity, it can continue to produce electricity at a profit, leading to the scarcity rents seen in the system. This is the primary driving mechanism behind the gap between LCOE and mean marginal demand weighted prices seen in Figure \ref{fig1}.
 
 \medskip
 \noindent
@@ -943,8 +947,8 @@ Pictured below, in Figure \ref{fig2} is the evolution of the contribution to the
 
 \medskip
 \noindent
-Here it can be seen that at low levels of decarbonization the majority of the contribution to the total scarcity rent comes from the fossil-fuel based generators. As the system decarbonizes the amount of fossil fuel generation is reduced in order to meet the decarbonization constraint and as such the contribution to the scarcity rent decreases. However at around 80\% decarbonization where the vast majority of the fossil based generation has been phased out, the main contributors become the dispatchable renewable generators, such as nuclear, and storage units needed for balancing.
-This is illustrated in the modified version of Figure \ref{fig1} below:
+Here it can be seen that at low levels of decarbonization the majority of the contribution to the total scarcity rent comes from the fossil-fuel based generators. As the system decarbonizes the amount of fossil fuel generation is reduced, in order to meet the decarbonization constraint, and as such the contribution to the scarcity rent decreases. However at around 80\% decarbonization, where the vast majority of the fossil based generation has been phased out, the main contributors become the dispatchable renewable generators, such as nuclear, and storage units needed for balancing.
+This is illustrated in the modified version of Figure \ref{fig1} (Figure \ref{fig3}) below:
 
 \begin{figure}[H]
 \centering
@@ -955,11 +959,11 @@ This is illustrated in the modified version of Figure \ref{fig1} below:
 
 
 \noindent
-As a side note, a negative scarcity rent indicates that the technology in question is running at a loss, meaning that the revenue from selling electricity is not sufficient to cover the capital and marginal costs of the technology. One might think that such a technology would not be included in the optimized system, however as the optimization is performed on a brownfield system with existing capacity, it may be optimal to keep such a technology running at a loss if the overall system cost is reduced by doing so.
+As a side note, a negative scarcity rent indicates that the technology in question is running at a loss, meaning that the revenue from selling electricity is not sufficient to cover the capital and marginal costs of the technology. One might think that such a technology would not be included in the optimized system, however as the optimization is performed on a brownfield system, with existing capacity, it may be optimal to keep such a technology running at a loss if the overall system cost is reduced by doing so.
 
 \medskip
 \noindent
-As for the initial decrease in mean marginal demand weighted price. This can be attributed to something called the "merit-order effect": When the decarbonization constraint of fossil fuel energy generation tightens, fossil-fuel based energy production is replaced by renewable generation. As some forms of renewable generation have very low marginal costs the mean marginal demand weighted price decreases as these low marginal cost generators set the market price in more snapshots. However the total system cost increases as the newly installed generation- and storage-capacity has capital costs that contribute to the overall increase in system cost as seen below in figure \ref{fig18}:
+As for the initial decrease in mean marginal demand weighted price. This can be attributed to something called the "merit-order effect": When the decarbonization constraint of fossil fuel energy generation tightens, fossil-fuel based energy production is replaced by renewable generation. As some forms of renewable generation have very low marginal costs the mean marginal demand weighted price decreases, as these low marginal cost generators set the market price in more snapshots. However the total system cost increases as the newly installed generation- and storage-capacity has capital costs that contribute to the overall increase in system cost as seen below in figure \ref{fig18}:
 
 \medskip
 \noindent
