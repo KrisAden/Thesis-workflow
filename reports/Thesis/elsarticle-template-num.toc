@@ -30,5 +30,5 @@
 \contentsline {subsection}{\numberline {9.5}Appendix E: Coefficient of Variance analysis for Storage capacity}{72}{subsection.9.5}%
 \contentsline {subsection}{\numberline {9.6}Appendix F: Mean capacity factors}{73}{subsection.9.6}%
 \contentsline {subsection}{\numberline {9.7}Appendix G: Cost-Equity tradeoff}{76}{subsection.9.7}%
-\contentsline {subsection}{\numberline {9.8}Appendix H: Distribution statistics}{80}{subsection.9.8}%
+\contentsline {subsection}{\numberline {9.8}Appendix H: Distribution statistics}{82}{subsection.9.8}%
 \contentsline {subsection}{\numberline {9.9}Appendix I: Figures for decentralization evolution}{82}{subsection.9.9}%

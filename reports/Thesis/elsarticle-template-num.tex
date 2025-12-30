@@ -38,6 +38,7 @@
 \usepackage{amsmath}
 %% The amsthm package provides extended theorem environments
 %% \usepackage{amsthm}
+\renewcommand{\thefigure}{\arabic{figure}}
 
 %% The lineno package adds line numbers. Start line numbering with
 %% \begin{linenumbers}, end it with \end{linenumbers}. Or switch it on
@@ -45,6 +46,7 @@
 %% \usepackage{lineno}
 
 \begin{document}
+\setcounter{figure}{0}
 
 \begin{frontmatter}
 
@@ -93,7 +95,7 @@
 \author{Kristoffer Hedegaard Aden\\Aarhus University\\Student ID: 201905079} %% Author name
 %% Abstract
 \begin{abstract}
-Standard EU energy system modelling approaches optimize for least-cost, leading to highly centralized systems in conflict with political feasibility and physical security concerns. This master's thesis begins to bridge the gap between techno-economic energy system models and societal paradigms by incorporating decentralization as a constraint in a European energy system model. The model is a 37-node electricity-only brownfield system based on the PyPSA-EUR framework with projected 2050 loads and technology costs. A total of 105 optimized scenarios are analyzed at 14 levels of decarbonization (0\%-100\% CO$_2$ reduction) and 8 levels of decentralization (K=1 to K=8). The novelty of this work lies in the systematic exploration of interactions between decarbonization and decentralization using a load weighted renewable capacity constraint (K-parameter). The results show that full decarbonization leads to an 80\% cost increase due to, among other factors, a 78\% increase in energy generation capacity. It is found that the system behavior changes sharply at around 80\%-90\% decarbonization, where resource quality becomes critical. As for decentralization, it is shown that equity improves naturally when decarbonizing up until 80\% where the system begins to re-centralize aggressively. It is found that complete decentralization as enforced by K=1 leads to a 18\% cost increase at full decarbonization compared to the least-cost scenario. However moderate decentralization of K=7 achieves 76\% of the equity benefits at only a 2\% cost increase. This indicates that moderate decentralization can be a viable strategy to balance societal preferences and cost-efficiency in the European energy transition.
+Standard EU energy system modelling approaches optimize for least-cost, leading to highly centralized systems, in conflict with political feasibility and physical security concerns. This master's thesis begins to bridge the gap between techno-economic energy system models, and societal paradigms by incorporating decentralization as a constraint in a European energy system model. The model is a 37-node electricity-only brownfield system based on the PyPSA-EUR framework, with projected 2050 loads and technology costs. A total of 105 optimized scenarios are analyzed at 14 levels of decarbonization (0\%-100\% CO$_2$ reduction) and 8 levels of decentralization. The novelty of this work lies in the systematic exploration of interactions between decarbonization and decentralization using a load weighted renewable capacity constraint (K-parameter). The results show that full decarbonization leads to an 80\% cost increase due to, among other factors, a 78\% increase in energy generation capacity. It is found that the system behavior changes sharply at around 80\%-90\% decarbonization, where resource quality becomes critical. As for decentralization, it is shown that equity improves naturally when decarbonizing up until 80\% where the system begins to re-centralize aggressively. It is found that complete decentralization as enforced by K=1 leads to a 18\% cost increase at full decarbonization compared to the least-cost scenario. However moderate decentralization of K=7 achieves 76\% of the equity benefits at only a 9\% cost increase compared to K=1. This indicates that moderate decentralization can be a viable strategy to balance societal preferences and cost-efficiency in the European energy transition.
 \end{abstract}
 
 %% Keywords
@@ -119,29 +121,28 @@ European energy system \sep Decentralization \sep Decarbonization \sep Paradigms
 
 \section{Introduction}
 \noindent
-In a world where the necessity of reducing the carbon emissions of our energy networks is no longer a suggestion, but a requirement, careful and deliberate planning of the energy system of the future is needed. When the Paris Climate Agreement was signed into action in 2015, it signaled the commitment of the United Nations to reducing their overall carbon footprint \cite{ParisAgreementUNFCCC}. This common goal and understanding of the necessity of decarbonization was a crucial step towards a more sustainable world, and provided a common base understanding of what needs to be done. It also provides a massively complicated technological challenge that must be solved in order for the agreement to be fulfilled.
+In a world where the necessity of reducing the carbon emissions of our energy networks is no longer a suggestion, but a requirement, careful and deliberate planning of the energy system of the future is needed. When the Paris Climate Agreement was signed into action in 2015, it signaled the commitment of the United Nations to reducing their overall carbon footprint \cite{ParisAgreementUNFCCC}. This common goal and understanding of the necessity of decarbonization was a crucial step towards a more sustainable world, and provided a common understanding of what needs to be done. It also provides a massively complicated technological challenge that must be solved in order for the agreement to be fulfilled.
 
 \medskip
 \noindent Somewhat unique to the issue of decarbonization in the European Union is the fact that, although the Paris Climate Agreement signifies the common goal of decarbonization, the EU is still comprised of many different countries with many different political ideologies, laws, societal preferences, and goals of their own. This means that, although it has long been known that a shared and interconnected energy grid is the most efficient and economically preferable solution, as seen, for example, in paper \cite{rodriguezCostoptimalDesignSimplified2015a}, reality becomes a lot more complicated as the member nations also must have their own best interests in mind.
 
 \medskip
-\noindent Historically, the impact of the union being made up of self-centered actors has often been discarded when trying to construct the electricity grid of the future, if for no other reason than the fact that implementing social preferences and societal paradigms in strict mathematical models of the European energy system is a challenging problem \cite{pfenningerEnergySystemsModeling2014}. These models, that typically aim to reduce the overall cost of the system as the primary objective, are often meant to be used as the basis for developing the future energy network and legislation. However, using this least-cost optimization approach without considering social paradigms in the European Union tends to produce system models that, although being economically efficient at achieving decarbonization targets, are intrinsically tied to the assumption that the EU has complete control over the member nations' individual energy grids.
+\noindent Historically, the impact of the union being made up of self-centered actors has often been discarded, when trying to construct the electricity grid of the future, if for no other reason than the fact that implementing social preferences and societal paradigms in strict mathematical models of the European energy system is a challenging problem \cite{pfenningerEnergySystemsModeling2014}. These models, that typically aim to reduce the overall cost of the system as the primary objective, are often meant to be used as the basis for developing the future energy network and legislation. However, using this least-cost optimization approach without considering social paradigms in the European Union tends to produce system models that, although being economically efficient at achieving decarbonization targets, are intrinsically tied to the assumption that the EU has complete control over the member nations' individual energy grids.
 
 \medskip
-\noindent This approach of reducing the optimization problems to purely techno-economic problems that prioritize cost reduction over feasibility has helped achieve significant insights into decarbonization strategies for the European Union \cite{henkeComparingEnergySystem2024}, but tends to lead to the energy system becoming heavily centralized \cite{eriksenOptimalHeterogeneitySimplified2017a}. Centralization, in the context of energy systems, refers to the majority of resources being pooled into a few areas that are favorable to the system in some way, be that installing a lot of wind turbines in a region with a lot of wind, maintaining energy production in regions close to where the energy is needed, or any number of other mechanisms that result in a proportionally large investment into infrastructure in a single region. While centralization as a strategy is often the most cost-efficient, it leads to a suite of other challenges.
+\noindent This approach of reducing the optimization problems to purely techno-economic problems that prioritize cost reduction over feasibility, has helped achieve significant insights into decarbonization strategies for the European Union \cite{henkeComparingEnergySystem2024}, but tends to lead to the energy system becoming heavily centralized \cite{eriksenOptimalHeterogeneitySimplified2017a}. Centralization, in the context of energy systems, refers to the majority of resources being pooled into a few areas that are favorable to the system in some way. This could be installing a lot of wind turbines in a region with a lot of wind, maintaining energy production in regions close to where the energy is needed, or any number of other mechanisms that result in a proportionally large investment into infrastructure in a single region. While centralization as a strategy is often the most cost-efficient, it leads to a suite of other challenges.
 
 \medskip
-\noindent Two such challenges are those of physical security and political feasibility. With the recent surge in so-called hybrid attacks on European energy infrastructure\cite{ScaleRussianSabotage}, the focus on physical security has increased. If a system is overly centralized, it means that a large amount of critical infrastructure is installed in a relatively small area. This makes the infrastructure an obvious target for such hybrid attacks, as a single hostile action can impact more infrastructure and more people. As for political feasibility, nations who end up as net energy importers become less self-sufficient and increasingly reliant on the net exporting regions. This shift in power balance heavily favors the net exporters and, as such, may face resistance from net importing nations that wish to remain at a high degree of self-sufficiency.
+\noindent Two such challenges are those of physical security and political feasibility. With the recent surge in so-called hybrid attacks on European energy infrastructure \cite{ScaleRussianSabotage}, the focus on physical security has increased. If a system is overly centralized, it means that a large amount of critical infrastructure is installed in a relatively small area. This makes the infrastructure an obvious target for such hybrid attacks, as a single hostile action can impact more infrastructure and more people. As for political feasibility, nations who end up as net energy importers become less self-sufficient and increasingly reliant on the net exporting regions. This shift in power balance heavily favors the net exporters and, as such, may face resistance from net importing nations that wish to remain at a high degree of self-sufficiency.
 
 \medskip
 \noindent The objective of this master's thesis is to incorporate societal paradigms and priorities in the form of decentralization into a macro-scale energy network model of the EU, and to analyze and expose the mechanisms behind decarbonization and its interactions with decentralization. The main research questions are then:
 \begin{itemize}
 \item How, if at all, does enforcing decentralization change the cost-optimal pathway to decarbonization in a European energy system?
 \item Which system mechanisms are responsible for the interactions between decarbonization and decentralization?
-\item What sacrifices must be made in terms of cost and system design in order to achieve a decentralized energy system?
+\item What sacrifices must be made in terms of cost, and system design, in order to achieve a decentralized energy system?
 \end{itemize}
-This in turn may then help develop a workflow that, by incorporating societal paradigms and reviewing their system impacts, will help close the gap between the models used to inform energy policy makers and the results of the proposed policies. Although this workflow and methodology may in time prove relevant for policy makers to understand, the target audience of this master's thesis remains peers in the field of energy system modeling who may draw inspiration from the intersection between societal paradigms and strict mathematical modeling that this work represents. It is also for this reason that all the data and code used to produce the results which can be seen in this paper are openly available in a public repository under an open science license\cite{GNUGeneralPublic}.
-%This is changed
+Answering these questions may then help develop a workflow that, by incorporating societal paradigms and reviewing their system impacts, will help close the gap between the models used to inform energy policy-makers, and the results of the proposed policies. Although this workflow and methodology may in time prove relevant for policy makers to understand, the target audience of this master's thesis remains peers in the field of energy system modeling who may draw inspiration from the intersection between societal paradigms and strict mathematical modeling that this work represents. It is also for this reason that all the data and code used to produce the results, which can be seen in this paper, are openly available in a public repository under an open science license\cite{GNUGeneralPublic}.
 
 \section{Nomenclature}
 
@@ -151,7 +152,7 @@ This in turn may then help develop a workflow that, by incorporating societal pa
 \toprule
 \textbf{Symbol} & \textbf{Description} \\
 \midrule
-$n$ & Node index (spatial unit representing countries/regions) \\
+$n$ & Node index (countries/regions/nodes) \\
 $t$ & Time snapshot index (hourly timesteps) \\
 $g$ & Generator technology index \\
 $C$ & Decarbonization level (fraction of baseline emissions reduction) \\
@@ -173,7 +174,6 @@ $r$ & Discount rate (per annum) \\
 $G$ & Gini coefficient of inequality \\
 $\rho$ & Spatial correlation coefficient between renewable capacity and load \\
 $\sigma$ & Standard deviation \\
-$\mu$ & Mean value \\
 $C_n^R$ & Renewable capacity at node $n$ (MW) \\
 $\langle \cdot \rangle$ & Mean value operator across all nodes \\
 \bottomrule
@@ -212,7 +212,7 @@ SDRCL & Standard Deviation of Nodal Renewable Capacity per Load \\
 \section{Methodology}
 \subsection{Modeling framework}
 \noindent
-For the purpose of structuring the modeling of the EU electricity system, a Snakemake workflow was constructed. Snakemake is a workflow management system that allows for modular and reproducible data analysis \cite{SnakemakeSnakemake9140}. The workflow is divided into multiple steps or "rules" that, when chained together, ensure that the data is processed in the correct order. A workflow management system was implemented for two reasons. As documented later on in the thesis, the large number of scenarios simulated with the workflow lends itself well to a standardized workflow that can handle small variations to construct different scenarios. Secondarily, Snakemake is already used in many power system optimization workflows and was therefore the obvious candidate. The complete workflow used to produce the results in this master's thesis is openly available in a public repository \cite{hedegaardadenThesisworkflowFairnessDecarbonizing2025} under a GNU General Public License \cite{GNUGeneralPublica}.
+For the purpose of structuring the modeling of the EU electricity system, a Snakemake workflow was constructed. Snakemake is a workflow management system that allows for modular and reproducible data analysis \cite{SnakemakeSnakemake9140}. The workflow is divided into multiple steps or "rules" that, when chained together, ensure that the data is processed in the correct order. A workflow management system was implemented for two reasons. As documented later on in the thesis, the large number of scenarios simulated with the workflow lends itself well to a standardized workflow, that can handle small variations to construct different scenarios. Secondarily, Snakemake is already used in many power system optimization workflows and was therefore the obvious candidate. The complete workflow used to produce the results in this master's thesis is openly available in a public repository \cite{hedegaardadenThesisworkflowFairnessDecarbonizing2025} under a GNU General Public License \cite{GNUGeneralPublica}.
 \medskip
 \noindent
 
@@ -230,13 +230,13 @@ Seen above in Figure \ref{fig_workflow} is a map of the rules and data input use
 \medskip
 \subsection{Precompiled network model}
 \noindent
-Many energy modeling frameworks and pieces of commercially available software for optimizing nodal networks exist. The work represented by this paper utilizes the open-source framework PyPSA (Python for Power System Analysis) \cite{PyPSA}. The reasoning for this is twofold: Firstly, PyPSA is completely free and open source to use. This encourages open and collaborative science, as well as transparency in the philosophy behind the energy system modeling. Secondly, PyPSA consists of two separate parts: a modeling workflow based in the Python programming language, and a large database containing relevant open-source data for constructing models, particularly of the European Union. This dataset is referred to as PyPSA-Eur\cite{PyPSAEur} and is invaluable in its quality of data for building macro energy system models in the PyPSA workflow. This master's thesis utilizes both parts of the PyPSA environment. Acting as a baseline for all of the network topology for the European Union is a pre-compiled network developed with PyPSA-EUR using the default settings as published in the Zenodo repository \cite{horschPyPSAEurOpenOptimisation2023}.
+Many energy modeling frameworks and pieces of commercially available software for optimizing nodal networks exist. The work represented by this paper utilizes the open-source framework PyPSA (Python for Power System Analysis) \cite{PyPSA}. The reasoning for this is twofold: Firstly, PyPSA is completely free and open source to use. This encourages open and collaborative science, as well as transparency in the philosophy behind the energy system modeling. Secondly, PyPSA consists of two separate parts: a modeling workflow based in the Python programming language, and a large database, containing relevant open-source data for constructing models, particularly of the European Union. This dataset is referred to as PyPSA-Eur\cite{PyPSAEur} and is invaluable in its quality of data for building macro energy system models in the PyPSA workflow. This master's thesis utilizes both parts of the PyPSA environment. Acting as a baseline for all of the network topology for the European Union is a pre-compiled network developed with PyPSA-EUR using the default settings as published in the Zenodo repository \cite{horschPyPSAEurOpenOptimisation2023}.
 
 \medskip
-\noindent The simple philosophy behind the PyPSA models is that a network is perceived as multiple interconnected nodes. These nodes and connections are then given a set of constraints that define the feasible solution space. Examples of constraints could be that each node is assigned an electrical load that must be serviced based on historical consumption, capacity factor time series based on solar and wind patterns, or maximum or minimum capacity constraints, like a maximum allowable power flow from one node to another representing the transmission infrastructure in the network. The network used in this master's thesis is a 37-node network representing the 25 (excluding the island states of Malta and Cyprus) member nations of the EU. Additionally, Switzerland, Norway, Bosnia-Herzegovina, Albania, Montenegro, North Macedonia, the United Kingdom, and Serbia are included as their electrical infrastructure is connected to that of the EU. The following nations are also represented by more than one node as they have large populations on islands: Denmark, Spain, Great Britain, and Italy.
+\noindent The simple philosophy behind the PyPSA models is that a network is perceived as multiple interconnected nodes. These nodes and connections are then given a set of constraints that define the feasible solution space. Examples of constraints could be, that each node is assigned an electrical load that must be serviced based on historical consumption, capacity factor time series based on solar and wind patterns, or maximum or minimum capacity constraints, like a maximum allowable power flow from one node to another representing the transmission infrastructure in the network. The network used in this master's thesis is a 37-node network representing the 25 (excluding the island states of Malta and Cyprus) member nations of the EU. Additionally, Switzerland, Norway, Bosnia-Herzegovina, Albania, Montenegro, North Macedonia, the United Kingdom, and Serbia are included as their electrical infrastructure is connected to that of the EU. The following nations are also represented by more than one node as they have large populations on islands: Denmark, Spain, Great Britain, and Italy.
 
 \medskip
-\noindent These nodes are then interconnected with HVDC and AC links and lines based on real-world connections. A graphical overview of the network can be seen below in Figure \ref{fig_network}:
+\noindent These nodes are then interconnected with HVDC and AC links and lines based on real-world connections. A graphical overview of the network can be seen below in Figure 2:
 
 \begin{figure}[H]
 \centering
@@ -249,7 +249,7 @@ Many energy modeling frameworks and pieces of commercially available software fo
 
 \medskip
 \noindent
-The 37-node network is in actuality a clustered version of the standard PyPSA-EUR network, which contains 1,024 nodes. This is incredibly computationally intensive to solve. The effects of the clustering process on the network have been analyzed in \cite{schyskaSensitivityPowerSystem2021b}, where it is found that similar power system models show relatively small sensitivity to increases and decreases in the number of nodes. In addition, it was found that a time scale of 1-hour resolution was sufficient to capture the majority of time-dependent effects in the system.
+The 37-node network is in actuality a clustered version of the standard PyPSA-EUR network, which contains 1,024 nodes. This is incredibly computationally intensive to solve. The effects of the clustering process on the network have been analyzed in \cite{schyskaSensitivityPowerSystem2021b}, where it is found that similar power system models show relatively small sensitivity to increases and decreases in the number of nodes. In addition, it was found that a time-scale of 1-hour resolution was sufficient to capture the majority of time-dependent effects in the system.
 
 
 \subsection{Load rescaling}
@@ -267,7 +267,7 @@ The precompiled network models come preloaded with electrical demand time series
 
 \medskip
 \noindent
-Here $n$ denotes the set of all nodes. These nodal scaling factors are then used as weights on the hourly load time series for each node to produce a rescaled load time series for each node as seen in equation \eqref{load_rescaled} below:
+Here $n$ denotes the set of all nodes. These nodal scaling factors are then used as weights on the hourly load time series for each node, to produce a rescaled load time series for each node as seen in equation \eqref{load_rescaled} below:
 
 \begin{equation}
 \text{rescaled Load}_{n,t}
@@ -290,7 +290,7 @@ Where $t$ denotes the set of all time snapshots. This way the total load is scal
 
 \medskip
 \noindent
-Here it can be seen that the shape of the load time series has been preserved while the total load has been rescaled to match the projected values. This rescaling process assumes that while the total energy consumption will increase the pattern will remain constant. This is of course a simplification as continuing electrification of different sectors such as heating and transport, as well as changing weather patterns due to climate change, may very well alter the consumption pattern in the future. However, sector coupling and synthetic climate change models are beyond the scope of this master's thesis and this simplification is therefore necessary.
+Here it can be seen that the shape of the load time series has been preserved while the total load has been rescaled to match the projected values. This rescaling process assumes that while the total energy consumption will increase the pattern will remain constant. This is of course a simplification as continuing electrification of different sectors, such as heating and transport, as well as changing weather patterns due to climate change, may very well alter the consumption pattern in the future. However, sector coupling and synthetic climate change models are beyond the scope of this master's thesis and this simplification is therefore necessary.
 
 \subsection{Generator Cost Modeling} \label{generator_cost_modeling}
 \noindent
@@ -337,12 +337,12 @@ Where the Annuity Factor is calculated as:
 \begin{equation}
 \text{Annuity Factor}
 =
-\frac{r(1+r)^n}{(1+r)^n - 1}
+\frac{r(1+r)^y}{(1+r)^y - 1}
 \end{equation}
 
 \medskip
 \noindent
-With $r$ being the discount rate and $n$ being the lifetime of the technology in years. For sources that report FOM as an annual rate the annualized cost is calculated as:
+With $r$ being the discount rate and $y$ being the lifetime of the technology in years. For sources that report FOM as an annual rate the annualized cost is calculated as:
 
 \begin{equation}
 \text{Annualized Cost}
@@ -352,7 +352,7 @@ With $r$ being the discount rate and $n$ being the lifetime of the technology in
 
 \medskip
 \noindent
-An finally for sources that report neither FOM (abs) nor FOM (rate) the annualized cost is simply calculated as:
+And finally for sources that report neither FOM (abs) nor FOM (rate) the annualized cost is simply calculated as:
 
 \begin{equation}
 \text{Annualized Cost}
@@ -375,11 +375,11 @@ p_{\text{existing}}\leq p_{\text{line}} \leq p_{\text{line, max}}
 
 \medskip
 \noindent
-Where $p_{\text{existing}}$ is the existing capacity of the line, $p_{\text{line}}$ is the optimized capacity of the line and $p_{\text{line, max}}$ is the maximum allowable capacity of the line. The minimum capacity is set to the pre-existing  capacity as it is assumed that the existing transmission infrastructure will not be decommissioned due to the trouble of digging up existing lines. In order to avoid transmission bottlenecks, and find the optimal solution of installed generation capacity in the nodes, the maximum capacity was set to an arbitrarily high value (1 Billion MW).
+Where $p_{\text{existing}}$ is the existing capacity of the line or link, $p_{\text{line}}$ is the optimized capacity of the line or link and $p_{\text{line, max}}$ is the maximum allowable capacity of the line or link. The minimum capacity is set to the pre-existing  capacity as it is assumed that the existing transmission infrastructure will not be decommissioned due to the trouble of digging up existing lines. In order to avoid transmission bottlenecks, and find the optimal solution of installed generation capacity in the nodes, the maximum capacity was set to an arbitrarily high value (1 Billion MW).
 
 \medskip
 \noindent
-A similar approach was used for the \textit{fossil-based} generators in the system. These generators are allowed to decommission in order to meet the decarbonization targets, but are not allowed to expand their capacity beyond the existing existing capacity as can be seen in equation \eqref{fossil_constraint} below. This was done in order to maintain a degree of realism in the model as it is unlikely that new fossil-based generators will be built in a decarbonizing energy system.
+A similar approach was used for the \textit{fossil-based} generators in the system. These generators are allowed to decommission in order to meet the decarbonization targets, but are not allowed to expand their capacity beyond the existing capacity as can be seen in equation \eqref{fossil_constraint} below. This was done in order to maintain a degree of realism in the model as it is unlikely that new fossil-based generators will be built in a decarbonizing energy system.
 
 \begin{equation}
 p_{\text{nom}} \leq p_{\text{existing}}
@@ -402,7 +402,7 @@ In addition to the capacity constraints, the operation of the different generato
 
 \subsection{Energy storage infrastructure}
 \noindent
-Finally, the last step before the system is ready to be optimized, is to implement the energy storage infrastructure. The pre-compiled network comes with a few different types of storage already implemented: Pumped-Hydro Storage (PHS), and Regular (reservoir) hydro storage. Historically hydro based storage in the European Union has been the primary method of energy storage and as a result most areas capable having hydro based storage installed have already been utilized. As a result of this the hydro based storage technologies are not allowed to change their capacity in the optimization and are constrained as seen in equation \eqref{hydro_constraint} below. Again it is assumed that decommissioning existing hydro storage is not in the interest of the system.
+Finally, the last step before the system is ready to be optimized, is to implement the energy storage infrastructure. The pre-compiled network comes with a few different types of storage already implemented: Pumped-Hydro Storage (PHS), and Regular (reservoir) hydro storage. Historically hydro based storage in the European Union has been the primary method of energy storage, and as a result most areas capable of having hydro based storage installed have already been utilized. Therefore the hydro based storage technologies are not allowed to change their capacity in the optimization and are constrained as seen in equation \eqref{hydro_constraint} below. Again it is assumed that decommissioning existing hydro storage is not in the interest of the system.
 
 \begin{equation}
 p_{\text{nom}} = p_{\text{existing}}
@@ -411,7 +411,7 @@ p_{\text{nom}} = p_{\text{existing}}
 
 \medskip
 \noindent
-However as the system decarbonizes and the amount of dispatchable fossil-based generation decreases it is increasingly necessary to have large amounts of energy storage capacity installed. In order to properly model this two additional storage technologies, namely battery storage and hydrogen storage has been added to the network. Battery storage consists of batteries and inverters and hydrogen storage consists of a hydrogen tank, an electrolyzer as well as a fuel cell. When adding the additional storage technologies their costs have been calculated in a manner similar to that of the generators as seen in section \ref{generator_cost_modeling} above. The cost assumptions for battery and hydrogen storage can be seen below in Table \ref{tab:storage_costs}:
+However as the system decarbonizes, and the amount of dispatchable fossil-based generation decreases, it is increasingly necessary to have large amounts of energy storage capacity installed. In order to properly model this two additional storage technologies, namely battery storage and hydrogen storage, have been added to the network. Battery storage consists of batteries and inverters and hydrogen storage consists of a hydrogen tank, an electrolyzer as well as a fuel cell. When adding the additional storage technologies their costs have been calculated in a manner similar to that of the generators as seen in section \ref{generator_cost_modeling} above. The cost assumptions for battery and hydrogen storage can be seen below in Table \ref{tab:storage_costs}:
 
 \begin{table}[H]
 \centering
@@ -439,11 +439,11 @@ Here it is important to note that the storage units include efficiencies for cha
 
 \subsection{Optimization strategy}
 \noindent
-Optimizing complex energy networks with many variables and constraints is computationally very intensive. For this reason the optimizations performed for this master's thesis have exclusively been performed on a High Performance Computing (HPC) environment. More specifically the UCloud HPC operated by SDU \cite{UCloudUserGuide}. The optimizations were typically run on a set of 4 machines, each with an Intel Xeon Gold 6130 CPU and took on average 12 core-hours apiece to achieve an optimal solution. The optimization algorithm was chosen as the Barrier method in the commercial optimizer by Gurobi, chosen primarily for its numerical stability \cite{BarrierLoggingGurobi}.
+Optimizing complex energy networks, with many variables and constraints, is computationally very intensive. For this reason the optimizations performed for this master's thesis have exclusively been performed on a High Performance Computing (HPC) environment. More specifically the UCloud HPC operated by SDU \cite{UCloudUserGuide}. The optimizations were typically run on a set of 4 machines, each with an Intel Xeon Gold 6130 CPU and took on average 12 core-hours apiece to achieve an optimal solution. The optimization algorithm was chosen as the Barrier method in the commercial optimizer by Gurobi, chosen primarily for its numerical stability \cite{BarrierLoggingGurobi}.
 
 \subsection{Baseline system}
 \noindent
-As seen in Figure \ref{fig_workflow} above, in order to be able to analyze the impacts of varying decarbonization constraints and decentralization measures a baseline system that is subjected to neither decarbonization nor decentralization constraints must first be optimized. This system, which will be used for comparison is referred to as the \textit{baseline} system. The optimization of this system is performed based on the objective function and load-balance, and is a \textit{least cost} system, meaning that the total system cost is minimized.
+As seen in Figure \ref{fig_workflow} above, in order to be able to analyze the impacts of varying decarbonization constraints, and decentralization measures, a baseline system that is subjected to neither decarbonization nor decentralization constraints must first be optimized. This system, which will be used for comparison is referred to as the \textit{baseline} system. The optimization of this system is performed based on the objective function and load-balance, and is a \textit{least cost} system, meaning that the total system cost is minimized.
 
 \medskip
 \noindent In order to optimize the networks first an objective function must be defined. An objective function is, as the name suggests, the function which when minimized or maximized leads to the objective of the optimization to be achieved. The objective function for finding the cheapest possible electrical system is defined as minimizing the sum of all the costs:
@@ -462,7 +462,7 @@ As seen in Figure \ref{fig_workflow} above, in order to be able to analyze the i
 \end{equation}
 
 \medskip
-\noindent Here $n$ denotes the set of all nodes, and $t$ denotes the set of all snapshots during the timeframe. The capital costs reflect things such as the cost of building generation, storage and transmission capacity and the variable costs reflect things such as fuel costs and maintenance. In order to construct a feasible solution space the objective function must be defined by a set of bounding constraints. Initially an equality constraint is defined so that, for each snapshot, all nodes must have their electricity demand met by a combination of energy production and nodal balancing:
+\noindent Here $n$ denotes the set of all nodes, and $t$ denotes the set of all snapshots during the timeframe. The capital costs reflect things such as the cost of building generation, storage and transmission capacity and the variable costs reflect things such as fuel costs and maintenance. In order to construct a feasible solution space the objective function must be constrained by a set of bounding constraints. Initially an equality constraint is defined so that, for each snapshot, all nodes must have their electricity demand met by a combination of energy production and nodal balancing:
 
 \begin{equation}
 \text{generation}_{n,t} + \text{balance}_{n,t}
@@ -491,7 +491,7 @@ f(x)
 
 \medskip
 \noindent
-Here $f(x)$ is the objective function, $g_{n,t}(x)$ is the constraint function and $x$ is the set of all optimization variables.The different KKT multipliers can then be found by optimizing the Lagrangian function with respect to both the optimization variables and the KKT multipliers and thus finding the minima where the gradients are zero as seen in equation \eqref{KKT_conditions} below:
+Here $f(x)$ is the objective function, $g_{n,t}(x)$ is the constraint function and $x$ is the set of all optimization variables.The different KKT multipliers can then be found by optimizing the Lagrangian function with respect to both the optimization variables and the KKT multipliers. Then the minima, where the gradients are zero, can be found as seen in equation \eqref{KKT_conditions} below:
 
 \begin{equation}
 \nabla_x \mathcal{L}(x^*, \lambda^*) = 0
@@ -503,11 +503,11 @@ Here $f(x)$ is the objective function, $g_{n,t}(x)$ is the constraint function a
 
 \medskip
 \noindent
-Here the asterisk denotes the optimal values of the optimization variables and the KKT multipliers respectively.Optimizing the network without a decarbonization constraint, is then used to produce a baseline system that will be used for comparison in the following sections. As a final note it is very important that the constraints used in the optimization are linear as a non-linear constraint may lead to a non-convex solution space. The result of which may the formation of local minima that the optimizer can become trapped in, leading to sub-optimal solutions.
+Here the asterisk denotes the optimal values of the optimization variables and the KKT multipliers respectively. Optimizing the network without a decarbonization constraint, is then used to produce a baseline system that will be used for comparison in the following sections. As a final note it is very important that the constraints used in the optimization are linear as a non-linear constraint may lead to a non-convex solution space. The result of which may be the formation of local minima that the optimizer can become trapped in, leading to sub-optimal solutions.
 
 \subsection{Decarbonized systems}
 \noindent
-Once the baseline system has been optimized the a set of new networks at different levels of decarbonization can be defined and optimized. In addition to the objective function \eqref{eq:cost_min} and the load balance \eqref{eq:load_balance} these systems are also constrained by a decarbonization constraint as seen in equation \eqref{decarb_constraint} below:
+Once the baseline system has been optimized a set of new networks at different levels of decarbonization can be defined and optimized. In addition to the objective function \eqref{eq:cost_min} and the load balance \eqref{eq:load_balance} these systems are also constrained by a decarbonization constraint as seen in equation \eqref{decarb_constraint} below:
 
 \begin{equation}
 \text{total emissions}_{C} \leq (1 - C \cdot \text{baseline emissions})
@@ -551,7 +551,7 @@ oil & 0.2480 \\
 
 \medskip
 \noindent
-Based on previous experience with optimizing energy systems the following levels of C were chosen for the decarbonizing systems:
+Based on previous experience with optimizing energy systems, the following levels of C were chosen for the decarbonizing systems:
 
 \begin{equation}
 C \in \{0\%, 10\%, 20\%, 30\%, 40\%, 50\%, 60\%, 70\%, 80\%, 90\%, 93\%, 96\%, 99\%, 100\%\}
@@ -560,9 +560,10 @@ C \in \{0\%, 10\%, 20\%, 30\%, 40\%, 50\%, 60\%, 70\%, 80\%, 90\%, 93\%, 96\%, 9
 
 \medskip
 \noindent
-This was done in order to achieve a wide range of decarbonization, while increasing resolution at higher levels of decarbonization where the system tends to change more rapidly. The outcome of the the decarbonization workflow is therefore a set of 14 different networks (excluding the baseline), each at a different level of decarbonization defined as a fraction of the baseline emissions.
+This was done in order to achieve a wide range of decarbonization, while increasing resolution at higher levels of decarbonization, where the system tends to change more rapidly. The outcome of the the decarbonization workflow is therefore a set of 13 different networks (excluding the baseline), each at a different level of decarbonization, defined as a fraction of the baseline emissions.
 
 \subsection{Decentralized systems}
+\noindent
 As discussed in the introduction, decentralization is necessary in order to ensure a fair and secure european energy system. The first step in creating a set of decentralized systems, at each level of decarbonization, is to define a measure of decentralization. Some papers like "Modeling all alternative solutions for highly renewable energy systems" by Pedersen et al. \cite{pedersenModelingAllAlternative2021a} use the \textit{Gini Coefficient} of inequality of installed renewable capacity as a measure of decentralization. Consider the following plot:
 
 \begin{figure}[H]
@@ -585,7 +586,7 @@ G
 
 \medskip
 \noindent
-Where A is the area-difference between the equality line and the Lorentz curve, and B is the area-difference between the Lorentz curve and the x-axis. This way of defining system, however, inequality comes with a number of issues. Primary among these issues is that fact that the Gini coefficient is non-linear and as such cannot directly be used as a constraint as this will lead to non-convex solution spaces and local minima. While it is possible to work around this by using a sampling based approach and then calculating the Gini coefficient post optimization, this approach is difficult to understand and implement. As a result the decentralization of the systems was constrained using a novel approach based on \cite{eriksenOptimalHeterogeneitySimplified2017a} as seen in equation \eqref{eq:k_constraint} below:
+Where A is the area-difference between the equality line and the Lorentz curve, and B is the area-difference between the Lorentz curve and the x-axis. This way of defining system inequality comes with a number of issues, however. Primary among these issues is that fact that the Gini coefficient is non-linear and as such cannot directly be used as a constraint as this will lead to non-convex solution spaces and local minima. While it is possible to work around this by using a sampling based approach and then calculating the Gini coefficient post optimization, this approach is difficult to understand and implement. As a result the decentralization of the systems was constrained using a novel approach based on \cite{eriksenOptimalHeterogeneitySimplified2017a} as seen in equation \eqref{eq:k_constraint} below:
 
 \begin{equation}
 \frac{1}{K} \cdot \omega_n \cdot R_{\text{total}} \leq R_{\text{cap},n} \leq K \cdot \omega_n \cdot R_{\text{total}}
@@ -599,20 +600,20 @@ Where $\omega_n = \frac{L_n}{\sum_{n'} L_{n'}}$ is the normalized load-share wei
 
 \medskip
 \noindent
-Based on previous preliminary experiments following levels of K were chosen for the decentralized systems:
+Based on preliminary experiments following levels of K were chosen for the decentralized systems:
 
 \begin{equation}
-K \in \{8, 7, 6, 5, 4, 3, 2, 1\}
+K \in \{7, 6, 5, 4, 3, 2, 1\}
 \label{K_levels}
 \end{equation}  
 
 \medskip
 \noindent
-This approach has the benefit of being linear, but also avoids another pitfall when implementing decentralization in systems that also are subjected to decarbonization constraints. Both constraints, in some way, interact with the amount of renewable capacity installed in the nodes of the network. If one was to simply constrain the amount of installed renewable capacity in each node without taking into account the total amount of renewable capacity in the system, it could lead to the system installing more renewable capacity than needed to meet the decarbonization constraint. This interaction would then lead to the system becoming overly decarbonized and difficult to compare to other systems. It is for this reason that the decentralization constraint is defined as a fraction of the total renewable capacity in the system, ensuring that the decentralization constraint scales with the amount of renewable capacity needed to meet the decarbonization constraint.  As a side note the upper bound on the nodal renewable capacity relative to the nodal load is defined as a fraction of the system wide-capacity to load ratio. This means that the upper bound, is not the same as K but K multiplied by the system-wide load to generation capacity ratio.
+The decarbonized system with no decentralization constraint enforced is referred to as $K_{inf}$. This approach has the benefit of being linear, but also avoids another pitfall when implementing decentralization in systems that also are subjected to decarbonization constraints. Both constraints, in some way, interact with the amount of renewable capacity installed in the nodes of the network. If one was to simply constrain the amount of installed renewable capacity in each node without taking into account the total amount of renewable capacity in the system, it could lead to the system installing more renewable capacity than needed to meet the decarbonization constraint. This interaction would then lead to the system becoming overly decarbonized and difficult to compare to other systems. It is for this reason that the decentralization constraint is defined as a fraction of the total renewable capacity in the system, ensuring that the decentralization constraint scales with the amount of renewable capacity needed to meet the decarbonization constraint.  As a side note the upper bound on the nodal renewable capacity relative to the nodal load is defined as a fraction of the system wide-capacity to load ratio. This means that the upper bound, for installed nodal renewable capacity, is not the same as K but rather K multiplied by the system-wide load to generation capacity ratio.
 
 \medskip
 \noindent
-The final outcome of the decentralization workflow is therefore a set of 105 different networks, each at a different level of decarbonization and decentralization. Before proceeding to the results of the optimization workflow it is useful to introduce a more intuitive measure of the decentralization of a given system as the K parameter is somewhat abstract. A more intuitive measure of decentralization is the \textit{Standard Deviation of Nodal Renewable Capacity per Load} defined as:
+The final outcome of the Snakemake workflow is therefore a set of 105 different networks, each at a different level of decarbonization and decentralization. Before proceeding to the results of the optimization workflow, it is useful to introduce a more intuitive measure of the decentralization of a given system as the K parameter is somewhat abstract. A more intuitive measure of decentralization is the \textit{Standard Deviation of Nodal Renewable Capacity per Load} defined as:
 
 \begin{equation}
 \text{SDRCL}
@@ -1468,44 +1469,52 @@ Statistics calculated across all K-constraint levels (K=1 through K=$\infty$).
 \caption{Cost-Equity Trade-off Across All K-Constraint Levels (Part 1: 10-40\% Decarbonization)}
 \label{tab:cost_equity_all_k_part1}
 \small
-\begin{tabular}{ccccccc}
+\makebox[\textwidth][c]{%
+\begin{tabular}{cccccccc}
 \toprule
-\textbf{Decarb} & \textbf{K} & \textbf{Cost} & \textbf{Equity} & \textbf{Cost} & \textbf{Efficiency} & \textbf{Efficiency} \\
-\textbf{Level} & \textbf{Value} & \textbf{Premium (\%)} & \textbf{Benefit (\%)} & \textbf{(\% of K=1)} & \textbf{vs K=1} & \textbf{vs K=$\infty$} \\
+\textbf{Decarb} & \textbf{K} & \textbf{Cost} & \textbf{Equity} & \textbf{Cost} & \textbf{Equity} & \textbf{Efficiency} & \textbf{Efficiency} \\
+\textbf{Level} & \textbf{Value} & \textbf{Premium (\%)} & \textbf{Benefit (\%)} & \textbf{(\% of K=1)} & \textbf{(\% of K=1)} & \textbf{vs K=1} & \textbf{vs K=$\infty$} \\
 \midrule
-10\% & K=1 & 3.32 & 98.5 & 100.0 & 1.0x & 29.7x \\
- & K=2 & 1.10 & 91.4 & 33.2 & 2.8x & 82.8x \\
- & K=3 & 0.66 & 85.9 & 19.8 & 4.4x & 130.8x \\
- & K=4 & 0.52 & 82.4 & 15.7 & 5.3x & 158.4x \\
- & K=5 & 0.47 & 79.9 & 14.1 & 5.8x & 170.9x \\
- & K=6 & 0.43 & 77.7 & 12.8 & 6.1x & 182.1x \\
- & K=7 & 0.39 & 75.7 & 11.8 & 6.5x & 193.2x \\
+10\% & K=1 & 3.32 & 98.5 & 100.0 & 100.0 & 1.0x & 29.7x \\
+ & K=2 & 1.10 & 91.4 & 33.2 & 92.7 & 2.8x & 82.8x \\
+ & K=3 & 0.66 & 85.9 & 19.8 & 87.2 & 4.4x & 130.8x \\
+ & K=4 & 0.52 & 82.4 & 15.7 & 83.6 & 5.3x & 158.4x \\
+ & K=5 & 0.47 & 79.9 & 14.1 & 81.1 & 5.8x & 170.9x \\
+ & K=6 & 0.43 & 77.7 & 12.8 & 78.9 & 6.1x & 182.1x \\
+ & K=7 & 0.39 & 75.7 & 11.8 & 76.8 & 6.5x & 193.2x \\
 \midrule
-20\% & K=1 & 3.09 & 98.4 & 100.0 & 1.0x & 31.9x \\
- & K=2 & 1.02 & 89.9 & 33.0 & 2.8x & 88.3x \\
- & K=3 & 0.60 & 84.3 & 19.3 & 4.4x & 141.5x \\
- & K=4 & 0.45 & 80.5 & 14.6 & 5.6x & 178.6x \\
- & K=5 & 0.38 & 77.3 & 12.4 & 6.3x & 202.4x \\
- & K=6 & 0.34 & 74.9 & 11.0 & 6.9x & 221.1x \\
- & K=7 & 0.31 & 72.3 & 9.9 & 7.4x & 236.7x \\
+20\% & K=1 & 3.09 & 98.4 & 100.0 & 100.0 & 1.0x & 31.9x \\
+ & K=2 & 1.02 & 89.9 & 33.0 & 91.3 & 2.8x & 88.3x \\
+ & K=3 & 0.60 & 84.3 & 19.3 & 85.6 & 4.4x & 141.5x \\
+ & K=4 & 0.45 & 80.5 & 14.6 & 81.8 & 5.6x & 178.6x \\
+ & K=5 & 0.38 & 77.3 & 12.4 & 78.5 & 6.3x & 202.4x \\
+ & K=6 & 0.34 & 74.9 & 11.0 & 76.1 & 6.9x & 221.1x \\
+ & K=7 & 0.31 & 72.3 & 9.9 & 73.4 & 7.4x & 236.7x \\
 \midrule
-30\% & K=1 & 2.82 & 98.3 & 100.0 & 1.0x & 34.8x \\
- & K=2 & 0.83 & 88.3 & 29.3 & 3.1x & 106.7x \\
- & K=3 & 0.48 & 83.0 & 17.0 & 5.0x & 173.3x \\
- & K=4 & 0.36 & 78.3 & 12.8 & 6.2x & 216.6x \\
- & K=5 & 0.30 & 74.7 & 10.7 & 7.1x & 246.1x \\
- & K=6 & 0.26 & 71.6 & 9.3 & 7.8x & 273.2x \\
- & K=7 & 0.23 & 68.3 & 8.2 & 8.5x & 296.0x \\
+30\% & K=1 & 2.82 & 98.3 & 100.0 & 100.0 & 1.0x & 34.8x \\
+ & K=2 & 0.83 & 88.3 & 29.3 & 89.8 & 3.1x & 106.7x \\
+ & K=3 & 0.48 & 83.0 & 17.0 & 84.4 & 5.0x & 173.3x \\
+ & K=4 & 0.36 & 78.3 & 12.8 & 79.7 & 6.2x & 216.6x \\
+ & K=5 & 0.30 & 74.7 & 10.7 & 76.0 & 7.1x & 246.1x \\
+ & K=6 & 0.26 & 71.6 & 9.3 & 72.8 & 7.8x & 273.2x \\
+ & K=7 & 0.23 & 68.3 & 8.2 & 69.5 & 8.5x & 296.0x \\
 \midrule
-40\% & K=1 & 2.59 & 98.0 & 100.0 & 1.0x & 37.8x \\
- & K=2 & 0.60 & 85.3 & 23.1 & 3.8x & 142.2x \\
- & K=3 & 0.31 & 77.9 & 11.8 & 6.7x & 253.9x \\
- & K=4 & 0.23 & 73.5 & 8.8 & 8.5x & 322.4x \\
- & K=5 & 0.19 & 69.6 & 7.2 & 9.9x & 373.6x \\
- & K=6 & 0.16 & 65.4 & 6.1 & 11.0x & 414.4x \\
- & K=7 & 0.14 & 61.6 & 5.2 & 12.1x & 456.0x \\
+40\% & K=1 & 2.59 & 98.0 & 100.0 & 100.0 & 1.0x & 37.8x \\
+ & K=2 & 0.60 & 85.3 & 23.1 & 87.0 & 3.8x & 142.2x \\
+ & K=3 & 0.31 & 77.9 & 11.8 & 79.5 & 6.7x & 253.9x \\
+ & K=4 & 0.23 & 73.5 & 8.8 & 75.0 & 8.5x & 322.4x \\
+ & K=5 & 0.19 & 69.6 & 7.2 & 71.0 & 9.9x & 373.6x \\
+ & K=6 & 0.16 & 65.4 & 6.1 & 66.7 & 11.0x & 414.4x \\
+ & K=7 & 0.14 & 61.6 & 5.2 & 62.8 & 12.1x & 456.0x \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
+\begin{tablenotes}
+\small
+\item \textit{Note:} Cost premium and equity benefit calculated relative to K=$\infty$. 
+'Cost (\% of K=1)' and 'Equity (\% of K=1)' show each K-value's cost penalty and equity benefit as percentage of K=1's penalty/benefit. 
+'Efficiency vs K=1' = (Equity \% of K=1) / (Cost \% of K=1). 
+'Efficiency vs K=$\infty$' = (Equity Benefit \%) / (Cost Premium \%), measuring absolute decentralization effectiveness per unit cost.
+\end{tablenotes}
 \end{table}
 
 \begin{table}[htbp]
@@ -1513,44 +1522,52 @@ Statistics calculated across all K-constraint levels (K=1 through K=$\infty$).
 \caption{Cost-Equity Trade-off Across All K-Constraint Levels (Part 2: 50-80\% Decarbonization)}
 \label{tab:cost_equity_all_k_part2}
 \small
-\begin{tabular}{ccccccc}
+\makebox[\textwidth][c]{%
+\begin{tabular}{cccccccc}
 \toprule
-\textbf{Decarb} & \textbf{K} & \textbf{Cost} & \textbf{Equity} & \textbf{Cost} & \textbf{Efficiency} & \textbf{Efficiency} \\
-\textbf{Level} & \textbf{Value} & \textbf{Premium (\%)} & \textbf{Benefit (\%)} & \textbf{(\% of K=1)} & \textbf{vs K=1} & \textbf{vs K=$\infty$} \\
+\textbf{Decarb} & \textbf{K} & \textbf{Cost} & \textbf{Equity} & \textbf{Cost} & \textbf{Equity} & \textbf{Efficiency} & \textbf{Efficiency} \\
+\textbf{Level} & \textbf{Value} & \textbf{Premium (\%)} & \textbf{Benefit (\%)} & \textbf{(\% of K=1)} & \textbf{(\% of K=1)} & \textbf{vs K=1} & \textbf{vs K=$\infty$} \\
 \midrule
-50\% & K=1 & 2.51 & 98.1 & 100.0 & 1.0x & 39.1x \\
- & K=2 & 0.49 & 85.0 & 19.6 & 4.4x & 173.4x \\
- & K=3 & 0.22 & 78.1 & 9.0 & 8.9x & 347.8x \\
- & K=4 & 0.15 & 72.5 & 6.1 & 12.0x & 470.9x \\
- & K=5 & 0.12 & 69.1 & 4.9 & 14.4x & 561.3x \\
- & K=6 & 0.10 & 65.6 & 4.1 & 16.3x & 637.5x \\
- & K=7 & 0.09 & 61.8 & 3.4 & 18.3x & 716.0x \\
+50\% & K=1 & 2.51 & 98.1 & 100.0 & 100.0 & 1.0x & 39.1x \\
+ & K=2 & 0.49 & 85.0 & 19.6 & 86.7 & 4.4x & 173.4x \\
+ & K=3 & 0.22 & 78.1 & 9.0 & 79.7 & 8.9x & 347.8x \\
+ & K=4 & 0.15 & 72.5 & 6.1 & 73.9 & 12.0x & 470.9x \\
+ & K=5 & 0.12 & 69.1 & 4.9 & 70.4 & 14.4x & 561.3x \\
+ & K=6 & 0.10 & 65.6 & 4.1 & 66.9 & 16.3x & 637.5x \\
+ & K=7 & 0.09 & 61.8 & 3.4 & 63.0 & 18.3x & 716.0x \\
 \midrule
-60\% & K=1 & 2.44 & 98.1 & 100.0 & 1.0x & 40.3x \\
- & K=2 & 0.46 & 85.5 & 18.9 & 4.6x & 186.0x \\
- & K=3 & 0.21 & 78.9 & 8.8 & 9.1x & 367.8x \\
- & K=4 & 0.15 & 73.2 & 6.0 & 12.4x & 498.8x \\
- & K=5 & 0.12 & 69.9 & 4.8 & 14.8x & 597.3x \\
- & K=6 & 0.10 & 66.5 & 4.0 & 17.0x & 682.8x \\
- & K=7 & 0.08 & 62.8 & 3.3 & 19.1x & 771.0x \\
+60\% & K=1 & 2.44 & 98.1 & 100.0 & 100.0 & 1.0x & 40.3x \\
+ & K=2 & 0.46 & 85.5 & 18.9 & 87.1 & 4.6x & 186.0x \\
+ & K=3 & 0.21 & 78.9 & 8.8 & 80.4 & 9.1x & 367.8x \\
+ & K=4 & 0.15 & 73.2 & 6.0 & 74.6 & 12.4x & 498.8x \\
+ & K=5 & 0.12 & 69.9 & 4.8 & 71.3 & 14.8x & 597.3x \\
+ & K=6 & 0.10 & 66.5 & 4.0 & 67.8 & 17.0x & 682.8x \\
+ & K=7 & 0.08 & 62.8 & 3.3 & 64.0 & 19.1x & 771.0x \\
 \midrule
-70\% & K=1 & 2.36 & 97.9 & 100.0 & 1.0x & 41.5x \\
- & K=2 & 0.40 & 83.1 & 16.8 & 5.1x & 210.2x \\
- & K=3 & 0.19 & 75.3 & 8.0 & 9.6x & 398.9x \\
- & K=4 & 0.13 & 68.5 & 5.5 & 12.7x & 528.6x \\
- & K=5 & 0.10 & 63.4 & 4.2 & 15.6x & 646.8x \\
- & K=6 & 0.08 & 58.9 & 3.4 & 17.8x & 739.0x \\
- & K=7 & 0.07 & 54.5 & 2.8 & 20.1x & 836.7x \\
+70\% & K=1 & 2.36 & 97.9 & 100.0 & 100.0 & 1.0x & 41.5x \\
+ & K=2 & 0.40 & 83.1 & 16.8 & 84.9 & 5.1x & 210.2x \\
+ & K=3 & 0.19 & 75.3 & 8.0 & 77.0 & 9.6x & 398.9x \\
+ & K=4 & 0.13 & 68.5 & 5.5 & 70.0 & 12.7x & 528.6x \\
+ & K=5 & 0.10 & 63.4 & 4.2 & 64.7 & 15.6x & 646.8x \\
+ & K=6 & 0.08 & 58.9 & 3.4 & 60.2 & 17.8x & 739.0x \\
+ & K=7 & 0.07 & 54.5 & 2.8 & 55.7 & 20.1x & 836.7x \\
 \midrule
-80\% & K=1 & 2.32 & 97.6 & 100.0 & 1.0x & 42.1x \\
- & K=2 & 0.33 & 79.7 & 14.4 & 5.7x & 238.9x \\
- & K=3 & 0.15 & 70.7 & 6.3 & 11.6x & 487.0x \\
- & K=4 & 0.09 & 63.0 & 4.0 & 16.1x & 676.9x \\
- & K=5 & 0.07 & 57.5 & 3.1 & 19.3x & 810.3x \\
- & K=6 & 0.06 & 52.5 & 2.5 & 21.9x & 922.2x \\
- & K=7 & 0.05 & 47.0 & 2.0 & 24.5x & 1029.3x \\
+80\% & K=1 & 2.32 & 97.6 & 100.0 & 100.0 & 1.0x & 42.1x \\
+ & K=2 & 0.33 & 79.7 & 14.4 & 81.7 & 5.7x & 238.9x \\
+ & K=3 & 0.15 & 70.7 & 6.3 & 72.4 & 11.6x & 487.0x \\
+ & K=4 & 0.09 & 63.0 & 4.0 & 64.5 & 16.1x & 676.9x \\
+ & K=5 & 0.07 & 57.5 & 3.1 & 58.9 & 19.3x & 810.3x \\
+ & K=6 & 0.06 & 52.5 & 2.5 & 53.8 & 21.9x & 922.2x \\
+ & K=7 & 0.05 & 47.0 & 2.0 & 48.1 & 24.5x & 1029.3x \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
+\begin{tablenotes}
+\small
+\item \textit{Note:} Cost premium and equity benefit calculated relative to K=$\infty$. 
+'Cost (\% of K=1)' and 'Equity (\% of K=1)' show each K-value's cost penalty and equity benefit as percentage of K=1's penalty/benefit. 
+'Efficiency vs K=1' = (Equity \% of K=1) / (Cost \% of K=1). 
+'Efficiency vs K=$\infty$' = (Equity Benefit \%) / (Cost Premium \%), measuring absolute decentralization effectiveness per unit cost.
+\end{tablenotes}
 \end{table}
 
 \begin{table}[htbp]
@@ -1558,46 +1575,51 @@ Statistics calculated across all K-constraint levels (K=1 through K=$\infty$).
 \caption{Cost-Equity Trade-off Across All K-Constraint Levels (Part 3: 90-99\% Decarbonization)}
 \label{tab:cost_equity_all_k_part3}
 \small
-\begin{tabular}{ccccccc}
+\makebox[\textwidth][c]{%
+\begin{tabular}{cccccccc}
 \toprule
-\textbf{Decarb} & \textbf{K} & \textbf{Cost} & \textbf{Equity} & \textbf{Cost} & \textbf{Efficiency} & \textbf{Efficiency} \\
-\textbf{Level} & \textbf{Value} & \textbf{Premium (\%)} & \textbf{Benefit (\%)} & \textbf{(\% of K=1)} & \textbf{vs K=1} & \textbf{vs K=$\infty$} \\
+\textbf{Decarb} & \textbf{K} & \textbf{Cost} & \textbf{Equity} & \textbf{Cost} & \textbf{Equity} & \textbf{Efficiency} & \textbf{Efficiency} \\
+\textbf{Level} & \textbf{Value} & \textbf{Premium (\%)} & \textbf{Benefit (\%)} & \textbf{(\% of K=1)} & \textbf{(\% of K=1)} & \textbf{vs K=1} & \textbf{vs K=$\infty$} \\
 \midrule
-90\% & K=1 & 2.77 & 98.3 & 100.0 & 1.0x & 35.5x \\
- & K=2 & 0.39 & 84.3 & 14.1 & 6.1x & 215.9x \\
- & K=3 & 0.17 & 75.9 & 6.3 & 12.4x & 438.9x \\
- & K=4 & 0.09 & 68.2 & 3.4 & 20.4x & 724.5x \\
- & K=5 & 0.07 & 62.1 & 2.5 & 25.4x & 903.4x \\
- & K=6 & 0.06 & 58.4 & 2.1 & 28.0x & 996.5x \\
- & K=7 & 0.05 & 54.6 & 1.8 & 30.8x & 1093.2x \\
+90\% & K=1 & 2.77 & 98.3 & 100.0 & 100.0 & 1.0x & 35.5x \\
+ & K=2 & 0.39 & 84.3 & 14.1 & 85.8 & 6.1x & 215.9x \\
+ & K=3 & 0.17 & 75.9 & 6.3 & 77.2 & 12.4x & 438.9x \\
+ & K=4 & 0.09 & 68.2 & 3.4 & 69.4 & 20.4x & 724.5x \\
+ & K=5 & 0.07 & 62.1 & 2.5 & 63.2 & 25.4x & 903.4x \\
+ & K=6 & 0.06 & 58.4 & 2.1 & 59.4 & 28.0x & 996.5x \\
+ & K=7 & 0.05 & 54.6 & 1.8 & 55.5 & 30.8x & 1093.2x \\
 \midrule
-93\% & K=1 & 3.64 & 98.5 & 100.0 & 1.0x & 27.1x \\
- & K=2 & 0.66 & 86.3 & 18.1 & 4.8x & 131.0x \\
- & K=3 & 0.30 & 78.3 & 8.3 & 9.5x & 257.6x \\
- & K=4 & 0.15 & 72.6 & 4.2 & 17.4x & 470.4x \\
- & K=5 & 0.10 & 67.1 & 2.7 & 25.5x & 690.1x \\
- & K=6 & 0.07 & 62.8 & 2.0 & 31.4x & 849.5x \\
- & K=7 & 0.06 & 59.7 & 1.8 & 34.5x & 934.3x \\
+93\% & K=1 & 3.64 & 98.5 & 100.0 & 100.0 & 1.0x & 27.1x \\
+ & K=2 & 0.66 & 86.3 & 18.1 & 87.5 & 4.8x & 131.0x \\
+ & K=3 & 0.30 & 78.3 & 8.3 & 79.5 & 9.5x & 257.6x \\
+ & K=4 & 0.15 & 72.6 & 4.2 & 73.7 & 17.4x & 470.4x \\
+ & K=5 & 0.10 & 67.1 & 2.7 & 68.1 & 25.5x & 690.1x \\
+ & K=6 & 0.07 & 62.8 & 2.0 & 63.7 & 31.4x & 849.5x \\
+ & K=7 & 0.06 & 59.7 & 1.8 & 60.6 & 34.5x & 934.3x \\
 \midrule
-96\% & K=1 & 5.56 & 99.0 & 100.0 & 1.0x & 17.8x \\
- & K=2 & 1.74 & 88.3 & 31.2 & 2.9x & 50.9x \\
- & K=3 & 0.98 & 83.3 & 17.7 & 4.8x & 84.7x \\
- & K=4 & 0.63 & 79.5 & 11.3 & 7.1x & 126.9x \\
- & K=5 & 0.38 & 76.6 & 6.9 & 11.2x & 199.8x \\
- & K=6 & 0.22 & 72.2 & 3.9 & 18.6x & 330.6x \\
- & K=7 & 0.16 & 68.4 & 2.8 & 24.7x & 439.8x \\
-99\% & K=1 & 9.90 & 99.4 & 100.0 & 1.0x & 10.0x \\
- & K=2 & 3.98 & 91.6 & 40.2 & 2.3x & 23.0x \\
- & K=3 & 2.30 & 87.3 & 23.2 & 3.8x & 38.0x \\
- & K=4 & 1.49 & 84.2 & 15.1 & 5.6x & 56.5x \\
- & K=5 & 1.15 & 81.3 & 11.6 & 7.1x & 70.8x \\
- & K=6 & 0.94 & 78.3 & 9.5 & 8.3x & 83.4x \\
- & K=7 & 0.84 & 75.7 & 8.5 & 9.0x & 90.2x \\
+96\% & K=1 & 5.56 & 99.0 & 100.0 & 100.0 & 1.0x & 17.8x \\
+ & K=2 & 1.74 & 88.3 & 31.2 & 89.2 & 2.9x & 50.9x \\
+ & K=3 & 0.98 & 83.3 & 17.7 & 84.2 & 4.8x & 84.7x \\
+ & K=4 & 0.63 & 79.5 & 11.3 & 80.3 & 7.1x & 126.9x \\
+ & K=5 & 0.38 & 76.6 & 6.9 & 77.4 & 11.2x & 199.8x \\
+ & K=6 & 0.22 & 72.2 & 3.9 & 73.0 & 18.6x & 330.6x \\
+ & K=7 & 0.16 & 68.4 & 2.8 & 69.1 & 24.7x & 439.8x \\
+\midrule
+99\% & K=1 & 9.90 & 99.4 & 100.0 & 100.0 & 1.0x & 10.0x \\
+ & K=2 & 3.98 & 91.6 & 40.2 & 92.2 & 2.3x & 23.0x \\
+ & K=3 & 2.30 & 87.3 & 23.2 & 87.8 & 3.8x & 38.0x \\
+ & K=4 & 1.49 & 84.2 & 15.1 & 84.8 & 5.6x & 56.5x \\
+ & K=5 & 1.15 & 81.3 & 11.6 & 81.8 & 7.1x & 70.8x \\
+ & K=6 & 0.94 & 78.3 & 9.5 & 78.8 & 8.3x & 83.4x \\
+ & K=7 & 0.84 & 75.7 & 8.5 & 76.2 & 9.0x & 90.2x \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \begin{tablenotes}
 \small
-\item \textit{Note:} Cost premium and equity benefit calculated relative to K=$\infty$.
+\item \textit{Note:} Cost premium and equity benefit calculated relative to K=$\infty$. 
+'Cost (\% of K=1)' and 'Equity (\% of K=1)' show each K-value's cost penalty and equity benefit as percentage of K=1's penalty/benefit. 
+'Efficiency vs K=1' = (Equity \% of K=1) / (Cost \% of K=1). 
+'Efficiency vs K=$\infty$' = (Equity Benefit \%) / (Cost Premium \%), measuring absolute decentralization effectiveness per unit cost.
 \end{tablenotes}
 \end{table}
 
@@ -1606,23 +1628,27 @@ Statistics calculated across all K-constraint levels (K=1 through K=$\infty$).
 \caption{Cost-Equity Trade-off Across All K-Constraint Levels (Part 4: 100\% Decarbonization)}
 \label{tab:cost_equity_all_k_part4}
 \small
-\begin{tabular}{ccccccc}
+\makebox[\textwidth][c]{%
+\begin{tabular}{cccccccc}
 \toprule
-\textbf{Decarb} & \textbf{K} & \textbf{Cost} & \textbf{Equity} & \textbf{Cost} & \textbf{Efficiency} & \textbf{Efficiency} \\
-\textbf{Level} & \textbf{Value} & \textbf{Premium (\%)} & \textbf{Benefit (\%)} & \textbf{(\% of K=1)} & \textbf{vs K=1} & \textbf{vs K=$\infty$} \\
+\textbf{Decarb} & \textbf{K} & \textbf{Cost} & \textbf{Equity} & \textbf{Cost} & \textbf{Equity} & \textbf{Efficiency} & \textbf{Efficiency} \\
+\textbf{Level} & \textbf{Value} & \textbf{Premium (\%)} & \textbf{Benefit (\%)} & \textbf{(\% of K=1)} & \textbf{(\% of K=1)} & \textbf{vs K=1} & \textbf{vs K=$\infty$} \\
 \midrule
-100\% & K=1 & 18.11 & 99.4 & 100.0 & 1.0x & 5.5x \\
- & K=2 & 7.99 & 91.8 & 44.1 & 2.1x & 11.5x \\
- & K=3 & 4.78 & 88.0 & 26.4 & 3.4x & 18.4x \\
- & K=4 & 3.32 & 84.8 & 18.3 & 4.7x & 25.6x \\
- & K=5 & 2.46 & 81.1 & 13.6 & 6.0x & 33.0x \\
- & K=6 & 1.91 & 78.3 & 10.5 & 7.5x & 41.0x \\
- & K=7 & 1.56 & 76.1 & 8.6 & 8.9x & 48.7x \\
+100\% & K=1 & 18.11 & 99.4 & 100.0 & 100.0 & 1.0x & 5.5x \\
+ & K=2 & 7.99 & 91.8 & 44.1 & 92.3 & 2.1x & 11.5x \\
+ & K=3 & 4.78 & 88.0 & 26.4 & 88.4 & 3.4x & 18.4x \\
+ & K=4 & 3.32 & 84.8 & 18.3 & 85.3 & 4.7x & 25.6x \\
+ & K=5 & 2.46 & 81.1 & 13.6 & 81.6 & 6.0x & 33.0x \\
+ & K=6 & 1.91 & 78.3 & 10.5 & 78.7 & 7.5x & 41.0x \\
+ & K=7 & 1.56 & 76.1 & 8.6 & 76.5 & 8.9x & 48.7x \\
 \bottomrule
-\end{tabular}
+\end{tabular}}
 \begin{tablenotes}
 \small
-\item \textit{Note:} Cost premium and equity benefit calculated relative to K=$\infty$.
+\item \textit{Note:} Cost premium and equity benefit calculated relative to K=$\infty$. 
+'Cost (\% of K=1)' and 'Equity (\% of K=1)' show each K-value's cost penalty and equity benefit as percentage of K=1's penalty/benefit. 
+'Efficiency vs K=1' = (Equity \% of K=1) / (Cost \% of K=1). 
+'Efficiency vs K=$\infty$' = (Equity Benefit \%) / (Cost Premium \%), measuring absolute decentralization effectiveness per unit cost.
 \end{tablenotes}
 \end{table}
 \newpage
